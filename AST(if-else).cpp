@@ -1,34 +1,60 @@
 #include <bits/stdc++.h>
 using namespace std;
 #include <stack>
-#include <string>
+#include <string.h>
 #include <algorithm>
 
-const std::string WHITESPACE = " \n\r\t\f\v";
+struct ifElseStruct{
+    int bodyStartLine;
+    int bodyEndLine;
+    ifElseStruct *prevNode = NULL;
+    string bodyStatement;
+    string condition;
+    string conditionType;
+};
 
-std::string ltrim(const std::string& s)
-{
-    size_t start = s.find_first_not_of(WHITESPACE);
-    return (start == std::string::npos) ? "" : s.substr(start);
+string trim_left(string a, char c) {
+    int flag = 0;
+    string b = "";
+
+    for(int i=0; i<a.size(); i++){
+        if(flag == 0 && a[i] != c)
+            flag = 1;
+        if(flag == 1)
+            b = b + a[i];
+    }
+    b[b.size()] = '\0';
+    return b;
 }
 
-std::string rtrim(const std::string& s)
-{
-    size_t end = s.find_last_not_of(WHITESPACE);
-    return (end == std::string::npos) ? "" : s.substr(0, end + 1);
+void trim_right(std::string& s, char c) {
+   if (s.empty())
+      return;
+
+   std::string::iterator p;
+   for (p = s.end(); p != s.begin() && *--p == c;);
+
+   if (*p != c)
+      p++;
+
+   s.erase(p, s.end());
 }
 
-std::string trim(const std::string& s)
-{
-    return rtrim(ltrim(s));
+string trim_both(string a, char c)
+ {
+    trim_right(a, c);
+    a = trim_left(a, c);
+    return a;
 }
 
+int lineNumber = 0;
+ifElseStruct ifElse[100];
+int ifElseIndex = 0;
+string codeText;
 stack <int> s;
 vector <string> condition_exp;
 
-FILE *fp;
-
-void checked_if_else(char *line)
+/*void checked_if_else(char *line)
 {
     string T;
     stringstream X(line);
@@ -150,14 +176,125 @@ void checked_if_else(char *line)
         }
         T = '\0';
     }
+}*/
+
+bool isIfElse(string text)
+{
+    string word;
+    stringstream X(text);
+    getline(X, word, ' ');
+    if(word.compare("if") == 0){ //only if
+        getline(X, word, '(');
+        getline(X, word, ')');
+        ifElse[ifElseIndex].bodyStartLine = lineNumber;
+        ifElse[ifElseIndex].condition = trim_both(word, ' ');
+        ifElse[ifElseIndex].conditionType = "IF";
+        //ifElseIndex++;
+    }
+    else if(word[0] == 'i' && word[1] == 'f' && word[2] == '('){
+        stringstream Y(text);
+        getline(Y, word, '(');
+        getline(Y, word, ')');
+        ifElse[ifElseIndex].bodyStartLine = lineNumber;
+        ifElse[ifElseIndex].condition = trim_both(word, ' ');
+        ifElse[ifElseIndex].conditionType = "IF";
+        //ifElseIndex++;
+    }
+    else if(word.compare("else") == 0){
+        stringstream Y(text);
+        getline(Y, word, ' ');
+        if(word[0] == '{'){
+            ifElse[ifElseIndex].bodyStartLine = lineNumber;
+            ifElse[ifElseIndex].condition = "None";
+            ifElse[ifElseIndex].conditionType = "ELSE";
+            //ifElseIndex++;
+        }
+        else{
+            getline(Y, word, '(');
+            getline(Y, word, ')');
+            ifElse[ifElseIndex].bodyStartLine = lineNumber;
+            ifElse[ifElseIndex].condition = trim_both(word, ' ');
+            ifElse[ifElseIndex].conditionType = "ELSE IF";
+        }
+        //ifElseIndex++;
+    }
+    else if(word[0] == 'e' && word[1] == 'l' && word[2] == 's' && word[3] == 'e' && word[4] == '{'){
+        ifElse[ifElseIndex].bodyStartLine = lineNumber;
+        ifElse[ifElseIndex].condition = "None";
+        ifElse[ifElseIndex].conditionType = "ELSE";
+        //ifElseIndex++;
+    }
+    else
+        return false;
+
+    return true;
 }
 
+string modify(string a)
+{
+    string b, c;
+    stringstream A(a);
+    while(getline(A, b, '\n')){
+        trim_both(b, ' ');
+        trim_both(b, '\t');
+        c = c + b + '\n';
+    }
+    return c;
+}
+
+void checked_if_else(void)
+{
+    string line, T;
+    bool res;
+    stringstream X(codeText);
+    while(getline(X, line, '\n')){
+        lineNumber++;
+        line = trim_both(line, ' ');
+        res = isIfElse(line);
+        if(res == true){
+            stringstream Z(line);
+            getline(Z, T, '{');
+            string body;
+            stringstream E(codeText);
+            for(int i=0; i<lineNumber; i++){
+                getline(E, T, '\n');
+            }
+            if(T.compare(line) != 0){ // { in
+                if(line[line.size()-1] == '}'){
+                    stringstream F(line);
+                    getline(F, T, '{');
+                    getline(F, T, '}');
+                    body = "" + T;
+                }
+                else if(getline(Z, T, '}') !=0){
+                    body = body + T + '\n';
+                    getline(E, T, '}');
+                    body = body + T;
+                }
+                else{
+                    getline(E, T, '}');
+                    body = body + T;
+                }
+                body = modify(body);
+
+                ifElse[ifElseIndex].bodyStatement = body;
+                //cout << "BODY: "  << body << endl;
+            }
+            else{
+
+            }
+            ifElseIndex++;
+        }
+    }
+
+}
 
 int main()
 {
-
+    FILE *fp;
     int i,j=0;
-    char line[100];
+    //char line[100], ch;
+    char ch;
 
     fp = fopen("program.c","r");
 
@@ -167,10 +304,20 @@ int main()
         exit(0);
     }
 
-    while(fgets(line, 100, fp) != NULL)
+    while((ch = fgetc(fp)) != EOF){
+        codeText = codeText + ch;
+    }
+
+    checked_if_else();
+
+    while(ifElseIndex--){
+        cout << ifElse[ifElseIndex].bodyStartLine << "\n" << ifElse[ifElseIndex].bodyEndLine << endl << ifElse[ifElseIndex].condition << endl << ifElse[ifElseIndex].conditionType << endl << ifElse[ifElseIndex].bodyStatement << "\n\n";
+    }
+
+    /*while(fgets(line, 100, fp) != NULL)
     {
         checked_if_else(line);
-    }
+    }*/
 
     return 0;
 }
