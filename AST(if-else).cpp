@@ -5,12 +5,12 @@ using namespace std;
 #include <algorithm>
 
 struct ifElseStruct{
-    int bodyStartLine;
+    int bodyStartLine;//done
     int bodyEndLine;
     ifElseStruct *prevNode = NULL;
-    string bodyStatement;
-    string condition;
-    string conditionType;
+    string bodyStatement;//done
+    string condition;//done
+    string conditionType;//done
 };
 
 string trim_left(string a, char c) {
@@ -54,130 +54,6 @@ string codeText;
 stack <int> s;
 vector <string> condition_exp;
 
-/*void checked_if_else(char *line)
-{
-    string T;
-    stringstream X(line);
-    while (getline(X, T, ' '))
-    {
-        int j = 0;
-        string condition, body;
-        if(T[0]=='i' && T[1]=='f' && (T[2]=='\0' || T[2]=='\n' || T[2]==' ' || T[2]=='\t' || T[2]=='(' || T[2]=='{'))
-        {
-            while(line[j] != '(')
-            {
-                j++;
-            }
-            j++;
-            while(line[j] != ')')
-            {
-                condition = condition + line[j];
-                j++;
-            }
-            cout << "if \nCondition: " << condition << "\n";
-            while(!(line[j] == '{' || line[j] == '\n'))
-            {
-                j++;
-            }
-            if(line[j] == '{')
-            {
-
-                char ch = fgetc(fp);
-                while(ch != '}')
-                {
-                    body = body + ch;
-                    ch = fgetc(fp);
-                }
-            }
-            else if(line[j] == '\n')
-            {
-                char ch = fgetc(fp);
-                while(ch != '\n')
-                {
-                    body = body + ch;
-                    ch = fgetc(fp);
-                }
-            }
-            trim(body);
-            cout << "Body: " << body << "\n";
-        }
-        else if(T.compare("else")  == 0)
-        {
-            getline(X, T, ' ');
-            if(T[0]=='i' && T[1]=='f' && (T[2]=='\0' || T[2]=='\n' || T[2]==' ' || T[2]=='\t' || T[2]=='(' || T[2]=='{'))
-            {
-                while(line[j] != '(')
-                {
-                    j++;
-                }
-                j++;
-                while(line[j] != ')')
-                {
-                    condition = condition + line[j];
-                    j++;
-                }
-                cout << "else if\nCondition: " << condition << "\n";
-                while(!(line[j] == '{' || line[j] == '\n'))
-                {
-                    j++;
-                }
-                if(line[j] == '{')
-                {
-
-                    char ch = fgetc(fp);
-                    while(ch != '}')
-                    {
-                        body = body + ch;
-                        ch = fgetc(fp);
-                    }
-                }
-                else if(line[j] == '\n')
-                {
-                    char ch = fgetc(fp);
-                    while(ch != '\n')
-                    {
-                        body = body + ch;
-                        ch = fgetc(fp);
-                    }
-                }
-                trim(body);
-                cout << "Body: " << body << "\n";
-
-            }
-        }
-        else if(T[0]=='e' && T[1]=='l'&& T[2]=='s' && T[3]=='e' && (T[4]=='\0' || T[4]=='\n' || T[4]==' ' || T[4]=='\t' || T[4]=='(' || T[4]=='{'))
-        {
-            cout << "else \n";
-            while(!(line[j] == '{' || line[j] == '\n'))
-            {
-                j++;
-            }
-            if(line[j] == '{')
-            {
-
-                char ch = fgetc(fp);
-                while(ch != '}')
-                {
-                    body = body + ch;
-                    ch = fgetc(fp);
-                }
-            }
-            else if(line[j] == '\n')
-            {
-                char ch = fgetc(fp);
-                while(ch != '\n')
-                {
-                    body = body + ch;
-                    ch = fgetc(fp);
-                }
-            }
-            trim(body);
-            cout << "Body: " << body << "\n";
-        }
-        T = '\0';
-    }
-}*/
-
 bool isIfElse(string text)
 {
     string word;
@@ -202,19 +78,21 @@ bool isIfElse(string text)
     }
     else if(word.compare("else") == 0){
         stringstream Y(text);
+        string Tem = word;
         getline(Y, word, ' ');
-        if(word[0] == '{'){
-            ifElse[ifElseIndex].bodyStartLine = lineNumber;
-            ifElse[ifElseIndex].condition = "None";
-            ifElse[ifElseIndex].conditionType = "ELSE";
-            //ifElseIndex++;
-        }
-        else{
+
+        if(word[0] == '{' || text.compare("else")){
             getline(Y, word, '(');
             getline(Y, word, ')');
             ifElse[ifElseIndex].bodyStartLine = lineNumber;
             ifElse[ifElseIndex].condition = trim_both(word, ' ');
             ifElse[ifElseIndex].conditionType = "ELSE IF";
+            //ifElseIndex++;
+        }
+        else{
+            ifElse[ifElseIndex].bodyStartLine = lineNumber;
+            ifElse[ifElseIndex].condition = "None";
+            ifElse[ifElseIndex].conditionType = "ELSE";
         }
         //ifElseIndex++;
     }
@@ -244,7 +122,7 @@ string modify(string a)
 
 void checked_if_else(void)
 {
-    string line, T;
+    string line, T, t;
     bool res;
     stringstream X(codeText);
     while(getline(X, line, '\n')){
@@ -253,36 +131,45 @@ void checked_if_else(void)
         res = isIfElse(line);
         if(res == true){
             stringstream Z(line);
-            getline(Z, T, '{');
+            getline(Z, t, '{');
             string body;
             stringstream E(codeText);
             for(int i=0; i<lineNumber; i++){
                 getline(E, T, '\n');
             }
-            if(T.compare(line) != 0){ // { in
-                if(line[line.size()-1] == '}'){
-                    stringstream F(line);
-                    getline(F, T, '{');
-                    getline(F, T, '}');
-                    body = "" + T;
-                }
-                else if(getline(Z, T, '}') !=0){
-                    body = body + T + '\n';
-                    getline(E, T, '}');
-                    body = body + T;
+            T = trim_both(T, ' ');
+            line = trim_both(line, ' ');
+            if(t.compare(line) != 0){ // { in condition line
+                getline(Z, body, '\n');
+                if(body[body.size()-1] == '}'){
+                    body = trim_both(body, '}');
                 }
                 else{
                     getline(E, T, '}');
                     body = body + T;
                 }
-                body = modify(body);
-
-                ifElse[ifElseIndex].bodyStatement = body;
-                //cout << "BODY: "  << body << endl;
             }
             else{
-
+                getline(E, T, '\n');
+                T = trim_both(T, ' ');
+                if(T[0] == '{'){  // { in next line
+                    stringstream F(T);
+                    getline(F, T, '{');
+                    if(getline(F, T, '}')){ // } in
+                        body = T;
+                    }
+                    else{ // }
+                        getline(E, T, '}');
+                        body = body + T;
+                    }
+                }
+                else{ // { out
+                    body = "" + T;
+                    //cout << "ksd" << T;
+                }
             }
+            body = modify(body);
+            ifElse[ifElseIndex].bodyStatement = body;
             ifElseIndex++;
         }
     }
@@ -293,7 +180,6 @@ int main()
 {
     FILE *fp;
     int i,j=0;
-    //char line[100], ch;
     char ch;
 
     fp = fopen("program.c","r");
@@ -313,11 +199,6 @@ int main()
     while(ifElseIndex--){
         cout << ifElse[ifElseIndex].bodyStartLine << "\n" << ifElse[ifElseIndex].bodyEndLine << endl << ifElse[ifElseIndex].condition << endl << ifElse[ifElseIndex].conditionType << endl << ifElse[ifElseIndex].bodyStatement << "\n\n";
     }
-
-    /*while(fgets(line, 100, fp) != NULL)
-    {
-        checked_if_else(line);
-    }*/
 
     return 0;
 }
