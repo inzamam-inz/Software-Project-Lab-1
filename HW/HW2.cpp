@@ -137,6 +137,20 @@ struct func{
     int statement_text_end;
     string fname;
 };
+
+struct for_struct{
+    int startLine;
+    int endLine;
+    vector <string> condition;
+    vector <string> conditionType;
+    vector <string> change;
+    vector <string> changeType;
+    vector <string> initialize;
+    vector <string> initializeType;
+    int statement_text_start;
+    int statement_text_end;
+};
+vector <for_struct> fors;
 vector <func> functions;
 
 int strTint(string str)
@@ -159,6 +173,7 @@ void findError(void)
             }
             else{
                 func f;
+
                 f.startLine = i+1;
                 f.returnType = name[i][0];
                 f.fname = name[i][1];
@@ -182,8 +197,9 @@ void findError(void)
                 }
                 stack <int> temp;
                 int h = f.statement_text_start - 1;
-                //temp.push(1);
+                temp.push(1);
                 while(!temp.empty()){
+                    //cout << i;
                     for(int k=0; k<input[h].size(); k++){
                         if(name[h][k].compare("{") == 0)
                             temp.push(1);
@@ -196,10 +212,55 @@ void findError(void)
                 f.statement_text_end = h-1;
                 f.endLine = h;
                 functions.push_back(f);
+                i = h-1;
                 //statement & endline
             }
 
             //cout << name[i][1];
+        }
+        else if(name[i][0].compare("for") == 0 && name[i][1].compare("(") == 0){//for
+            /*int semi =  0, f = 2;
+            for_struct fa;
+            fa.startLine = i+1;
+            fa.statement_text_start = i+3;
+            if(name[i][input[i].size()-1].compare("{") == 0){
+                fa.statement_text_start = i+2;
+            }
+            /*while(name[i][f].compare(")") != 0){
+                if(name[i][f].compare(";") == 0){
+                    semi++;
+                    break;
+                }
+                if(semi == 0){
+                    fa.initialize.push_back(name[i][f]);
+                    fa.initializeType.push_back(input[i][f]);
+                }
+                if(semi == 1){
+                    fa.condition.push_back(name[i][f]);
+                    fa.conditionType.push_back(input[i][f]);
+                }
+                if(semi == 2){
+                    fa.change.push_back(name[i][f]);
+                    fa.changeType.push_back(input[i][f]);
+                }
+            }
+            /*stack <int> temp;
+            int h = fa.statement_text_start - 1;
+            temp.push(1);
+            while(!temp.empty()){
+                    //cout << i;
+             for(int k=0; k<input[h].size(); k++){
+                   if(name[h][k].compare("{") == 0)
+                        temp.push(1);
+                    if(name[h][k].compare("}") == 0){
+                        temp.pop();
+                    }
+                }
+                h++;
+            }
+            fa.statement_text_end = h-1;
+            fa.endLine = h;
+            fors.push_back(fa);*/
         }
 
     }
@@ -230,7 +291,6 @@ int main()
         getline(Y, strg3, '\t');
         getline(Y, strg4, '\t');
         int h = strTint(strg3);
-        //cout << h << "  " << strg1 << endl;
         trim_both(strg1, ' ');
         trim_both(strg2, ' ');
 
@@ -239,13 +299,31 @@ int main()
 
     }
 
+    /*for(int i=0; i<100;i++){
+        for(int y=0; y<input[i].size(); y++){
+            cout << input[i][y] << "  ";
+        }
+        cout << endl;
+        for(int y=0; y<name[i].size(); y++){
+            cout << name[i][y] << "  ";
+        }
+        cout << endl;
+    }*/
     findError();
 
-    cout << functions[0].fname << " " << functions[0].returnType << " " << functions[0].endLine << " " << functions[0].statement_text_start;
+    cout << "Name: " << functions[0].fname << endl;
+    cout << "Return type: " << functions[0].returnType << endl;
+    cout << "Func Start Lin: " << functions[0].startLine << endl;
+    cout << "Statement Text start line: " << functions[0].statement_text_start << endl;
+    cout << "Statement end start line: " << functions[0].statement_text_end << endl;
+    cout << "Func end Lin: " << functions[0].endLine << endl;
+
+    for(int a=0; a<functions[0].parameter.size(); a++){
+        cout << functions[0].parameter[a] << endl;
+        cout << functions[0].parameterType[a] << endl;
+    }
 
 
 
     return 0;
 }
-
-

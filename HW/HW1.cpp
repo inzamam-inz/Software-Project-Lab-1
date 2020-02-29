@@ -26,7 +26,7 @@ bool digitCheck(char ch)
 
 bool oparetorCheck(char ch)
 {
-    if(ch == '{' || ch == '}' || ch == '[' || ch == ']' || ch == '(' || ch == ')' || ch == '#' || ch == ';' || ch == ':' || ch == '?' || ch == '.' || ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '%' || ch == '^' || ch == '&' ||ch ==  '|' || ch == '!' || ch == '=' || ch == '<' || ch == '>')
+    if(ch == '{' || ch == '}' || ch == '[' || ch == ']' || ch == '(' || ch == ')' || ch == '#' || ch == ';' || ch == ':' || ch == '?' || ch == '.' || ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '%' || ch == '^' || ch == '&' ||ch ==  '|' || ch == '!' || ch == '=' || ch == '<' || ch == '>' || ch == ',')
         return true;
     else
         return false;
@@ -39,6 +39,8 @@ bool oparetorCheckdup(char ch)
     else
         return false;
 }
+
+
 
 void keyword_identifer_check(int l, int col)
 {
@@ -74,6 +76,10 @@ void lexing(void)
                 file << "oparetor\t" << perline[i].text[j] << "\t" << perline[i].line << "\t" << j+1 << endl;
                 j += 1;
             }
+            /*else if(otherCheck(perline[i].text[j])){
+                file << "other\t" << perline[i].text[j] << "\t" << perline[i].line << "\t" << j+1 << endl;
+                j += 1;
+            }*/
             else if(perline[i].text[j] == '\\'){//charChecking(done)
                 keyword_identifer_check(i, j);
                 file << "character\t" << perline[i].text[j] << perline[i].text[j+1] << "\t" << perline[i].line << "\t" << j+1 << endl;//check which character
