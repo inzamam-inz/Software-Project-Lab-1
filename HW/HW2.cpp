@@ -5,6 +5,40 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+string trim_left(string a, char c) {
+    int flag = 0;
+    string b = "";
+
+    for(int i=0; i<a.size(); i++){
+        if(flag == 0 && a[i] != c)
+            flag = 1;
+        if(flag == 1)
+            b = b + a[i];
+    }
+    b[b.size()] = '\0';
+    return b;
+}
+
+void trim_right(std::string& s, char c) {
+   if (s.empty())
+      return;
+
+   std::string::iterator p;
+   for (p = s.end(); p != s.begin() && *--p == c;);
+
+   if (*p != c)
+      p++;
+
+   s.erase(p, s.end());
+}
+
+string trim_both(string a, char c)
+ {
+    trim_right(a, c);
+    a = trim_left(a, c);
+    return a;
+}
+
 struct stmts_struct{
     int line;
     string text;
@@ -88,14 +122,96 @@ struct perlinestruct{
 
 perlinestruct perline[100];
 int totalLine = 0;
+vector <string> input[100];
+vector <string> name[100];
+vector <string> lineNumber[100];
+vector <string> position[100];
+
+struct func{
+    int startLine;
+    int endLine;
+    string returnType;
+    vector <string> parameter;
+    vector <string> parameterType;
+    int statement_text_start;
+    int statement_text_end;
+    string fname;
+};
+vector <func> functions;
+
+int strTint(string str)
+{
+    int n=0;
+    for(int i=0; i<str.size(); i++){
+        n *= 10;
+        n += str[i]-'0';
+    }
+
+    return n;
+}
+
+void findError(void)
+{
+    for(int i=0; i<100; i++){
+        if(input[i].size() > 3 && input[i][0].compare("keyword") == 0  && input[i][1].compare("indentifer") == 0  && input[i][2].compare("oparetor") == 0  && input[i][3].compare("keyword") == 0){//function
+            if(name[i][input[i].size()-2].compare(")") == 0 && name[i][input[i].size()-1].compare(";") == 0){
+                cout << "function protoType\n";
+            }
+            else{
+                func f;
+                f.startLine = i+1;
+                f.returnType = name[i][0];
+                f.fname = name[i][1];
+                if(name[i][3].compare("void") == 0){
+                    f.parameter.push_back("None");
+                    f.parameterType.push_back("void");
+                }
+                else{
+                    int j = 2;
+                    while(1){
+                        if(name[i][j].compare(")") == 0)
+                            break;
+                        f.parameter.push_back(name[i][j+2]);
+                        f.parameterType.push_back(name[i][j+1]);
+                        j += 3;
+                    }
+                }
+                f.statement_text_start = i+3;
+                if(name[i][input[i].size() - 1].compare("{") == 0){
+                    f.statement_text_start = i+2;
+                }
+                stack <int> temp;
+                int h = f.statement_text_start - 1;
+                //temp.push(1);
+                while(!temp.empty()){
+                    for(int k=0; k<input[h].size(); k++){
+                        if(name[h][k].compare("{") == 0)
+                            temp.push(1);
+                        if(name[h][k].compare("}") == 0){
+                            temp.pop();
+                        }
+                    }
+                    h++;
+                }
+                f.statement_text_end = h-1;
+                f.endLine = h;
+                functions.push_back(f);
+                //statement & endline
+            }
+
+            //cout << name[i][1];
+        }
+
+    }
+}
 
 int main()
 {
     FILE *fp;
-	string str, codeText;
+	string str, Text, strg1, strg2, strg3, strg4;
 	char ch;
 
-	fp = fopen("program.c","r");
+	fp = fopen("output.txt","r");
 
 	if(fp == NULL){
 		printf("error while opening the file\n");
@@ -103,15 +219,33 @@ int main()
 	}
 
 	while((ch = fgetc(fp)) != EOF){
-        codeText = codeText + ch;
+        Text = Text + ch;
     }
 
-    stringstream X(codeText);
+    stringstream X(Text);
 	 while(getline(X, str, '\n')) {
-        perline[totalLine].text = str;
-        perline[totalLine++].line = totalLine;
+        stringstream Y(str);
+        getline(Y, strg1, '\t');
+        getline(Y, strg2, '\t');
+        getline(Y, strg3, '\t');
+        getline(Y, strg4, '\t');
+        int h = strTint(strg3);
+        //cout << h << "  " << strg1 << endl;
+        trim_both(strg1, ' ');
+        trim_both(strg2, ' ');
+
+        input[h-1].push_back(strg1);
+        name[h-1].push_back(strg2);
+
     }
+
+    findError();
+
+    cout << functions[0].fname << " " << functions[0].returnType << " " << functions[0].endLine << " " << functions[0].statement_text_start;
+
 
 
     return 0;
 }
+
+

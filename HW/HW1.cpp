@@ -14,6 +14,7 @@ perlinestruct perline[100];
 string keywords[32] = {"auto","break","case","char","const","continue","default","do","double","else","enum","extern","float","for","goto","if","int","long","register","return","short","signed","sizeof","static","struct","switch","typedef","union","unsigned","void","volatile","while"};
 int totalLine = 0;
 string check;
+ofstream file("output.txt");
 
 bool digitCheck(char ch)
 {
@@ -51,9 +52,9 @@ void keyword_identifer_check(int l, int col)
         }
     }
     if(flag == 1)
-        cout << "keyword \t" << check << "\t" << perline[l].line << "\t" << col-(check.size())+1 << endl;
+        file << "keyword\t" << check << "\t" << perline[l].line << "\t" << col-(check.size())+1 << endl;
     else
-        cout << "indentifer\t" << check << "\t" << perline[l].line << "\t" << col-(check.size())+1 << endl;
+        file << "indentifer\t" << check << "\t" << perline[l].line << "\t" << col-(check.size())+1 << endl;
 
     check = "";
 }
@@ -65,17 +66,17 @@ void lexing(void)
         for(int j=0; j<lenPerLine; ){
             if(oparetorCheck(perline[i].text[j]) && oparetorCheckdup(perline[i].text[j+1])){//oparetorChecking(done)
                 keyword_identifer_check(i, j);
-                cout << "oparetor\t" << perline[i].text[j] << perline[i].text[j+1] << "\t" << perline[i].line << "\t" << j+1 << endl;
+                file << "oparetor\t" << perline[i].text[j] << perline[i].text[j+1] << "\t" << perline[i].line << "\t" << j+1 << endl;
                 j += 2;
             }
             else if(oparetorCheck(perline[i].text[j])){//oparetorChecking(done)
                 keyword_identifer_check(i, j);
-                cout << "oparetor\t" << perline[i].text[j] << "\t" << perline[i].line << "\t" << j+1 << endl;
+                file << "oparetor\t" << perline[i].text[j] << "\t" << perline[i].line << "\t" << j+1 << endl;
                 j += 1;
             }
             else if(perline[i].text[j] == '\\'){//charChecking(done)
                 keyword_identifer_check(i, j);
-                cout << "character\t" << perline[i].text[j] << perline[i].text[j+1] << "\t" << perline[i].line << "\t" << j+1 << endl;//check which character
+                file << "character\t" << perline[i].text[j] << perline[i].text[j+1] << "\t" << perline[i].line << "\t" << j+1 << endl;//check which character
                 j += 2;
             }
             else if(digitCheck(perline[i].text[j])){//digitChecking(done)
@@ -86,7 +87,7 @@ void lexing(void)
                 while(digitCheck(perline[i].text[j]) || perline[i].text[j]=='.'){
                     if(perline[i].text[j]=='.'){
                         f = 1;
-                        cout << "float   \t" << a << ".";
+                        file << "float\t" << a << ".";
                         a = 0;
                     }
                     else
@@ -94,9 +95,9 @@ void lexing(void)
                     j++;
                 }
                 if(f == 0)
-                    cout << "integer  \t" << a << "\t" << perline[i].line << "\t" << temp << endl;
+                    file << "integer\t" << a << "\t" << perline[i].line << "\t" << temp << endl;
                 else
-                    cout << a << "\t" << perline[i].line << "\t" << temp << endl;
+                    file << a << "\t" << perline[i].line << "\t" << temp << endl;
             }
             else if(perline[i].text[j] == '"'){//stringChecking(done)
                 keyword_identifer_check(i, j);
@@ -108,7 +109,7 @@ void lexing(void)
                     j++;
                 }
                 j++;
-                cout << "string    \t" << strg  << "\t" << perline[i].line << "\t" << temp+1 << endl;//char check in string
+                file << "string\t" << strg  << "\t" << perline[i].line << "\t" << temp+1 << endl;//char check in string
             }
             else if(perline[i].text[j] == ' ' || perline[i].text[j] == '\n'){//keyword_identifer_checking(done)
                 keyword_identifer_check(i, j);
@@ -126,6 +127,7 @@ int main()
     FILE *fp;
 	string str, codeText;
 	char ch;
+
 
 	fp = fopen("program.c","r");
 
