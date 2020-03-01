@@ -76,7 +76,8 @@ void lexing(void)
                 file << "oparetor\t" << perline[i].text[j] << "\t" << perline[i].line << "\t" << j+1 << endl;
                 j += 1;
             }
-            /*else if(otherCheck(perline[i].text[j])){
+            /*bad
+            else if(otherCheck(perline[i].text[j])){
                 file << "other\t" << perline[i].text[j] << "\t" << perline[i].line << "\t" << j+1 << endl;
                 j += 1;
             }*/
