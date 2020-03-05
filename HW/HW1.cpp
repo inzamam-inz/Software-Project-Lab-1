@@ -119,7 +119,9 @@ void lexing(void)
                 file << "string\t" << strg  << "\t" << perline[i].line << "\t" << temp+1 << endl;//char check in string
             }
             else if(perline[i].text[j] == ' ' || perline[i].text[j] == '\n'){//keyword_identifer_checking(done)
+                //cout << check << i << " " << j <<"\n";
                 keyword_identifer_check(i, j);
+
                 j++;
             }
             else{
@@ -151,6 +153,7 @@ int main()
 	 while(getline(X, str, '\n')) {
         perline[totalLine].text = str;
         perline[totalLine++].line = totalLine;
+        //cout << perline[totalLine-1].text << "jkjkj" << endl;;
     }
 
     lexing();

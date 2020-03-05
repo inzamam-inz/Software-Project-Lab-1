@@ -150,8 +150,29 @@ struct for_struct{
     int statement_text_start;
     int statement_text_end;
 };
+
+struct while_struct{
+    int startLine;
+    int endLine;
+    vector <string> condition;
+    vector <string> conditionType;
+    int statement_text_start;
+    int statement_text_end;
+};
+
+struct do_while_struct{
+    int startLine;
+    int endLine;
+    vector <string> condition;
+    vector <string> conditionType;
+    int statement_text_start;
+    int statement_text_end;
+};
+
 vector <for_struct> fors;
 vector <func> functions;
+vector <while_struct> whiles;
+vector <do_while_struct> do_whiles;
 
 int strTint(string str)
 {
@@ -167,6 +188,7 @@ int strTint(string str)
 void findError(void)
 {
     for(int i=0; i<100; i++){
+        //cout << i;
         if(input[i].size() > 3 && input[i][0].compare("keyword") == 0  && input[i][1].compare("indentifer") == 0  && input[i][2].compare("oparetor") == 0  && input[i][3].compare("keyword") == 0){//function
             if(name[i][input[i].size()-2].compare(")") == 0 && name[i][input[i].size()-1].compare(";") == 0){
                 cout << "function protoType\n";
@@ -266,7 +288,85 @@ void findError(void)
             fa.statement_text_end = h-1;
             fa.endLine = h;
             fors.push_back(fa);
+            i = fa.endLine-1;
         }
+        else if(name[i].size() > 3 && name[i][0].compare("while") == 0 && name[i][1].compare("(") == 0 && name[i][2].compare(")") != 0){//while
+            int f = 2;
+            while_struct fa;
+            fa.startLine = i+1;
+            fa.statement_text_start = i+3;
+            if(name[i][input[i].size()-1].compare("{") == 0){
+                fa.statement_text_start = i+2;
+            }
+            while(name[i][f].compare(")") != 0){
+                    fa.condition.push_back(name[i][f]);
+                    fa.conditionType.push_back(input[i][f]);
+                    f++;
+            }
+            stack <int> temp;
+            int h = fa.statement_text_start - 1;
+            temp.push(1);
+            while(!temp.empty()){
+                    //cout << i;
+             for(int k=0; k<input[h].size(); k++){
+                   if(name[h][k].compare("{") == 0)
+                        temp.push(1);
+                    if(name[h][k].compare("}") == 0){
+                        temp.pop();
+                    }
+                }
+                h++;
+            }
+            fa.statement_text_end = h-1;
+            fa.endLine = h;
+            whiles.push_back(fa);
+            i = fa.endLine-1;
+        }
+
+        else if((name[i].size() <= 2 && name[i].size() >= 1) && name[i][0].compare("do") == 0){//do-while
+            int f = 2;
+            do_while_struct fa;
+            fa.startLine = i+1;
+            //cout << name[i][0] << " " << i;
+            fa.statement_text_start = i+3;
+            if(name[i][input[i].size()-1].compare("{") == 0){
+                fa.statement_text_start = i+2;
+            }
+            stack <int> temp;
+            int h = fa.statement_text_start - 1;
+            temp.push(1);
+            while(!temp.empty()){
+                    //cout << i;
+             for(int k=0; k<input[h].size(); k++){
+                   if(name[h][k].compare("{") == 0)
+                        temp.push(1);
+                    if(name[h][k].compare("}") == 0){
+                        temp.pop();
+                    }
+                }
+                h++;
+            }
+            //cout << h;//32
+            //if()
+            fa.statement_text_end = h-1;
+            fa.endLine = h+1;
+            if(name[h-1].size() > 1 && name[h-1][1].compare("while") == 0){
+                fa.endLine = h;
+                f = 3;cout << h;
+            }
+            //
+            while(name[fa.endLine-1][f].compare(")") != 0){
+                    fa.condition.push_back(name[fa.endLine-1][f]);
+                    fa.conditionType.push_back(input[fa.endLine-1][f]);
+                    f++;
+            }
+            do_whiles.push_back(fa);
+            i = fa.endLine-1;
+        }
+
+
+
+
 
     }
 }
@@ -316,36 +416,85 @@ int main()
     }*/
     findError();
 
-    //
     //cout << "Name: " << fors[0]. << endl;
     //cout << "Return type: " << fors[0].returnType << endl;
-    cout << "Func Start Lin: " << fors[0].startLine << endl;
+    cout << "Do While:\n";
+    cout << "dowhile Start Lin: " << do_whiles[0].startLine << endl;
+    cout << "Statement Text start line: " << do_whiles[0].statement_text_start << endl;
+    cout << "Statement end start line: " << do_whiles[0].statement_text_end << endl;
+    cout << "dowhile end Lin: " << do_whiles[0].endLine << endl;
+
+    cout << "Condition:\n";
+    for(int a=0; a<do_whiles[0].condition.size(); a++){
+        cout << do_whiles[0].condition[a] << " ";
+    }
+    cout << "ConditionType:\n";
+    for(int a=0; a<do_whiles[0].conditionType.size(); a++){
+        cout << do_whiles[0].conditionType[a] << " ";
+    }
+    cout << endl;
+    cout << "\nWhile:\n";
+    cout << "while Start Line: " << whiles[0].startLine << endl;
+    cout << "Statement Text start line: " << whiles[0].statement_text_start << endl;
+    cout << "Statement end start line: " << whiles[0].statement_text_end << endl;
+    cout << "while end Line: " << whiles[0].endLine << endl;
+    cout << "Condition:\n";
+    for(int a=0; a<whiles[0].condition.size(); a++){
+        cout << whiles[0].condition[a] << " ";
+    }
+    cout << "ConditionType:\n";
+    for(int a=0; a<whiles[0].conditionType.size(); a++){
+        cout << whiles[0].conditionType[a] << " ";
+    }
+    cout << "\nFor:\n";
+    cout << "For Start Line: " << fors[0].startLine << endl;
     cout << "Statement Text start line: " << fors[0].statement_text_start << endl;
     cout << "Statement end start line: " << fors[0].statement_text_end << endl;
-    cout << "Func end Lin: " << fors[0].endLine << endl;
-
+    cout << "For end Line: " << fors[0].endLine << endl;
+    cout << "\ninitialize:\n";
     for(int a=0; a<fors[0].initialize.size(); a++){
         cout << fors[0].initialize[a] << " ";
     }
-    cout << endl;
+    cout << "\ninitializeType:\n";
     for(int a=0; a<fors[0].initializeType.size(); a++){
         cout << fors[0].initializeType[a] << " ";
     }
-cout << endl;
+    cout << "\nCondition:\n";
+
     for(int a=0; a<fors[0].condition.size(); a++){
         cout << fors[0].condition[a] << " ";
     }
-    cout << endl;
+    cout << "\nConditionType:\n";
     for(int a=0; a<fors[0].conditionType.size(); a++){
         cout << fors[0].conditionType[a] << " ";
     }
-cout << endl;
+    cout << "\nChange:\n";
     for(int a=0; a<fors[0].change.size(); a++){
         cout << fors[0].change[a] << " ";
     }
-    cout << endl;
+    cout << "\nChangeType:\n";
     for(int a=0; a<fors[0].changeType.size(); a++){
         cout << fors[0].changeType[a] << " ";
     }
+    cout << "\nFunction:\n";
+    cout << "function Start Line: " << functions[0].startLine << endl;
+    cout << "Statement Text start line: " << functions[0].statement_text_start << endl;
+    cout << "Statement end start line: " << functions[0].statement_text_end << endl;
+    cout << "function end Line: " << functions[0].endLine << endl;
+    cout << "Return Type: " << functions[0].returnType << endl;
+    cout << "function name: " << functions[0].fname << endl;
+
+    cout << "\nParameter:\n";
+    for(int a=0; a<functions[0].parameter.size(); a++){
+        cout << functions[0].parameter[a] << " ";
+    }
+    cout << "\nParameterType:\n";
+    for(int a=0; a<functions[0].parameterType.size(); a++){
+        cout << functions[0].parameterType[a] << " ";
+    }
+    cout << endl;
+
+
+
     return 0;
 }
