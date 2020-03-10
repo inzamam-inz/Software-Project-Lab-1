@@ -366,12 +366,12 @@ int doWhileGroup(int i)
     return i;
 }
 
-int IfGroup(int i)
+else_if_struct elseIfGroup(int i)
 {
-    int f = 2;
-    if_struct fa;
-    fa.startLine = i+1;
-    fa.statement_text_start = i+3;
+    int f = 3;
+    else_if_struct fa;
+    fa.startLine = i+1;//24
+    fa.statement_text_start = i+3;//26
     while(name[i][f].compare(")") != 0)
     {
         fa.condition.push_back(name[i][f]);
@@ -380,10 +380,11 @@ int IfGroup(int i)
     }
     if(name[i][input[i].size()-1].compare("{") == 0)
     {
-        fa.statement_text_start = i+2;
+        fa.statement_text_start = i+2;//25
     }
-    if(name[i][input[i].size()-1].compare("{") != 0 || name[i+1][input[0].size()-1].compare("{") != 0)
+    if(name[i][input[i].size()-1].compare("{") != 0 && (name[i+1].size() > 0 && name[i+1][0].compare("{") != 0))
     {
+        cout << "jja" << name[i][input[i].size()-1] << name[i+1][0] << i;
         fa.statement_text_start = i+2;
         fa.statement_text_end = i+2;
         fa.endLine = i+2;
@@ -411,17 +412,140 @@ int IfGroup(int i)
         fa.statement_text_end = h-1;
         fa.endLine = h;
         //whiles.push_back(fa);
+        //i = fa.endLine-1;
+    }
+    return fa;
+}
+
+else_struct elseGroup(int i)
+{
+    else_struct fa;
+    fa.startLine = i+1;
+    fa.statement_text_start = i+3;
+
+    if(name[i][input[i].size()-1].compare("{") == 0)
+    {
+        fa.statement_text_start = i+2;
+    }
+    if(name[i][input[i].size()-1].compare("{") != 0 && (name[i+1].size() > 0 && name[i+1][0].compare("{") != 0))
+    {
+        fa.statement_text_start = i+2;
+        fa.statement_text_end = i+2;
+        fa.endLine = i+2;
+        i = i + 1;
+    }
+    else
+    {
+        stack <int> temp;
+        int h = fa.statement_text_start - 1;
+        temp.push(1);
+        while(!temp.empty())
+        {
+            //cout << i;
+            for(int k=0; k<input[h].size(); k++)
+            {
+                if(name[h][k].compare("{") == 0)
+                    temp.push(1);
+                if(name[h][k].compare("}") == 0)
+                {
+                    temp.pop();
+                }
+            }
+            h++;
+        }
+        fa.statement_text_end = h-1;
+        fa.endLine = h;
+        //cout << "h = " << h;
+        //whiles.push_back(fa);
+        //i = fa.endLine-1;
+    }
+    return fa;
+}
+
+int ifGroup(int i)
+{
+    int f = 2;
+    if_struct fa;
+    fa.startLine = i+1;
+    fa.statement_text_start = i+3;
+    while(name[i][f].compare(")") != 0)
+    {
+        fa.condition.push_back(name[i][f]);
+        fa.conditionType.push_back(input[i][f]);
+        f++;
+    }
+    if(name[i][input[i].size()-1].compare("{") == 0)
+    {
+        fa.statement_text_start = i+2;
+    }
+    if(name[i][input[i].size()-1].compare("{") == 0 || (name[i+1].size() > 0 && name[i+1][0].compare("{") == 0))
+    {
+        stack <int> temp;
+        int h = fa.statement_text_start - 1;
+        temp.push(1);
+        while(!temp.empty())
+        {
+            //cout << i;
+            for(int k=0; k<input[h].size(); k++)
+            {
+                if(name[h][k].compare("{") == 0)
+                    temp.push(1);
+                if(name[h][k].compare("}") == 0)
+                {
+                    temp.pop();
+                }
+            }
+            h++;
+        }
+        fa.statement_text_end = h-1;
+        fa.endLine = h;
+        //whiles.push_back(fa);
         i = fa.endLine-1;
     }
-    //elseif else
+    else
+    {
+        fa.statement_text_start = i+2;
+        fa.statement_text_end = i+2;
+        fa.endLine = i+2;
+        i = i + 1;
+    }
+    i++;
+    //cout << i+1;
+    while(1)
+    {
 
+        if(input[i].size() > 1 && name[i][0].compare("else") == 0  && name[i][1].compare("if") == 0)
+        {//
+            else_if_struct fi = elseIfGroup(i);
+            fa.if_elses.push_back(fi);
+            i = fi.endLine;//cout << i << endl;
+        }
+        else if(input[i].size() > 0 && name[i][0].compare("else") == 0)
+        {
+
+            else_struct fy = elseGroup(i);//
+            fa.elses.push_back(fy);
+            i = fy.endLine;
+        }
+        else{
+            break;
+        }
+
+    }
+    ifs.push_back(fa);
+    i--;//
+    return i;
+    //
 }
 
 void findGroup(void)
 {
     for(int i=0; i<100; i++)
     {
-        //cout << i;
+        /*cout << i;
+        if(name[i].size() > 0)
+            cout << name[i][0] << i  << "jj";*/
+
         if(input[i].size() > 3 && input[i][0].compare("keyword") == 0  && input[i][1].compare("indentifer") == 0  && input[i][2].compare("oparetor") == 0  && input[i][3].compare("keyword") == 0) //function
         {
             i = functionGroup(i);
@@ -439,8 +563,9 @@ void findGroup(void)
             i = doWhileGroup(i);
         }
         else if(name[i].size() > 3 && name[i][0].compare("if") == 0)
-        {
+        {//cout << i;
             i = ifGroup(i);
+
         }
 
 

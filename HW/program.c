@@ -12,7 +12,30 @@ int main()
     int n= 8+3;
 
 
-     do{
+    if               ( n> 0){
+        n=4;
+        printf("P");
+
+
+    }
+    if (n==0){
+        printf("N");
+    }
+    else if(n >= 0){
+        n=4;
+        printf("P");
+    }
+    else if                   ( n> 0)
+            n=4;
+    else if (n==0){
+         printf("N");
+    }
+    else
+        printf("Z");
+
+
+     do
+        {
 
 
                        if(n> 0){
@@ -39,20 +62,8 @@ int main()
         n=4;
         printf("P");
     }
-    if (n==0){
-        printf("N");
+    else if (n==0){ printf("N");
     }
-
-    else if(n >= 0){
-        n=4;
-        printf("P");
-    }
-    else if               ( n> 0){n=4;
-        printf("P");
-        n=5;
-    }
-    else if (n==0){ printf("N");}
-
     else{
         printf("Z");
     }

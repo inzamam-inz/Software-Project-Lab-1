@@ -153,7 +153,6 @@ int main()
 	 while(getline(X, str, '\n')) {
         perline[totalLine].text = str + " ";
         perline[totalLine++].line = totalLine;
-        //cout << perline[totalLine-1].text << "jkjkj" << endl;;
     }
 
     lexing();
