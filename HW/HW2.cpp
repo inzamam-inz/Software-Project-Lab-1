@@ -384,7 +384,7 @@ else_if_struct elseIfGroup(int i)
     }
     if(name[i][input[i].size()-1].compare("{") != 0 && (name[i+1].size() > 0 && name[i+1][0].compare("{") != 0))
     {
-        cout << "jja" << name[i][input[i].size()-1] << name[i+1][0] << i;
+        //cout << "jja" << name[i][input[i].size()-1] << name[i+1][0] << i;
         fa.statement_text_start = i+2;
         fa.statement_text_end = i+2;
         fa.endLine = i+2;
@@ -515,19 +515,21 @@ int ifGroup(int i)
     {
 
         if(input[i].size() > 1 && name[i][0].compare("else") == 0  && name[i][1].compare("if") == 0)
-        {//
+        {
+            //
             else_if_struct fi = elseIfGroup(i);
             fa.if_elses.push_back(fi);
             i = fi.endLine;//cout << i << endl;
         }
         else if(input[i].size() > 0 && name[i][0].compare("else") == 0)
         {
-
             else_struct fy = elseGroup(i);//
             fa.elses.push_back(fy);
             i = fy.endLine;
+            break;
         }
-        else{
+        else
+        {
             break;
         }
 
@@ -542,11 +544,7 @@ void findGroup(void)
 {
     for(int i=0; i<100; i++)
     {
-        /*cout << i;
-        if(name[i].size() > 0)
-            cout << name[i][0] << i  << "jj";*/
-
-        if(input[i].size() > 3 && input[i][0].compare("keyword") == 0  && input[i][1].compare("indentifer") == 0  && input[i][2].compare("oparetor") == 0  && input[i][3].compare("keyword") == 0) //function
+        if(input[i].size() > 3 && input[i][0].compare("keyword") == 0  && input[i][1].compare("indentifier") == 0  && input[i][2].compare("oparetor") == 0  && input[i][3].compare("keyword") == 0) //function
         {
             i = functionGroup(i);
         }
@@ -563,15 +561,10 @@ void findGroup(void)
             i = doWhileGroup(i);
         }
         else if(name[i].size() > 3 && name[i][0].compare("if") == 0)
-        {//cout << i;
+        {
             i = ifGroup(i);
-
         }
-
-
-
-
-
+        //
     }
 }
 
