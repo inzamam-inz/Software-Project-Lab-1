@@ -1,87 +1,68 @@
+a += a * b;
+a += a +* b;
+a *= ++a * b++;
+a += a * b*;
+++a;
+a += a++ ++b;
+a = a++ + ++b;
+a = a+++++b;
 
-int inzamam(int che, int a, int s)
+double inzamam(int a, int b, double c)
 {
-    int a, b;
-    a = 5, a =4'
-    int c = a+b;
+    c = a+b;
     return c;
 }
 
 int main()
 {
-    int n= 8+3;
+    int a=5, b=0;
 
-
-    if               ( n> 0){
-        n=4;
-        printf("P");
-
-
-    }
-    if (n==0){
-        printf("N");
-    }
-    else if(n >= 0){
-        n=4;
-        printf("P");
-    }
-    else if                   ( n> 0)
+    do
+    {
+        if(n> 0){
             n=4;
-    else if (n==0){
-         printf("N");
-    }
-    else
-        printf("Z");
-
-
-     do
-        {
-
-
-                       if(n> 0){
-        n=4;
-        printf("P");
         }
-        a++;
-        a = a-2;
-        b=  a+ b
-        b++;
-        if(n >= 0){
-        n=4.0;
-        printf("P");
-
-            }
+        a = a+1;
+        b = b+1;
     }
     while( a < 19 && b <= 3)
 
+    while( a < 19 || b <= 3)
+    {
+        if(n == a+b){
+            break;
+        }
+        a = a+1;
+        b = b+1;
+    }
 
-
- while( a < 19 || b <= 3){
-
-    if               ( n> 0){
+    if ( n> 0)
+    {
         n=4;
-        printf("P");
+        n = n +1;
     }
-    else if (n==0){ printf("N");
+    if (n==0){
+        n = n +1;
     }
+    else if( n> 0)
+    {
+        n=5*3;
+    }
+    else if (n==0)
+        n=5;
     else{
-        printf("Z");
+        v=5*3;
     }
- }
-
-
- for(int a=0, b=0; a < 19 && b <= 3 || b==0 ; a++, b=a){
-    else if (n==0){ printf("N");}
-
-    else{
-        printf("Z");
+    else if(n >= 0)
+    {
+        n=4;
+        a = b + 2;
     }
 
- }
-
-
-
-
+    for(int a=0, b=0; a < 19 && b <= 3 || b==0 ; a++, b=a)
+    {
+        a = b + 2;
+    }
 
     return 0;
 }
