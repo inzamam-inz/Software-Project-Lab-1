@@ -2,6 +2,8 @@ a += a * b;
 a += a +* b;
 a *= ++a * b++;
 a += a * b*;
+int a, b;
+int a = a++, b = a;
 ++a;
 a += a++ ++b;
 a = a++ + ++b;

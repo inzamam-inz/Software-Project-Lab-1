@@ -5,6 +5,13 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+
+#define thisLine_Done           1
+#define thisLine_Error          2
+#define thisLine_NotFinish      3
+
+
+
 string trim_left( string st, char ch )
 {
       while ( st.size() && st[ 0 ] == ch )
@@ -170,17 +177,89 @@ bool isSpecialOparetor( int lineNumber, int columnNumber )
       }
 }
 
-void checking_statement( int lineNumber )
+int checking_Equation( int lineNumber, vector < int > checkList )
+{
+      if ( checkList.size() % 2 == 0 || !checkList.size() ) {
+            cout << "Line No - " << lineNumber + 1 << " 5 problem in this line\n";
+            return thisLine_Done;
+      }
+
+      for ( int i = 0; i < checkList.size(); ++i ) {
+            if ( i % 2 == 0 && TokenType[ lineNumber ][ checkList[ i ] ] != "indentifier" ) {
+                  cout << "Line No - " << lineNumber + 1 << " 3 problem in this line\n";
+                  return thisLine_Done;
+            }
+            if ( i % 2 == 1 && !validOparetor( lineNumber, checkList[ i ] ) ) {
+                  cout << "Line No - " << lineNumber + 1 << " " << i << " 4 problem in this line\n";
+                  return thisLine_Done;
+            }
+      }
+      return thisLine_NotFinish;
+}
+
+int isDeclareVariable( int lineNumber )
+{
+      set < string > rightType;
+      rightType.insert( "char" );
+      rightType.insert( "int" );
+      rightType.insert( "double" );
+
+      if ( !rightType.count( Tokens[ lineNumber ][ 0 ] ) ) {
+            return thisLine_NotFinish;
+      }
+
+      if ( Tokens[ lineNumber ].size() <= 2 ) {
+            cout << "Line No - " << lineNumber + 1 << " 1 problem in this line\n";
+            return thisLine_Done;
+      }
+
+      vector < int > checkList;
+      for ( int i = 1; i < Tokens[ lineNumber ].size(); ++i ) {
+            if ( Tokens[ lineNumber ][ i ] == "," || Tokens[ lineNumber ][ i ] == ";" ) {
+                  cout << i << " ";
+                  if( checking_Equation( lineNumber, checkList ) == thisLine_Done ) {
+                        return thisLine_Done;
+                  }
+                  checkList.clear();
+            }
+            else {
+                  if ( isSpecialOparetor( lineNumber, i ) && TokenType[ lineNumber ][ i + 1 ] == "indentifier" ) {
+                        ++i;
+                        checkList.push_back( i );
+                  }
+                  else if ( isSpecialOparetor( lineNumber, i ) ) {
+                        cout << "Line No - " << lineNumber + 1 << " 6 problem in this line\n";
+                        return thisLine_Done;
+                  }
+                  else if ( TokenType[ lineNumber ][ i ] == "indentifier" && isSpecialOparetor( lineNumber, i + 1 ) ) {
+                        checkList.push_back( i );
+                        ++i;
+                  }
+                  else {
+                        checkList.push_back( i );
+                  }
+            }
+      }
+      cout << "ahsd";
+      return thisLine_Done;
+}
+
+
+int checking_statement( int lineNumber )
 {
       //, vector < string > availableVariable
       //cout << Tokens[ lineNumber ].size() << " ";
       //return;
       if ( Tokens[ lineNumber ].size() && Tokens[ lineNumber ].back() != ";" ) {
             cout << "Line No - " << lineNumber + 1 << " 1 problem in this line\n";
-            return;
+            return thisLine_Done;
       }
       if ( Tokens[ lineNumber ].empty() ) {
-            return;
+            return thisLine_Done;
+      }
+
+      if ( isDeclareVariable( lineNumber ) == thisLine_Done ) {
+            return thisLine_Done;
       }
 
       //int iL = 0 + isSpecialOparetor( lineNumber, 0 ), iR = Tokens[ lineNumber ].size() - isSpecialOparetor( lineNumber, Tokens[ lineNumber ].size() - 2 );
@@ -199,7 +278,7 @@ void checking_statement( int lineNumber )
             }
             else if ( isSpecialOparetor( lineNumber, i ) ) {
                   cout << "Line No - " << lineNumber + 1 << " 6 problem in this line\n";
-                  return;
+                  return thisLine_Done;
             }
             else if ( TokenType[ lineNumber ][ i ] == "indentifier" && isSpecialOparetor( lineNumber, i + 1 ) ) {
                   checkList.push_back( i );
@@ -210,7 +289,11 @@ void checking_statement( int lineNumber )
             }
 
       }
-      if ( checkList.size() % 2 == 0 ) {
+
+      int useless = checking_Equation( lineNumber, checkList );
+
+      return thisLine_Done;
+      /**if ( checkList.size() % 2 == 0 ) {
             cout << "Line No - " << lineNumber + 1 << " 5 problem in this line\n";
             return;
       }
@@ -225,8 +308,9 @@ void checking_statement( int lineNumber )
                   cout << "Line No - " << lineNumber + 1 << " " << i << " 4 problem in this line\n";
                   return;
             }
-      }
+      }*/
       int a, b;
+      //if ( a == b == a )  return;
       //a += a++++b;
 }
 
@@ -743,7 +827,7 @@ int main()
       //printFor();
 
       for ( int i = 0; i < 10; ++i )
-            checking_statement( i );
+            int useless = checking_statement( i );
 
 
       return 0;
