@@ -1,3 +1,8 @@
+#include < stdio.h >;
+#include <stdio.h >
+#include < math.h >
+#include < inz.h >
+
 a += a * b;
 a += a +* b;
 a *= ++a * b++;
@@ -15,7 +20,11 @@ double inzamam(int a, int b, double c)
     return c;
 }
 
-int main()
+int main ( void ) {
+
+}
+
+int main( )
 {
     int a=5, b=0;
 

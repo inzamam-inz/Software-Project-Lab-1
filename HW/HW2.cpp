@@ -2,6 +2,7 @@
   https://www.cs.uic.edu/~troy/spring01/eecs473/mp2_473.htm
 */
 
+#include <stdlib.h>
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -46,7 +47,7 @@ struct perlinestruct
 int totalLine = 0;
 vector < string > TokenType[ 100 ];
 vector < string > Tokens[ 100 ];
-bool isFinish[ 100 ];
+bool isFinish[ 100 ], haveERROR[ 100 ];
 vector < vector < string > > allVariable;
 //vector < string > lineNumber[ 100 ];
 //vector < string > position[ 100 ];
@@ -185,7 +186,6 @@ bool availableVariable( string var, set < string > inScope )
       return inScope.find( var ) == inScope.end();
 }
 
-
 bool validOparetor( int lineNumber, int columnNumber )
 {
       if ( TokenType[ lineNumber ].size() <= columnNumber || TokenType[ lineNumber ][ columnNumber ] != "oparetor" || Tokens[ lineNumber ][ columnNumber ].size() > 2 ) {
@@ -293,21 +293,24 @@ int isDeclareVariable( int lineNumber )
 }
 
 
-int checking_statement( int lineNumber )
+void checking_statement( int lineNumber )
 {
       //, vector < string > availableVariable
       //cout << Tokens[ lineNumber ].size() << " ";
       //return;
       if ( Tokens[ lineNumber ].size() && Tokens[ lineNumber ].back() != ";" ) {
             cout << "Line No - " << lineNumber + 1 << " 1 problem in this line\n";
-            return thisLine_Done;
+            //return thisLine_Done;
+            return;
       }
       if ( Tokens[ lineNumber ].empty() ) {
-            return thisLine_Done;
+            //return thisLine_Done;
+            return;
       }
 
       if ( isDeclareVariable( lineNumber ) == thisLine_Done ) {
-            return thisLine_Done;
+            //return thisLine_Done;
+            return;
       }
 
       /*//int iL = 0 + isSpecialOparetor( lineNumber, 0 ), iR = Tokens[ lineNumber ].size() - isSpecialOparetor( lineNumber, Tokens[ lineNumber ].size() - 2 );
@@ -326,7 +329,8 @@ int checking_statement( int lineNumber )
             }
             else if ( isSpecialOparetor( lineNumber, i ) ) {
                   cout << "Line No - " << lineNumber + 1 << " 6 problem in this line\n";
-                  return thisLine_Done;
+                  //return thisLine_Done;
+                  return;
             }
             else if ( TokenType[ lineNumber ][ i ] == "indentifier" && isSpecialOparetor( lineNumber, i + 1 ) ) {
                   checkList.push_back( i );
@@ -340,7 +344,8 @@ int checking_statement( int lineNumber )
 
       int useless = checking_Equation( lineNumber, checkList );
 
-      return thisLine_Done;
+      //return thisLine_Done;
+      return;
       /*if ( checkList.size() % 2 == 0 ) {
             cout << "Line No - " << lineNumber + 1 << " 5 problem in this line\n";
             return;
@@ -490,6 +495,7 @@ int forGroup( int i )
 
 int functionGroup( int i )
 {
+      //cout << i << " ";
       if ( Tokens[ i ][ TokenType[ i ].size() - 2 ].compare( ")" ) == 0 && Tokens[ i ][ TokenType[ i ].size() - 1 ].compare( ";" ) == 0 ) {
             cout << "function protoType\n";
       }
@@ -499,7 +505,7 @@ int functionGroup( int i )
             f.startLine = i + 1;
             f.returnType = Tokens[ i ][ 0 ];
             f.fTokens = Tokens[ i ][ 1 ];
-            if ( Tokens[ i ][ 3 ].compare( "void" ) == 0 ) {
+            if ( Tokens[ i ][ 3 ].compare( ")" ) == 0 || Tokens[ i ][ 3 ].compare( "void" ) == 0 ) {
                   f.parameter.push_back( "None" );
                   f.parameterType.push_back( "void" );
             }
@@ -808,7 +814,7 @@ void findGroup( int startLine, int endLine )
 {
     for(int i = startLine; i< endLine; i++)
     {
-        if(TokenType[i].size() > 3 && TokenType[i][0].compare("keyword") == 0  && TokenType[i][1].compare("indentifier") == 0  && TokenType[i][2].compare("oparetor") == 0  && TokenType[i][3].compare("keyword") == 0) //function
+        if(TokenType[i].size() > 3 && TokenType[i][0].compare("keyword") == 0  && TokenType[i][1].compare("indentifier") == 0  && Tokens[i][2].compare("(") == 0  && ( Tokens[i][3] == ")" || TokenType[i][3] == "keyword" ) ) //function
         {
             i = functionGroup(i);
         }
@@ -832,20 +838,204 @@ void findGroup( int startLine, int endLine )
     }
 }
 
+void headerFile_check( int LN )
+{
+      vector < string > HEADER;
+      HEADER.push_back( "#include<stdio.h>" );
+      HEADER.push_back( "#include<conio.h>" );
+      HEADER.push_back( "#include<stdlib.h>" );
+      HEADER.push_back( "#include<math.h>" );
+      HEADER.push_back( "#include<string.h>" );
+
+      string H;
+
+      for ( int i = 0; i < Tokens[ LN ].size(); ++i ) {
+            H += Tokens[ LN ][ i ];
+      }
+
+      for ( int i = 0; i < HEADER.size(); ++i ) {
+            if ( H == HEADER[ i ] )
+                  return;
+      }
+
+      haveERROR[ LN ] = true;
+      cout << "Line No: " << LN + 1 << "->" << "Wrong HEADER File or ERROR\n";
+}
+
+int headerFiles_check( int LN )
+{
+      while ( LN < totalLine ) {
+            if ( Tokens[ LN ].empty() ) {
+                  // any empty line -> skip
+                  isFinish[ LN ] = true;
+                  ++LN;
+                  continue;
+            }
+            else if ( Tokens[ LN ][ 0 ] == "#" ) {
+                  // Maybe this line -> header file
+                  headerFile_check( LN );
+                  isFinish[ LN ] = true;
+                  ++LN;
+            }
+            else {
+                  break;
+            }
+      }
+
+      return LN;
+}
+
+void find_MAIN_function()
+{
+      int C = 0;
+      for ( int i = 0; i < functions.size(); ++i ) {
+            //cout << functions[ i ].fTokens << " ";
+            if ( functions[ i ].fTokens == "main" )
+                  C++;
+      }
+
+      if ( C == 1 )
+            return;
+      else if ( C > 1 )
+            cout << "Big ERROR: " << C << " MAIN function in your C file\n";
+      else
+            cout << "Big ERROR: No MAIN function in your C file\n";
+}
+
+void initialize_Checking( int LN )
+{
+      // header file check
+      LN = headerFiles_check( LN );  //DONE
+      // find MAIN function
+      find_MAIN_function();
+}
+
+bool isFunction( int LN )
+{
+      for ( int i = 0; i < functions.size(); ++i ) {
+            //cout << functions[ i ].startLine << " ";
+            if ( functions[ i ].startLine == LN + 1 ) {
+                  // start - end check kore finish true kore dibo
+                  //LM =
+                  // BAKI ase ekhane
+
+                  for ( int j = functions[ i ].startLine; j <= functions[ i ].endLine; ++j )
+                        isFinish[ j - 1 ] = true;
+
+                  return true;
+            }
+      }
+
+      return false;
+}
+
+bool isFor( int LN )
+{
+      for ( int i = 0; i < fors.size(); ++i ) {
+            if ( fors[ i ].startLine == LN + 1 ) {
+                  // start - end check kore finish true kore dibo
+                  //LM =
+                  // BAKI ase ekhane
+
+                  for ( int j = fors[ i ].startLine; j <= fors[ i ].endLine; ++j )
+                        isFinish[ j - 1 ] = true;
+
+                  return true;
+            }
+      }
+
+      return false;
+}
+
+bool isWhile( int LN )
+{
+      for ( int i = 0; i < whiles.size(); ++i ) {
+            if ( whiles[ i ].startLine == LN + 1 ) {
+                  // start - end check kore finish true kore dibo
+                  //LM =
+                  // BAKI ase ekhane
+
+                  for ( int j = whiles[ i ].startLine; j <= whiles[ i ].endLine; ++j )
+                        isFinish[ j - 1 ] = true;
+
+                  return true;
+            }
+      }
+
+      return false;
+}
+
+bool isDOWhile( int LN )
+{
+      for ( int i = 0; i < do_whiles.size(); ++i ) {
+            if ( do_whiles[ i ].startLine == LN + 1 ) {
+                  // start - end check kore finish true kore dibo
+                  //LM =
+                  // BAKI ase ekhane
+
+                  for ( int j = do_whiles[ i ].startLine; j <= do_whiles[ i ].endLine; ++j )
+                        isFinish[ j - 1 ] = true;
+
+                  return true;
+            }
+      }
+
+      return false;
+}
+
+bool isIF( int LN )
+{
+      for ( int i = 0; i < ifs.size(); ++i ) {
+            if ( ifs[ i ].startLine == LN + 1 ) {
+                  // start - end check kore finish true kore dibo
+                  //LM =
+                  // BAKI ase ekhane
+
+                  for ( int j = ifs[ i ].startLine; j <= ifs[ i ].endLine; ++j )
+                        isFinish[ j - 1 ] = true;
+
+                  return true;
+            }
+      }
+
+      return false;
+}
+
+void check_THIS_Line ( int LN )
+{
+      isFinish[ LN ] = true;
+
+      if ( isFunction( LN ) )
+            return;
+      else if ( isFor( LN ) )
+            return;
+      else if ( isWhile( LN ) )
+            return;
+      else if ( isDOWhile( LN ) )
+            return;
+      else if ( isIF( LN ) )
+            return;
+      else
+            checking_statement( LN );
+}
 
 void syntaxChecking()
 {
-      for ( int i = 0; i < 100; ++i ) {
-            if ( !isFinish[ i ] ) {
-                  int useless = checking_statement( i );
-                  isFinish[ i ] = true;
-            }
+      int LN = 0;
+      initialize_Checking( LN );
 
+      for ( int i = 0; i < totalLine; ++i ) {
+            if ( !isFinish[ i ] ) {
+                  check_THIS_Line( i );
+            }
       }
 }
 
 int main()
 {
+      system("g++ HW1.cpp -o HW1");
+      system("HW1");
+
       FILE *fp;
       string str, Text, strg1, strg2, strg3, strg4;
       char ch;
@@ -874,7 +1064,7 @@ int main()
 
             TokenType[ h - 1 ].push_back( strg1 );
             Tokens[ h - 1 ].push_back( strg2 );
-
+            totalLine = max( totalLine, h );
       }
 
       findGroup( 0, 100 );
