@@ -46,6 +46,8 @@ struct perlinestruct
 int totalLine = 0;
 vector < string > TokenType[ 100 ];
 vector < string > Tokens[ 100 ];
+bool isFinish[ 100 ];
+vector < vector < string > > allVariable;
 //vector < string > lineNumber[ 100 ];
 //vector < string > position[ 100 ];
 
@@ -136,6 +138,52 @@ vector < if_struct > ifs;
 /* ---------------------NEW--------------------- */
 
 
+
+bool isDigit( char ch )
+{
+      return ch >= '0' && ch <= '9';
+}
+
+bool isCapitalLetter( char ch )
+{
+      return ch >= 'A' && ch <= 'Z';
+}
+
+bool isSmallLetter( char ch )
+{
+      return ch >= 'a' && ch <= 'z';
+}
+
+bool isLetter( char ch )
+{
+      return ( isCapitalLetter( ch ) || isSmallLetter( ch ) );
+}
+
+bool isNumber( string st )
+{
+      for ( int i = 0; i < st.size(); ++i )
+            if ( !isDigit( st[ i ] ) )
+                  return false;
+
+      return true;
+}
+
+bool validVariableName( string st )
+{
+      if ( !( isLetter( st[ 0 ] ) || st[ 0 ] == '_' ) )
+            return false;
+
+      for ( int i = 1; i < st.size(); ++i )
+            if ( !( isLetter( st[ i ] ) || isDigit( st[ i ] ) || st[ i ] == '_' ) )
+                  return false;
+
+      return true;
+}
+
+bool availableVariable( string var, set < string > inScope )
+{
+      return inScope.find( var ) == inScope.end();
+}
 
 
 bool validOparetor( int lineNumber, int columnNumber )
@@ -262,13 +310,13 @@ int checking_statement( int lineNumber )
             return thisLine_Done;
       }
 
-      //int iL = 0 + isSpecialOparetor( lineNumber, 0 ), iR = Tokens[ lineNumber ].size() - isSpecialOparetor( lineNumber, Tokens[ lineNumber ].size() - 2 );
+      /*//int iL = 0 + isSpecialOparetor( lineNumber, 0 ), iR = Tokens[ lineNumber ].size() - isSpecialOparetor( lineNumber, Tokens[ lineNumber ].size() - 2 );
       //--iR;
      // if ( iL >= iR ) {
            //  cout << "Line No - " << lineNumber + 1 << " 2 problem in this line\n";
             // return;
       //}
-      //cout << iL << " " << iR << " ";
+      //cout << iL << " " << iR << " ";*/
 
       vector < int > checkList;
       for ( int i = 0; i < Tokens[ lineNumber ].size() - 1; ++i ) {
@@ -293,13 +341,12 @@ int checking_statement( int lineNumber )
       int useless = checking_Equation( lineNumber, checkList );
 
       return thisLine_Done;
-      /**if ( checkList.size() % 2 == 0 ) {
+      /*if ( checkList.size() % 2 == 0 ) {
             cout << "Line No - " << lineNumber + 1 << " 5 problem in this line\n";
             return;
       }
 
       for ( int i = 0; i < checkList.size(); ++i ) {
-
             if ( i % 2 == 0 && TokenType[ lineNumber ][ checkList[ i ] ] != "indentifier" ) {
                   cout << "Line No - " << lineNumber + 1 << " 3 problem in this line\n";
                   return;
@@ -386,9 +433,11 @@ int forGroup( int i )
       for_struct fa;
       fa.startLine = i + 1;
       fa.statement_text_start = i + 3;
+
       if ( Tokens[ i ][ TokenType[ i ].size() - 1 ].compare( "{" ) == 0 ) {
             fa.statement_text_start = i + 2;
       }
+
       while ( Tokens[ i ][ f ].compare( ")" ) != 0 ) {
             if ( Tokens[ i ][ f ].compare( ";" ) == 0 ) {
                   semi++;
@@ -409,10 +458,12 @@ int forGroup( int i )
             }
             f++;
       }
-      /*if(semi != 2){
+
+      if ( semi != 2 ) {
             cout << "find error\n";
-            return;
-      }*/
+            return i;
+      }
+
       stack < int > temp;
       int h = fa.statement_text_start - 1;
       temp.push( 1 );
@@ -437,65 +488,56 @@ int forGroup( int i )
       return i;
 }
 
-int functionGroup(int i)
+int functionGroup( int i )
 {
-    if(Tokens[i][TokenType[i].size()-2].compare(")") == 0 && Tokens[i][TokenType[i].size()-1].compare(";") == 0)
-    {
-        cout << "function protoType\n";
-    }
-    else
-    {
-        func f;
+      if ( Tokens[ i ][ TokenType[ i ].size() - 2 ].compare( ")" ) == 0 && Tokens[ i ][ TokenType[ i ].size() - 1 ].compare( ";" ) == 0 ) {
+            cout << "function protoType\n";
+      }
+      else {
+            func f;
 
-        f.startLine = i+1;
-        f.returnType = Tokens[i][0];
-        f.fTokens = Tokens[i][1];
-        if(Tokens[i][3].compare("void") == 0)
-        {
-            f.parameter.push_back("None");
-            f.parameterType.push_back("void");
-        }
-        else
-        {
-            int j = 2;
-            while(1)
-            {
-                if(Tokens[i][j].compare(")") == 0)
-                    break;
-                f.parameter.push_back(Tokens[i][j+2]);
-                f.parameterType.push_back(Tokens[i][j+1]);
-                j += 3;
+            f.startLine = i + 1;
+            f.returnType = Tokens[ i ][ 0 ];
+            f.fTokens = Tokens[ i ][ 1 ];
+            if ( Tokens[ i ][ 3 ].compare( "void" ) == 0 ) {
+                  f.parameter.push_back( "None" );
+                  f.parameterType.push_back( "void" );
             }
-        }
-        f.statement_text_start = i+3;
-        if(Tokens[i][TokenType[i].size() - 1].compare("{") == 0)
-        {
-            f.statement_text_start = i+2;
-        }
-        stack <int> temp;
-        int h = f.statement_text_start - 1;
-        temp.push(1);
-        while(!temp.empty())
-        {
-            //cout << i;
-            for(int k=0; k<TokenType[h].size(); k++)
-            {
-                if(Tokens[h][k].compare("{") == 0)
-                    temp.push(1);
-                if(Tokens[h][k].compare("}") == 0)
-                {
-                    temp.pop();
-                }
+            else {
+                  int j = 2;
+                  while ( 1 )  {
+                        if ( Tokens[ i ][ j ].compare( ")" ) == 0 )
+                              break;
+                        f.parameter.push_back( Tokens[ i ][ j + 2 ] );
+                        f.parameterType.push_back( Tokens[ i ][ j + 1 ] );
+                        j += 3;
+                  }
             }
-            h++;
-        }
-        f.statement_text_end = h-1;
-        f.endLine = h;
-        functions.push_back(f);
-        i = h-1;
+            f.statement_text_start = i + 3;
+            if ( Tokens[ i ][ TokenType[ i ].size() - 1 ].compare( "{" ) == 0 ) {
+                  f.statement_text_start = i + 2;
+            }
+            stack < int > temp;
+            int h = f.statement_text_start - 1;
+            temp.push( 1 );
+            while ( !temp.empty() ) {
+                  //cout << i;
+                  for ( int k = 0; k < TokenType[ h ].size(); k++ ) {
+                        if ( Tokens[ h ][ k ].compare( "{" ) == 0 )
+                              temp.push( 1 );
+                        if ( Tokens[ h ][ k ].compare( "}" ) == 0 ) {
+                              temp.pop();
+                        }
+                  }
+                  h++;
+            }
+            f.statement_text_end = h - 1;
+            f.endLine = h;
+            functions.push_back( f );
+            i = h - 1;
         //statement & endline
-    }
-    return i;
+      }
+      return i;
 }
 
 int whileGroup(int i)
@@ -790,6 +832,18 @@ void findGroup( int startLine, int endLine )
     }
 }
 
+
+void syntaxChecking()
+{
+      for ( int i = 0; i < 100; ++i ) {
+            if ( !isFinish[ i ] ) {
+                  int useless = checking_statement( i );
+                  isFinish[ i ] = true;
+            }
+
+      }
+}
+
 int main()
 {
       FILE *fp;
@@ -798,18 +852,18 @@ int main()
 
       fp = fopen( "output.txt", "r" );
 
-      if(fp == NULL) {
+      if ( fp == NULL ) {
             printf( "error while opening the file\n" );
             exit( 0 );
       }
 
-      while((ch = fgetc(fp)) != EOF) {
+      while ( ( ch = fgetc( fp ) ) != EOF ) {
             Text = Text + ch;
       }
 
       stringstream X( Text );
-      while( getline(X, str, '\n') ) {
-            stringstream Y(str);
+      while ( getline(X, str, '\n' ) ) {
+            stringstream Y( str );
             getline( Y, strg1, '\t' );
             getline( Y, strg2, '\t' );
             getline( Y, strg3, '\t' );
@@ -824,10 +878,10 @@ int main()
       }
 
       findGroup( 0, 100 );
+      syntaxChecking();
       //printFor();
 
-      for ( int i = 0; i < 10; ++i )
-            int useless = checking_statement( i );
+
 
 
       return 0;
