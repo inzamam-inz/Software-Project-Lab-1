@@ -1,7 +1,8 @@
-#include < stdio.h >;
-#include <stdio.h >
-#include < math.h >
+
+#include <stdio.h>
+#include < math. h >
 #include < inz.h >
+#include<ws2
 
 a += a * b;
 a += a +* b;
@@ -13,6 +14,7 @@ int a = a++, b = a;
 a += a++ ++b;
 a = a++ + ++b;
 a = a+++++b;
+x=y+x*y;
 
 double inzamam(int a, int b, double c)
 {
@@ -21,12 +23,14 @@ double inzamam(int a, int b, double c)
 }
 
 int main ( void ) {
+      int fun() {
 
+      }
 }
 
-int main( )
+int main()
 {
-    int a=5, b=0;
+    int a=d, b=e;
 
     do
     {

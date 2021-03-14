@@ -77,11 +77,11 @@ void lexing()
                         file << "oparetor\t" << perline[ i ].text[ j ] << "\t" << perline[ i ].line << "\t" << j + 1 << "\n";
                         j += 1;
                   }
-            /*bad
-            else if(otherCheck(perline[i].text[j])){
-                file << "other\t" << perline[i].text[j] << "\t" << perline[i].line << "\t" << j+1 << "\n";
-                j += 1;
-            }*/
+                  /*bad
+                  else if(otherCheck(perline[i].text[j])){
+                        file << "other\t" << perline[i].text[j] << "\t" << perline[i].line << "\t" << j+1 << "\n";
+                        j += 1;
+                  }*/
                   else if ( perline[ i ].text[ j ] == '\\' ) { //charChecking(done)
                         keyword_identifier_check( i, j );
                         file << "character\t" << perline[ i ].text[ j ] << perline[ i ].text[ j + 1 ] << "\t" << perline[ i ].line << "\t" << j + 1 << "\n";//check which character

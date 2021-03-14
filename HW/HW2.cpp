@@ -1,6 +1,5 @@
-/*
-  https://www.cs.uic.edu/~troy/spring01/eecs473/mp2_473.htm
-*/
+
+/*   https://www.cs.uic.edu/~troy/spring01/eecs473/mp2_473.html   */
 
 #include <stdlib.h>
 #include <bits/stdc++.h>
@@ -11,46 +10,6 @@ using namespace std;
 #define thisLine_Error          2
 #define thisLine_NotFinish      3
 
-
-
-string trim_left( string st, char ch )
-{
-      while ( st.size() && st[ 0 ] == ch )
-            st.erase( 0, 1 );
-
-      return st;
-}
-
-string trim_right( string &st, char ch )
-{
-      while ( st.size() && st[ st.size() - 1 ] == ch )
-            st.erase( st.size() - 1, 1 );
-
-      return st;
-}
-
-string trim_both( string st, char ch )
-{
-      st = trim_right( st, ch );
-      st = trim_left( st, ch );
-
-      return st;
-}
-
-struct perlinestruct
-{
-      int line;
-      string text;
-};
-
-//perlinestruct perline[ 100 ];
-int totalLine = 0;
-vector < string > TokenType[ 100 ];
-vector < string > Tokens[ 100 ];
-bool isFinish[ 100 ], haveERROR[ 100 ];
-vector < vector < string > > allVariable;
-//vector < string > lineNumber[ 100 ];
-//vector < string > position[ 100 ];
 
 struct func {
       int startLine;
@@ -127,18 +86,92 @@ struct if_struct
       vector < else_if_struct > if_elses;
 };
 
+
 vector < for_struct > fors;
 vector < func > functions;
 vector < while_struct > whiles;
 vector < do_while_struct > do_whiles;
 vector < if_struct > ifs;
+int totalLine = 0;
+vector < string > TokenType[ 100 ];
+vector < string > Tokens[ 100 ];
+bool isFinish[ 100 ], haveERROR[ 100 ];
+vector < vector < string > > allVariable;
+/*struct perlinestruct
+{
+      int line;
+      string text;
+};
+perlinestruct perline[ 100 ];
+vector < string > lineNumber[ 100 ];
+vector < string > position[ 100 ];
+*/
+
+
+
+// ALL FUNCTIONS PROTOTYPE
+string trim_left( string st, char ch );
+string trim_right( string &st, char ch );
+string trim_both( string st, char ch );
+bool isDigit( char ch );
+bool isCapitalLetter( char ch );
+bool isSmallLetter( char ch );
+bool isLetter( char ch );
+bool isNumber( string st );
+bool validVariableName( string st );
+bool availableVariable( string var, set < string > inScope );
+bool validOparetor( int lineNumber, int columnNumber );
+bool isSpecialOparetor( int lineNumber, int columnNumber );
+bool isFunction( int LN );
+bool isFor( int LN );
+bool isWhile( int LN );
+bool isDOWhile( int LN );
+bool isIF( int LN );
+void checking_statement( int lineNumber );
+void findGroup( int startLine, int endLine );
+void headerFile_check( int LN );
+void find_MAIN_function();
+void initialize_Checking( int LN );
+void check_THIS_Line ( int LN );
+void syntaxChecking();
+int checking_Equation( int lineNumber, vector < int > checkList );
+int isDeclareVariable( int lineNumber );
+int strTint( string str );
+int forGroup( int i );
+int functionGroup( int i );
+int whileGroup( int i );
+int doWhileGroup( int i );
+int ifGroup( int i );
+int headerFiles_check( int LN );
+else_if_struct elseIfGroup( int i );
+else_struct elseGroup( int i );
 
 
 
 
-/* ---------------------NEW--------------------- */
+string trim_left( string st, char ch )
+{
+      while ( st.size() && st[ 0 ] == ch )
+            st.erase( 0, 1 );
 
+      return st;
+}
 
+string trim_right( string &st, char ch )
+{
+      while ( st.size() && st[ st.size() - 1 ] == ch )
+            st.erase( st.size() - 1, 1 );
+
+      return st;
+}
+
+string trim_both( string st, char ch )
+{
+      st = trim_right( st, ch );
+      st = trim_left( st, ch );
+
+      return st;
+}
 
 bool isDigit( char ch )
 {
@@ -292,7 +325,6 @@ int isDeclareVariable( int lineNumber )
       return thisLine_Done;
 }
 
-
 void checking_statement( int lineNumber )
 {
       //, vector < string > availableVariable
@@ -365,19 +397,6 @@ void checking_statement( int lineNumber )
       //if ( a == b == a )  return;
       //a += a++++b;
 }
-
-
-
-
-
-
-
-/* ---------------------NEW--------------------- */
-
-
-
-
-
 
 int strTint( string str )
 {
@@ -732,110 +751,89 @@ else_struct elseGroup(int i)
     return fa;
 }
 
-int ifGroup(int i)
+int ifGroup( int i )
 {
-    int f = 2;
-    if_struct fa;
-    fa.startLine = i+1;
-    fa.statement_text_start = i+3;
-    while(Tokens[i][f].compare(")") != 0)
-    {
-        fa.condition.push_back(Tokens[i][f]);
-        fa.conditionType.push_back(TokenType[i][f]);
-        f++;
-    }
-    if(Tokens[i][TokenType[i].size()-1].compare("{") == 0)
-    {
-        fa.statement_text_start = i+2;
-    }
-    if(Tokens[i][TokenType[i].size()-1].compare("{") == 0 || (Tokens[i+1].size() > 0 && Tokens[i+1][0].compare("{") == 0))
-    {
-        stack <int> temp;
-        int h = fa.statement_text_start - 1;
-        temp.push(1);
-        while(!temp.empty())
-        {
-            //cout << i;
-            for(int k=0; k<TokenType[h].size(); k++)
-            {
-                if(Tokens[h][k].compare("{") == 0)
-                    temp.push(1);
-                if(Tokens[h][k].compare("}") == 0)
-                {
-                    temp.pop();
-                }
+      int f = 2;
+      if_struct fa;
+      fa.startLine = i + 1;
+      fa.statement_text_start = i + 3;
+      while ( Tokens[ i ][ f ].compare( ")" ) != 0 ) {
+            fa.condition.push_back( Tokens[ i ][ f ] );
+            fa.conditionType.push_back( TokenType[ i ][ f ] );
+            f++;
+      }
+      if ( Tokens[ i ][ TokenType[ i ].size() - 1 ].compare( "{" ) == 0 ) {
+            fa.statement_text_start = i + 2;
+      }
+      if ( Tokens[ i ][ TokenType[ i ].size() - 1 ].compare( "{" ) == 0 || ( Tokens[ i + 1 ].size() > 0 && Tokens[ i + 1 ][ 0 ].compare( "{" ) == 0 ) ) {
+            stack < int > temp;
+            int h = fa.statement_text_start - 1;
+            temp.push( 1 );
+            while ( !temp.empty() ) {
+                  //cout << i;
+                  for ( int k = 0; k < TokenType[ h ].size(); k++ ) {
+                        if ( Tokens[ h ][ k ].compare( "{" ) == 0 )
+                              temp.push( 1 );
+                        if ( Tokens[ h ][ k ].compare( "}" ) == 0 )
+                              temp.pop();
+                  }
+                  h++;
             }
-            h++;
-        }
-        fa.statement_text_end = h-1;
-        fa.endLine = h;
-        //whiles.push_back(fa);
-        i = fa.endLine-1;
-    }
-    else
-    {
-        fa.statement_text_start = i+2;
-        fa.statement_text_end = i+2;
-        fa.endLine = i+2;
-        i = i + 1;
-    }
-    i++;
-    //cout << i+1;
-    while(1)
-    {
-
-        if(TokenType[i].size() > 1 && Tokens[i][0].compare("else") == 0  && Tokens[i][1].compare("if") == 0)
-        {
-            //
-            else_if_struct fi = elseIfGroup(i);
-            fa.if_elses.push_back(fi);
-            i = fi.endLine;//cout << i << endl;
-        }
-        else if(TokenType[i].size() > 0 && Tokens[i][0].compare("else") == 0)
-        {
-            else_struct fy = elseGroup(i);//
-            fa.elses.push_back(fy);
-            i = fy.endLine;
-            break;
-        }
-        else
-        {
-            break;
-        }
-
-    }
-    ifs.push_back(fa);
-    i--;//
-    return i;
-    //
+            fa.statement_text_end = h - 1;
+            fa.endLine = h;
+            i = fa.endLine - 1;
+      }
+      else {
+            fa.statement_text_start = i + 2;
+            fa.statement_text_end = i + 2;
+            fa.endLine = i + 2;
+            i = i + 1;
+      }
+      i++;
+      //cout << i+1;
+      while ( 1 ) {
+            if ( TokenType[ i ].size() > 1 && Tokens[ i ][ 0 ].compare( "else" ) == 0  && Tokens[ i ][ 1 ].compare( "if" ) == 0 ) {
+                  //
+                  else_if_struct fi = elseIfGroup( i );
+                  fa.if_elses.push_back( fi );
+                  i = fi.endLine;//cout << i << endl;
+            }
+            else if ( TokenType[ i ].size() > 0 && Tokens[ i ][ 0 ].compare( "else" ) == 0 ) {
+                  else_struct fy = elseGroup( i );//
+                  fa.elses.push_back( fy );
+                  i = fy.endLine;
+                  break;
+            }
+            else {
+                  break;
+            }
+      }
+      ifs.push_back( fa );
+      i--;//
+      return i;
+      //
 }
 
 void findGroup( int startLine, int endLine )
 {
-    for(int i = startLine; i< endLine; i++)
-    {
-        if(TokenType[i].size() > 3 && TokenType[i][0].compare("keyword") == 0  && TokenType[i][1].compare("indentifier") == 0  && Tokens[i][2].compare("(") == 0  && ( Tokens[i][3] == ")" || TokenType[i][3] == "keyword" ) ) //function
-        {
-            i = functionGroup(i);
-        }
-        else if(Tokens[i].size() > 4 && Tokens[i][0].compare("for") == 0 && Tokens[i][1].compare("(") == 0) //for
-        {
-            i = forGroup(i);
-        }
-        else if(Tokens[i].size() > 3 && Tokens[i][0].compare("while") == 0 && Tokens[i][1].compare("(") == 0 && Tokens[i][2].compare(")") != 0) //while
-        {
-            i = whileGroup(i);
-        }
-        else if((Tokens[i].size() <= 2 && Tokens[i].size() >= 1) && Tokens[i][0].compare("do") == 0) //do-while
-        {
-            i = doWhileGroup(i);
-        }
-        else if(Tokens[i].size() > 3 && Tokens[i][0].compare("if") == 0)
-        {
-            i = ifGroup(i);
-        }
-        //
-    }
+      for ( int i = startLine; i <= endLine; i++ ) {
+            if ( TokenType[ i ].size() > 3 && TokenType[ i ][ 0 ].compare( "keyword" ) == 0  && TokenType[ i ][ 1 ].compare( "indentifier" ) == 0  && Tokens[ i ][ 2 ].compare( "(" ) == 0  && ( Tokens[ i ][ 3 ] == ")" || TokenType[ i ][ 3 ] == "keyword" ) ) { //function
+                  i = functionGroup(i);
+            }
+            else if ( Tokens[ i ].size() > 4 && Tokens[ i ][ 0 ].compare( "for" ) == 0 && Tokens[ i ][ 1 ].compare( "(" ) == 0 ) { //for
+                  i = forGroup( i );
+            }
+            else if ( Tokens[ i ].size() > 3 && Tokens[ i ][ 0 ].compare( "while" ) == 0 && Tokens[ i ][ 1 ].compare( "(" ) == 0 && Tokens[ i ][ 2 ].compare( ")" ) != 0 ) { //while
+                  i = whileGroup( i );
+            }
+            else if ( ( Tokens[ i ].size() <= 2 && Tokens[ i ].size() >= 1 ) && Tokens[ i ][ 0 ].compare( "do" ) == 0 ) { //do-while
+                  i = doWhileGroup( i );
+            }
+            else if ( Tokens[ i ].size() > 3 && Tokens[ i ][ 0 ].compare( "if" ) == 0 ) {
+                  i = ifGroup( i );
+            }
+            //
+      }
 }
 
 void headerFile_check( int LN )
@@ -915,12 +913,34 @@ bool isFunction( int LN )
       for ( int i = 0; i < functions.size(); ++i ) {
             //cout << functions[ i ].startLine << " ";
             if ( functions[ i ].startLine == LN + 1 ) {
-                  // start - end check kore finish true kore dibo
-                  //LM =
-                  // BAKI ase ekhane
+                  /*cout << functions[ i ].fTokens << "\n" << functions[ i ].startLine;
+                  cout << " " << functions[ i ].statement_text_start << " ";
+                  cout << functions[ i ].statement_text_end << " " << functions[ i ].endLine << "\n";*/
+                  // Function START -> END line checking
 
-                  for ( int j = functions[ i ].startLine; j <= functions[ i ].endLine; ++j )
+                  // Function syntax final check -> BAKI
+                  //->
+
+                  for ( int j = functions[ i ].startLine; j < functions[ i ].statement_text_start; ++j ) {
                         isFinish[ j - 1 ] = true;
+                        //cout << j << "-> ok\n";
+                  }
+
+                  for ( int j = functions[ i ].statement_text_end + 1; j <= functions[ i ].endLine; ++j ) {
+                        isFinish[ j - 1 ] = true;
+                        //cout << j << "-> ok\n";
+                  }
+
+                  // <-
+
+                  findGroup( functions[ i ].statement_text_start - 1, functions[ i ].statement_text_end - 1 );
+
+                  for ( int j = functions[ i ].statement_text_start; j <= functions[ i ].statement_text_end; ++j ) {
+                        if ( !isFinish[ j - 1 ] )
+                              check_THIS_Line( j - 1 );
+                        //cout << j << "-> CK\n";
+                  }
+
 
                   return true;
             }
