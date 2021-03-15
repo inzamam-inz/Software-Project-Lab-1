@@ -77,11 +77,6 @@ void lexing()
                         file << "oparetor\t" << perline[ i ].text[ j ] << "\t" << perline[ i ].line << "\t" << j + 1 << "\n";
                         j += 1;
                   }
-                  /*bad
-                  else if(otherCheck(perline[i].text[j])){
-                        file << "other\t" << perline[i].text[j] << "\t" << perline[i].line << "\t" << j+1 << "\n";
-                        j += 1;
-                  }*/
                   else if ( perline[ i ].text[ j ] == '\\' ) { //charChecking(done)
                         keyword_identifier_check( i, j );
                         file << "character\t" << perline[ i ].text[ j ] << perline[ i ].text[ j + 1 ] << "\t" << perline[ i ].line << "\t" << j + 1 << "\n";//check which character
@@ -120,9 +115,7 @@ void lexing()
                         file << "string\t" << strg  << "\t" << perline[ i ].line << "\t" << temp + 1 << "\n"; //char check in string
                   }
                   else if ( perline[ i ].text[ j ] == ' ' || perline[ i ].text[ j ] == '\n' ) { //keyword_identifer_checking(done)
-                        //cout << check << i << " " << j <<"\n";
                         keyword_identifier_check( i, j );
-
                         j++;
                   }
                   else {
@@ -135,18 +128,17 @@ void lexing()
 int main()
 {
       FILE *fp;
-	string str, codeText;
-	char ch;
+      string str, codeText;
+      char ch;
 
+      fp = fopen( "program.c", "r" );
 
-	fp = fopen( "program.c", "r" );
+      if ( fp == NULL ){
+            printf( "error while opening the file\n" );
+            exit( 0 );
+      }
 
-	if ( fp == NULL ){
-		printf( "error while opening the file\n" );
-		exit( 0 );
-	}
-
-	while ( ( ch = fgetc( fp ) ) != EOF ) {
+      while ( ( ch = fgetc( fp ) ) != EOF ) {
             codeText = codeText + ch;
       }
 
