@@ -100,7 +100,7 @@ void keyword_identifier_check( int l, int col )
       if ( flag == 1 )
             file << "keyword\t" << check << "\t" << perline[ l ].line << "\t" << col - ( check.size() ) + 1 << "\n";
       else
-            file << "indentifier\t" << check << "\t" << perline[ l ].line << "\t" << col - ( check.size() ) + 1 << "\n";
+            file << "identifier\t" << check << "\t" << perline[ l ].line << "\t" << col - ( check.size() ) + 1 << "\n";
 
       check = "";
 }

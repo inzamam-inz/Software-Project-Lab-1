@@ -353,7 +353,7 @@ int checking_Equation( int lineNumber, vector < int > checkList )
       }*/
 
       for ( int i = 0; i < checkList.size(); ++i ) {
-            if ( i % 2 == 0 && ( TokenType[ lineNumber ][ checkList[ i ] ] != "indentifier" && TokenType[ lineNumber ][ checkList[ i ] ] != "integer" ) ) {
+            if ( i % 2 == 0 && ( TokenType[ lineNumber ][ checkList[ i ] ] != "identifier" && TokenType[ lineNumber ][ checkList[ i ] ] != "integer" ) ) {
                   //cout << "\nLine No - " << lineNumber + 1 << " 3 problem in this line\n";
                   //Debug( TokenType[ lineNumber ][ checkList[ i ] ] );
                   cout << "\nLine No - " << lineNumber + 1 << " : ";
@@ -403,7 +403,7 @@ int isDeclareVariableLine( int lineNumber )
                   checkList.clear();
             }
             else {
-                  if ( isSpecialoperator( lineNumber, i ) && TokenType[ lineNumber ][ i + 1 ] == "indentifier" ) {
+                  if ( isSpecialoperator( lineNumber, i ) && TokenType[ lineNumber ][ i + 1 ] == "identifier" ) {
                         ++i;
                         checkList.push_back( i );
                   }
@@ -414,7 +414,7 @@ int isDeclareVariableLine( int lineNumber )
                         CFILE.printTips( "Fixed this Line" );
                         return thisLine_Done;
                   }
-                  else if ( TokenType[ lineNumber ][ i ] == "indentifier" && isSpecialoperator( lineNumber, i + 1 ) ) {
+                  else if ( TokenType[ lineNumber ][ i ] == "identifier" && isSpecialoperator( lineNumber, i + 1 ) ) {
                         checkList.push_back( i );
                         ++i;
                   }
@@ -427,6 +427,23 @@ int isDeclareVariableLine( int lineNumber )
       return thisLine_Done;
 }
 
+int isBreakContinue( int lineNumber )
+{
+      if ( Tokens[ lineNumber ][ 0 ] != "break" && Tokens[ lineNumber ][ 0 ] != "continue" ) {
+            return thisLine_NotFinish;
+      }
+
+      if ( Tokens[ lineNumber ].size() != 2 ) {
+            cout << "\nLine No - " << lineNumber + 1 << " : ";
+            CFILE.printThisLine( lineNumber + 1 );
+            if ( Tokens[ lineNumber ][ 0 ] == "break" )
+                  CFILE.printTips( "Replace with \"break;\"" );
+            if ( Tokens[ lineNumber ][ 0 ] == "continue" )
+                  CFILE.printTips( "Replace with \"continue;\"" );
+      }
+
+      return thisLine_Done;
+}
 int isReturnLine( int lineNumber )
 {
       if ( Tokens[ lineNumber ][ 0 ] != "return" ) {
@@ -498,6 +515,11 @@ void checking_statement( int lineNumber )
             return;
       }
 
+      if ( isBreakContinue( lineNumber ) == thisLine_Done ) {
+            //return thisLine_Done;
+            return;
+      }
+
       /*//int iL = 0 + isSpecialoperator( lineNumber, 0 ), iR = Tokens[ lineNumber ].size() - isSpecialoperator( lineNumber, Tokens[ lineNumber ].size() - 2 );
       //--iR;
      // if ( iL >= iR ) {
@@ -508,7 +530,7 @@ void checking_statement( int lineNumber )
 
       vector < int > checkList;
       for ( int i = 0; i < Tokens[ lineNumber ].size() - 1; ++i ) {
-            if ( isSpecialoperator( lineNumber, i ) && TokenType[ lineNumber ][ i + 1 ] == "indentifier" ) {
+            if ( isSpecialoperator( lineNumber, i ) && TokenType[ lineNumber ][ i + 1 ] == "identifier" ) {
                   ++i;
                   checkList.push_back( i );
             }
@@ -520,7 +542,7 @@ void checking_statement( int lineNumber )
                   //return thisLine_Done;
                   return;
             }
-            else if ( TokenType[ lineNumber ][ i ] == "indentifier" && isSpecialoperator( lineNumber, i + 1 ) ) {
+            else if ( TokenType[ lineNumber ][ i ] == "identifier" && isSpecialoperator( lineNumber, i + 1 ) ) {
                   checkList.push_back( i );
                   ++i;
             }
@@ -540,7 +562,7 @@ void checking_statement( int lineNumber )
       }
 
       for ( int i = 0; i < checkList.size(); ++i ) {
-            if ( i % 2 == 0 && TokenType[ lineNumber ][ checkList[ i ] ] != "indentifier" ) {
+            if ( i % 2 == 0 && TokenType[ lineNumber ][ checkList[ i ] ] != "identifier" ) {
                   cout << "Line No - " << lineNumber + 1 << " 3 problem in this line\n";
                   return;
             }
@@ -690,8 +712,11 @@ int functionGroup( int i )
             else {
                   int j = 2;
                   while ( 1 )  {
+                        if ( j >= Tokens[ i ].size() || ( Tokens[ i ][ j ] != "(" && Tokens[ i ][ j ] != "," ) )
+                              return i;
                         if ( Tokens[ i ][ j ].compare( ")" ) == 0 )
                               break;
+
                         f.parameter.push_back( Tokens[ i ][ j + 2 ] );
                         f.parameterType.push_back( Tokens[ i ][ j + 1 ] );
                         j += 3;
@@ -743,10 +768,10 @@ int whileGroup( int i )
       temp.push( 1 );
       while ( !temp.empty() ) {
             //cout << i;
-            for( int k=0; k<TokenType[h].size(); k++) {
-                  if( Tokens[ h ][ k ].compare( "{" ) == 0 )
-                        temp.push(1);
-                  if( Tokens[ h ][ k ].compare( "}" ) == 0 ) {
+            for ( int k  =0; k < TokenType[ h ].size(); k++ ) {
+                  if ( Tokens[ h ][ k ].compare( "{" ) == 0 )
+                        temp.push( 1 );
+                  if ( Tokens[ h ][ k ].compare( "}" ) == 0 ) {
                         temp.pop();
                   }
             }
@@ -787,7 +812,7 @@ int doWhileGroup( int i )
       //if()
       fa.statement_text_end = h - 1;
       fa.endLine = h + 1;
-      if ( Tokens[h-1].size() > 1 && Tokens[ h - 1 ][ 1 ].compare( "while" ) == 0 ) {
+      if ( Tokens[ h - 1].size() > 1 && Tokens[ h - 1 ][ 1 ].compare( "while" ) == 0 ) {
             fa.endLine = h;
             f = 3;
             //cout << h;
@@ -952,7 +977,7 @@ int ifGroup( int i )
 void findGroup( int startLine, int endLine )
 {
       for ( int i = startLine; i <= endLine; i++ ) {
-            if ( TokenType[ i ].size() > 3 && TokenType[ i ][ 0 ].compare( "keyword" ) == 0  && TokenType[ i ][ 1 ].compare( "indentifier" ) == 0  && Tokens[ i ][ 2 ].compare( "(" ) == 0  && ( Tokens[ i ][ 3 ] == ")" || TokenType[ i ][ 3 ] == "keyword" ) ) { //function
+            if ( TokenType[ i ].size() > 3 && TokenType[ i ][ 0 ].compare( "keyword" ) == 0  && TokenType[ i ][ 1 ].compare( "identifier" ) == 0  && Tokens[ i ][ 2 ].compare( "(" ) == 0  && ( Tokens[ i ][ 3 ] == ")" || TokenType[ i ][ 3 ] == "keyword" ) ) { //function
                   i = functionGroup(i);
             }
             else if ( Tokens[ i ].size() > 4 && Tokens[ i ][ 0 ].compare( "for" ) == 0 && Tokens[ i ][ 1 ].compare( "(" ) == 0 ) { //for
@@ -1064,13 +1089,13 @@ void initialize_Checking( int LN )
       // find MAIN function
       find_MAIN_function(); //Done
       // TODO : same function name detection
-      sameFunctionNameDetection();
+      sameFunctionNameDetection();  //DONE
       // header file check
       cout << "\n";
       LN = headerFiles_check( LN );  //DONE
 }
 
-bool isFunction( int LN )
+bool isFunction( int LN ) // almost OK
 {
       for ( int i = 0; i < functions.size(); ++i ) {
             //cout << functions[ i ].startLine << " ";
@@ -1081,7 +1106,7 @@ bool isFunction( int LN )
                   // Function START -> END line checking
 
                   // Function syntax final check -> BAKI
-                  //->
+                  //-> Allah vorosa  it's already checked
 
                   for ( int j = functions[ i ].startLine; j < functions[ i ].statement_text_start; ++j ) {
                         isFinish[ j - 1 ] = true;
@@ -1111,7 +1136,7 @@ bool isFunction( int LN )
       return false;
 }
 
-bool isFor( int LN )
+bool isFor( int LN ) // almost okay but special mentioned -> [ TODO : final "for" syntax Baki ]
 {
       for ( int i = 0; i < fors.size(); ++i ) {
             if ( fors[ i ].startLine == LN + 1 ) {
@@ -1119,8 +1144,25 @@ bool isFor( int LN )
                   //LM =
                   // BAKI ase ekhane
 
-                  for ( int j = fors[ i ].startLine; j <= fors[ i ].endLine; ++j )
+                  for ( int j = fors[ i ].startLine; j < fors[ i ].statement_text_start; ++j ) {
                         isFinish[ j - 1 ] = true;
+                        //cout << j << "-> ok\n";
+                  }
+
+                  for ( int j = fors[ i ].statement_text_end + 1; j <= fors[ i ].endLine; ++j ) {
+                        isFinish[ j - 1 ] = true;
+                        //cout << j << "-> ok\n";
+                  }
+
+                  findGroup( fors[ i ].statement_text_start - 1, fors[ i ].statement_text_end - 1 );
+
+                  for ( int j = fors[ i ].statement_text_start; j <= fors[ i ].statement_text_end; ++j ) {
+                        if ( !isFinish[ j - 1 ] )
+                              check_THIS_Line( j - 1 );
+                        //cout << j << "-> CK\n";
+                  }
+                  /*for ( int j = fors[ i ].startLine; j <= fors[ i ].endLine; ++j )
+                        isFinish[ j - 1 ] = true;*/
 
                   return true;
             }
@@ -1137,8 +1179,26 @@ bool isWhile( int LN )
                   //LM =
                   // BAKI ase ekhane
 
-                  for ( int j = whiles[ i ].startLine; j <= whiles[ i ].endLine; ++j )
+                  for ( int j = whiles[ i ].startLine; j < whiles[ i ].statement_text_start; ++j ) {
                         isFinish[ j - 1 ] = true;
+                        //cout << j << "-> ok\n";
+                  }
+
+                  for ( int j = whiles[ i ].statement_text_end + 1; j <= whiles[ i ].endLine; ++j ) {
+                        isFinish[ j - 1 ] = true;
+                        //cout << j << "-> ok\n";
+                  }
+
+                  findGroup( whiles[ i ].statement_text_start - 1, whiles[ i ].statement_text_end - 1 );
+
+                  for ( int j = whiles[ i ].statement_text_start; j <= whiles[ i ].statement_text_end; ++j ) {
+                        if ( !isFinish[ j - 1 ] )
+                              check_THIS_Line( j - 1 );
+                        //cout << j << "-> CK\n";
+                  }
+
+                  /*for ( int j = whiles[ i ].startLine; j <= whiles[ i ].endLine; ++j )
+                        isFinish[ j - 1 ] = true;*/
 
                   return true;
             }
@@ -1155,14 +1215,86 @@ bool isDOWhile( int LN )
                   //LM =
                   // BAKI ase ekhane
 
-                  for ( int j = do_whiles[ i ].startLine; j <= do_whiles[ i ].endLine; ++j )
+                  for ( int j = do_whiles[ i ].startLine; j < do_whiles[ i ].statement_text_start; ++j ) {
                         isFinish[ j - 1 ] = true;
+                        //cout << j << "-> ok\n";
+                  }
+
+                  for ( int j = do_whiles[ i ].statement_text_end + 1; j <= do_whiles[ i ].endLine; ++j ) {
+                        isFinish[ j - 1 ] = true;
+                        //cout << j << "-> ok\n";
+                  }
+
+                  findGroup( do_whiles[ i ].statement_text_start - 1, do_whiles[ i ].statement_text_end - 1 );
+
+                  for ( int j = do_whiles[ i ].statement_text_start; j <= do_whiles[ i ].statement_text_end; ++j ) {
+                        if ( !isFinish[ j - 1 ] )
+                              check_THIS_Line( j - 1 );
+                        //cout << j << "-> CK\n";
+                  }
+
+                  /*for ( int j = do_whiles[ i ].startLine; j <= do_whiles[ i ].endLine; ++j )
+                        isFinish[ j - 1 ] = true;*/
 
                   return true;
             }
       }
 
       return false;
+}
+
+void isIFELSE( else_if_struct &elseIf )
+{     //comfirmed that This Line have ELSE IF
+      // start - end check kore finish true kore dibo
+      //LM =
+      // BAKI ase ekhane
+      //int LN,
+      isFinish[ elseIf.startLine ] = true;
+
+      for ( int j = elseIf.startLine; j < elseIf.statement_text_start; ++j ) {
+            isFinish[ j - 1 ] = true;
+            //cout << j << "-> ok\n";
+      }
+
+      for ( int j = elseIf.statement_text_end + 1; j <= elseIf.endLine; ++j ) {
+            isFinish[ j - 1 ] = true;
+            //cout << j << "-> ok\n";
+      }
+
+      findGroup( elseIf.statement_text_start - 1, elseIf.statement_text_end - 1 );
+
+      for ( int j = elseIf.statement_text_start; j <= elseIf.statement_text_end; ++j ) {
+            if ( !isFinish[ j - 1 ] )
+                  check_THIS_Line( j - 1 );
+            //cout << j << "-> CK\n";
+      }
+}
+
+void isELSE( else_struct &els )
+{     //comfirmed that This Line have ELSE IF
+      // start - end check kore finish true kore dibo
+      //LM =
+      // BAKI ase ekhane
+      //int LN,
+      isFinish[ els.startLine ] = true;
+
+      for ( int j = els.startLine; j < els.statement_text_start; ++j ) {
+            isFinish[ j - 1 ] = true;
+            //cout << j << "-> ok\n";
+      }
+
+      for ( int j = els.statement_text_end + 1; j <= els.endLine; ++j ) {
+            isFinish[ j - 1 ] = true;
+            //cout << j << "-> ok\n";
+      }
+
+      findGroup( els.statement_text_start - 1, els.statement_text_end - 1 );
+
+      for ( int j = els.statement_text_start; j <= els.statement_text_end; ++j ) {
+            if ( !isFinish[ j - 1 ] )
+                  check_THIS_Line( j - 1 );
+            //cout << j << "-> CK\n";
+      }
 }
 
 bool isIF( int LN )
@@ -1173,8 +1305,39 @@ bool isIF( int LN )
                   //LM =
                   // BAKI ase ekhane
 
-                  for ( int j = ifs[ i ].startLine; j <= ifs[ i ].endLine; ++j )
+                  for ( int j = ifs[ i ].startLine; j < ifs[ i ].statement_text_start; ++j ) {
                         isFinish[ j - 1 ] = true;
+                        //cout << j << "-> ok\n";
+                  }
+
+                  for ( int j = ifs[ i ].statement_text_end + 1; j <= ifs[ i ].endLine; ++j ) {
+                        isFinish[ j - 1 ] = true;
+                        //cout << j << "-> ok\n";
+                  }
+
+                  findGroup( ifs[ i ].statement_text_start - 1, ifs[ i ].statement_text_end - 1 );
+
+                  for ( int j = ifs[ i ].statement_text_start; j <= ifs[ i ].statement_text_end; ++j ) {
+                        if ( !isFinish[ j - 1 ] )
+                              check_THIS_Line( j - 1 );
+                        //cout << j << "-> CK\n";
+                  }
+
+                  /*for ( int j = ifs[ i ].startLine; j <= ifs[ i ].endLine; ++j )
+                        isFinish[ j - 1 ] = true;*/
+
+                  // TODO : else if gula re check
+                  for ( int j = 0; j < ifs[ i ].if_elses.size(); ++j ) {
+                        isIFELSE( ifs[ i ].if_elses[ j ] );
+                        //cout << "$";
+                  }
+                  //cout << ifs[ i ].if_elses.size() << " " << LN << "**\n ";
+
+                  // TODO : else re check
+                  for ( int j = 0; j < ifs[ i ].elses.size(); ++j ) {
+                        isELSE( ifs[ i ].elses[ j ] );
+                        //cout << "$";
+                  }
 
                   return true;
             }
@@ -1249,12 +1412,22 @@ int main()
             totalLine = max( totalLine, h );
       }
 
-      findGroup( 0, 100 );
+      findGroup( 0, totalLine );
       syntaxChecking();
       //printFor();
 
-
-
-
       return 0;
 }
+
+/*
+TODO : complete final check of group properties
+
+TODO : final check of main function;
+
+TODO : comment handle
+-> replace with space
+
+TODO : Variable handle ***
+-> stack and set
+->
+*/

@@ -9,23 +9,23 @@ a += a * b;
 a += a +* b;
 a *= ++a * b++;
 a += a * b*;
-int a, b;
-int a = a++, b = a;
-++a
-a += a++ ++b;
-a = a++ + ++b;
-a = a+++++b;
-x=y+x*y;
 
-void inzamam(int a, int b, double c)
+
+void inzamam(int a, int b double d )
 {
     c = a+b;
     return c;
 }
 
-int inzamam ( void ) {
+int inzamam ( ) {
 
-
+      int a, b;
+      int a = a++, b = a;
+      ++a
+      a += a++ ++b;
+      a = a++ + ++b;
+      a = a+++++b;
+      x=y+x*y;
 
       return;
 }
@@ -47,7 +47,7 @@ int mai()
     while( a < 19 || b <= 3)
     {
         if(n == a+b){
-            break;
+            break;;
         }
         a = a+1;
         b = b+1;
@@ -76,8 +76,10 @@ int mai()
         a = b + 2;
     }
 
-    for(int a=0, b=0, a < 19 && b <= 3 || b==0 ; a++, b=a)
+    for(int a=0; b=0, a < 19 && b <= 3 || b==0 ; a++, b=a)
     {
+      a--;
+      ++a
         a = b + 2;
     }
 
