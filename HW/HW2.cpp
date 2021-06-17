@@ -1,9 +1,50 @@
 
+/*   ALLAH is Almighty.....  */
 /*   https://www.cs.uic.edu/~troy/spring01/eecs473/mp2_473.html   */
 
-#include <stdlib.h>
 #include <bits/stdc++.h>
 using namespace std;
+
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+
+#define pi                                acos( -1.0 )
+#define rep( i, a, n )                    for ( Long i = a; i < n; i++ )
+#define per( i, a, n )                    for ( Long i = n - 1; i >= a; i-- )
+#define all( x )                          ( x ).begin(), ( x ).end()
+#define Long                              long long
+
+#ifndef ONLINE_JUDGE
+#define Debug( x )                        cerr << "#[ " << #x << " = "; PrintForDebug( x ); cerr << " ]\n";
+#else
+#define Debug( x )
+#endif
+
+
+template < class Type > void PrintForDebug( Type Var ) {
+      cerr << setprecision( 15 ) << Var;
+}
+
+template < class Type1, class Type2 > void PrintForDebug( pair < Type1, Type2 > Var ) {
+      cerr << "(";  PrintForDebug( Var.first );  cerr << ",";  PrintForDebug( Var.second );  cerr << ")";
+}
+
+template < class Type > void PrintForDebug( vector < Type > Var ) {
+      cerr << "{ ";
+      for ( int i = 0; i < Var.size(); ++i ) {
+            if ( i ) cerr << ", "; PrintForDebug( Var[ i ] );
+      } cerr << " } Size = " << Var.size();
+}
+
+template < class Type > void PrintForDebug( set < Type > Var ) {
+      cerr << "{ "; int Size = Var.size();
+      while ( !Var.empty() ) {
+             PrintForDebug( *Var.begin() ); Var.erase( Var.begin() ); if ( !Var.empty() )  cerr << ", ";
+      } cerr << " } Size = " << Size;
+}
+
+typedef tree < Long, null_type, less < Long >, rb_tree_tag, tree_order_statistics_node_update > Ordered_set;
 
 
 #define thisLine_Done           1
@@ -86,6 +127,40 @@ struct if_struct
       vector < else_if_struct > if_elses;
 };
 
+struct printCFile {
+      FILE *fp;
+      string str, codeText;
+      char ch;
+      vector < string > codeLine;
+
+      printCFile() {
+            this->fp = fopen( "program.c", "r" );
+            if ( fp == NULL ){
+                  printf( "error while opening the file 'program.c'\n" );
+                  exit( 0 );
+            }
+
+            while ( ( ch = fgetc( fp ) ) != EOF ) {
+                       codeText = codeText + ch;
+            }
+            codeLine.push_back( codeText ); //full code;
+
+            stringstream X( codeText );
+            while ( getline( X, str, '\n' ) ) {
+                  codeLine.push_back( str );
+            }
+            //Debug( codeText );
+      }
+
+      void printThisLine( int LN ) {
+            cout << "\"" << codeLine[ LN ] << "\"\n";
+      }
+
+      void printTips( string str ) {
+            cout << "  Tips : " << str << ".\n";
+      }
+};
+
 
 vector < for_struct > fors;
 vector < func > functions;
@@ -97,6 +172,7 @@ vector < string > TokenType[ 100 ];
 vector < string > Tokens[ 100 ];
 bool isFinish[ 100 ], haveERROR[ 100 ];
 vector < vector < string > > allVariable;
+printCFile CFILE;
 /*struct perlinestruct
 {
       int line;
@@ -120,8 +196,8 @@ bool isLetter( char ch );
 bool isNumber( string st );
 bool validVariableName( string st );
 bool availableVariable( string var, set < string > inScope );
-bool validOparetor( int lineNumber, int columnNumber );
-bool isSpecialOparetor( int lineNumber, int columnNumber );
+bool validoperator( int lineNumber, int columnNumber );
+bool isSpecialoperator( int lineNumber, int columnNumber );
 bool isFunction( int LN );
 bool isFor( int LN );
 bool isWhile( int LN );
@@ -135,7 +211,7 @@ void initialize_Checking( int LN );
 void check_THIS_Line ( int LN );
 void syntaxChecking();
 int checking_Equation( int lineNumber, vector < int > checkList );
-int isDeclareVariable( int lineNumber );
+int isDeclareVariableLine( int lineNumber );
 int strTint( string str );
 int forGroup( int i );
 int functionGroup( int i );
@@ -145,7 +221,7 @@ int ifGroup( int i );
 int headerFiles_check( int LN );
 else_if_struct elseIfGroup( int i );
 else_struct elseGroup( int i );
-
+//void printThisLine( int LN );
 
 
 
@@ -214,33 +290,33 @@ bool validVariableName( string st )
       return true;
 }
 
-bool availableVariable( string var, set < string > inScope )
+bool availableVariable( string var, set < string > &inScope )
 {
       return inScope.find( var ) == inScope.end();
 }
 
-bool validOparetor( int lineNumber, int columnNumber )
+bool validoperator( int lineNumber, int columnNumber )
 {
-      if ( TokenType[ lineNumber ].size() <= columnNumber || TokenType[ lineNumber ][ columnNumber ] != "oparetor" || Tokens[ lineNumber ][ columnNumber ].size() > 2 ) {
+      if ( TokenType[ lineNumber ].size() <= columnNumber || TokenType[ lineNumber ][ columnNumber ] != "operator" || Tokens[ lineNumber ][ columnNumber ].size() > 2 ) {
             return false;
       }
 
-      set < char > goodOparetor;
-      goodOparetor.insert( '+' );
-      goodOparetor.insert( '-' );
-      goodOparetor.insert( '&' );
-      goodOparetor.insert( '|' );
-      goodOparetor.insert( '=' );
-      goodOparetor.insert( '>' );
-      goodOparetor.insert( '<' );
-      goodOparetor.insert( '*' );
-      goodOparetor.insert( '/' );
+      set < char > goodoperator;
+      goodoperator.insert( '+' );
+      goodoperator.insert( '-' );
+      goodoperator.insert( '&' );
+      goodoperator.insert( '|' );
+      goodoperator.insert( '=' );
+      goodoperator.insert( '>' );
+      goodoperator.insert( '<' );
+      goodoperator.insert( '*' );
+      goodoperator.insert( '/' );
 
       string currentToken = Tokens[ lineNumber ][ columnNumber ];
-      if ( currentToken.size() == 1 && goodOparetor.count( currentToken[ 0 ] ) ) {
+      if ( currentToken.size() == 1 && goodoperator.count( currentToken[ 0 ] ) ) {
             return true;
       }
-      else if ( currentToken.size() == 2 && goodOparetor.count( currentToken[ 0 ] ) && goodOparetor.count( currentToken[ 1 ] ) ) {
+      else if ( currentToken.size() == 2 && goodoperator.count( currentToken[ 0 ] ) && goodoperator.count( currentToken[ 1 ] ) ) {
             return true;
       }
       else {
@@ -248,9 +324,9 @@ bool validOparetor( int lineNumber, int columnNumber )
       }
 }
 
-bool isSpecialOparetor( int lineNumber, int columnNumber )
+bool isSpecialoperator( int lineNumber, int columnNumber )
 {
-      if ( TokenType[ lineNumber ].size() <= columnNumber || TokenType[ lineNumber ][ columnNumber ] != "oparetor" || Tokens[ lineNumber ][ columnNumber ].size() > 2 ) {
+      if ( TokenType[ lineNumber ].size() <= columnNumber || TokenType[ lineNumber ][ columnNumber ] != "operator" || Tokens[ lineNumber ][ columnNumber ].size() > 2 ) {
             return false;
       }
       if ( Tokens[ lineNumber ][ columnNumber ] == "++"  || Tokens[ lineNumber ][ columnNumber ] == "--" ) {
@@ -260,25 +336,46 @@ bool isSpecialOparetor( int lineNumber, int columnNumber )
 
 int checking_Equation( int lineNumber, vector < int > checkList )
 {
+      /*cout << lineNumber << "->";
+      if ( lineNumber == 83 ) {
+            Debug( checkList.size() );
+      }*/
+
       if ( checkList.size() % 2 == 0 || !checkList.size() ) {
-            cout << "Line No - " << lineNumber + 1 << " 5 problem in this line\n";
+            cout << "\nLine No - " << lineNumber + 1 << " : ";
+            CFILE.printThisLine( lineNumber + 1 );
+            CFILE.printTips( "Fixed this Line" );
             return thisLine_Done;
       }
 
+      /*if ( lineNumber == 83 ) {
+            Debug( checkList.size() );
+      }*/
+
       for ( int i = 0; i < checkList.size(); ++i ) {
-            if ( i % 2 == 0 && TokenType[ lineNumber ][ checkList[ i ] ] != "indentifier" ) {
-                  cout << "Line No - " << lineNumber + 1 << " 3 problem in this line\n";
+            if ( i % 2 == 0 && ( TokenType[ lineNumber ][ checkList[ i ] ] != "indentifier" && TokenType[ lineNumber ][ checkList[ i ] ] != "integer" ) ) {
+                  //cout << "\nLine No - " << lineNumber + 1 << " 3 problem in this line\n";
+                  //Debug( TokenType[ lineNumber ][ checkList[ i ] ] );
+                  cout << "\nLine No - " << lineNumber + 1 << " : ";
+                  CFILE.printThisLine( lineNumber + 1 );
+                  CFILE.printTips( "Fixed this Line" );
+                  //cout << "*";
                   return thisLine_Done;
             }
-            if ( i % 2 == 1 && !validOparetor( lineNumber, checkList[ i ] ) ) {
-                  cout << "Line No - " << lineNumber + 1 << " " << i << " 4 problem in this line\n";
+            if ( i % 2 == 1 && !validoperator( lineNumber, checkList[ i ] ) ) {
+                  //cout << "\nLine No - " << lineNumber + 1 << " " << i << " 4 problem in this line\n";
+
+                  cout << "\nLine No - " << lineNumber + 1 << " : ";
+                  CFILE.printThisLine( lineNumber + 1 );
+                  CFILE.printTips( "Fixed this Line" );
+                  //cout << "*8";
                   return thisLine_Done;
             }
       }
       return thisLine_NotFinish;
 }
 
-int isDeclareVariable( int lineNumber )
+int isDeclareVariableLine( int lineNumber )
 {
       set < string > rightType;
       rightType.insert( "char" );
@@ -290,29 +387,34 @@ int isDeclareVariable( int lineNumber )
       }
 
       if ( Tokens[ lineNumber ].size() <= 2 ) {
-            cout << "Line No - " << lineNumber + 1 << " 1 problem in this line\n";
+            cout << "\nLine No - " << lineNumber + 1 << " : ";
+            CFILE.printThisLine( lineNumber + 1 );
+            CFILE.printTips( "Need variable name" );
             return thisLine_Done;
       }
 
       vector < int > checkList;
       for ( int i = 1; i < Tokens[ lineNumber ].size(); ++i ) {
             if ( Tokens[ lineNumber ][ i ] == "," || Tokens[ lineNumber ][ i ] == ";" ) {
-                  cout << i << " ";
+                  //cout << i << " ";
                   if( checking_Equation( lineNumber, checkList ) == thisLine_Done ) {
                         return thisLine_Done;
                   }
                   checkList.clear();
             }
             else {
-                  if ( isSpecialOparetor( lineNumber, i ) && TokenType[ lineNumber ][ i + 1 ] == "indentifier" ) {
+                  if ( isSpecialoperator( lineNumber, i ) && TokenType[ lineNumber ][ i + 1 ] == "indentifier" ) {
                         ++i;
                         checkList.push_back( i );
                   }
-                  else if ( isSpecialOparetor( lineNumber, i ) ) {
-                        cout << "Line No - " << lineNumber + 1 << " 6 problem in this line\n";
+                  else if ( isSpecialoperator( lineNumber, i ) ) {
+                        //cout << "\nLine No - " << lineNumber + 1 << " 6 problem in this line\n";
+                        cout << "\nLine No - " << lineNumber + 1 << " : ";
+                        CFILE.printThisLine( lineNumber + 1 );
+                        CFILE.printTips( "Fixed this Line" );
                         return thisLine_Done;
                   }
-                  else if ( TokenType[ lineNumber ][ i ] == "indentifier" && isSpecialOparetor( lineNumber, i + 1 ) ) {
+                  else if ( TokenType[ lineNumber ][ i ] == "indentifier" && isSpecialoperator( lineNumber, i + 1 ) ) {
                         checkList.push_back( i );
                         ++i;
                   }
@@ -321,7 +423,50 @@ int isDeclareVariable( int lineNumber )
                   }
             }
       }
-      cout << "ahsd";
+     // cout << "ahsd";
+      return thisLine_Done;
+}
+
+int isReturnLine( int lineNumber )
+{
+      if ( Tokens[ lineNumber ][ 0 ] != "return" ) {
+            return thisLine_NotFinish;
+      }
+
+      //TODO : find function Name
+      //Debug( functions.size() );
+      //cout << functions.back().startLine << " ";
+      for ( int i = 0; i < functions.size(); ++i ) {
+            if ( lineNumber >= functions[ i ].startLine && lineNumber <= functions[ i ].endLine ) {
+                  // pawa gese
+                  if ( functions[ i ].returnType == "void" && Tokens[ lineNumber ].size() > 2 ) {
+                        cout << "\nLine No - " << lineNumber + 1 << " : ";
+                        CFILE.printThisLine( lineNumber + 1 );
+                        CFILE.printTips( "Function name '" + functions[ i ].fTokens + "' have void return type" );
+                        return thisLine_Done;
+                  }
+                  else if ( functions[ i ].returnType != "void" && Tokens[ lineNumber ].size() <= 2 ) {
+                        cout << "\nLine No - " << lineNumber + 1 << " : ";
+                        CFILE.printThisLine( lineNumber + 1 );
+                        CFILE.printTips( "Function name '" + functions[ i ].fTokens + "' have return type, but return value not Found" );
+                        return thisLine_Done;
+                  }
+                  else {
+                        //Debug( lineNumber + 1 );
+                        vector < int > checkList;
+                        for ( int i = 1; i + 1 < Tokens[ lineNumber ].size(); ++i ) {
+                              checkList.push_back( i );
+                        }
+                        checking_Equation( lineNumber, checkList );
+                        return thisLine_Done;
+                  }
+            }
+      }
+      //have bug
+      //cout << "\n\n\n\n***Have BUG***\n\n\n";
+      cout << "\nLine No - " << lineNumber + 1 << " : ";
+      CFILE.printThisLine( lineNumber + 1 );
+      CFILE.printTips( "This Line is Out of any Function" );
       return thisLine_Done;
 }
 
@@ -331,7 +476,10 @@ void checking_statement( int lineNumber )
       //cout << Tokens[ lineNumber ].size() << " ";
       //return;
       if ( Tokens[ lineNumber ].size() && Tokens[ lineNumber ].back() != ";" ) {
-            cout << "Line No - " << lineNumber + 1 << " 1 problem in this line\n";
+            cout << "\nLine No - " << lineNumber + 1 << " : ";
+            CFILE.printThisLine( lineNumber + 1 );
+            CFILE.printTips( "Add ';' in this line" );
+            //Debug( Tokens[ lineNumber ] );
             //return thisLine_Done;
             return;
       }
@@ -340,12 +488,17 @@ void checking_statement( int lineNumber )
             return;
       }
 
-      if ( isDeclareVariable( lineNumber ) == thisLine_Done ) {
+      if ( isDeclareVariableLine( lineNumber ) == thisLine_Done ) {
             //return thisLine_Done;
             return;
       }
 
-      /*//int iL = 0 + isSpecialOparetor( lineNumber, 0 ), iR = Tokens[ lineNumber ].size() - isSpecialOparetor( lineNumber, Tokens[ lineNumber ].size() - 2 );
+      if ( isReturnLine( lineNumber ) == thisLine_Done ) {
+            //return thisLine_Done;
+            return;
+      }
+
+      /*//int iL = 0 + isSpecialoperator( lineNumber, 0 ), iR = Tokens[ lineNumber ].size() - isSpecialoperator( lineNumber, Tokens[ lineNumber ].size() - 2 );
       //--iR;
      // if ( iL >= iR ) {
            //  cout << "Line No - " << lineNumber + 1 << " 2 problem in this line\n";
@@ -355,16 +508,19 @@ void checking_statement( int lineNumber )
 
       vector < int > checkList;
       for ( int i = 0; i < Tokens[ lineNumber ].size() - 1; ++i ) {
-            if ( isSpecialOparetor( lineNumber, i ) && TokenType[ lineNumber ][ i + 1 ] == "indentifier" ) {
+            if ( isSpecialoperator( lineNumber, i ) && TokenType[ lineNumber ][ i + 1 ] == "indentifier" ) {
                   ++i;
                   checkList.push_back( i );
             }
-            else if ( isSpecialOparetor( lineNumber, i ) ) {
-                  cout << "Line No - " << lineNumber + 1 << " 6 problem in this line\n";
+            else if ( isSpecialoperator( lineNumber, i ) ) {
+                  //cout << "\nLine No - " << lineNumber + 1 << " 6 problem in this line\n";
+                  cout << "\nLine No - " << lineNumber + 1 << " : ";
+                  CFILE.printThisLine( lineNumber + 1 );
+                  CFILE.printTips( "Fixed this Line" );
                   //return thisLine_Done;
                   return;
             }
-            else if ( TokenType[ lineNumber ][ i ] == "indentifier" && isSpecialOparetor( lineNumber, i + 1 ) ) {
+            else if ( TokenType[ lineNumber ][ i ] == "indentifier" && isSpecialoperator( lineNumber, i + 1 ) ) {
                   checkList.push_back( i );
                   ++i;
             }
@@ -388,7 +544,7 @@ void checking_statement( int lineNumber )
                   cout << "Line No - " << lineNumber + 1 << " 3 problem in this line\n";
                   return;
             }
-            if ( i % 2 == 1 && !validOparetor( lineNumber, checkList[ i ] ) ) {
+            if ( i % 2 == 1 && !validoperator( lineNumber, checkList[ i ] ) ) {
                   cout << "Line No - " << lineNumber + 1 << " " << i << " 4 problem in this line\n";
                   return;
             }
@@ -412,43 +568,43 @@ int strTint( string str )
 void printFor()
 {
       for ( int i = 0; i < fors.size(); ++i ) {
-              cout << i << "th FOR:\n\n";
-          cout << "For Start Line: " << fors[ i ].startLine << endl;
-          cout << "Statement Text start line: " << fors[ i ].statement_text_start << endl;
-          cout << "Statement end start line: " << fors[ i ].statement_text_end << endl;
-          cout << "For end Line: " << fors[ i ].endLine << endl;
-          cout << "\ninitialize:\n";
-          for(int a=0; a<fors[ i ].initialize.size(); a++)
-          {
-              cout << fors[ i ].initialize[a] << " ";
-          }
-          cout << "\ninitializeType:\n";
-          for(int a=0; a<fors[ i ].initializeType.size(); a++)
-          {
-              cout << fors[ i ].initializeType[a] << " ";
-          }
-          cout << "\n\nCondition:\n";
-          for(int a=0; a<fors[ i ].condition.size(); a++)
-          {
-              cout << fors[ i ].condition[a] << " ";
-          }
-          cout << "\nConditionType:\n";
-          for(int a=0; a<fors[ i ].conditionType.size(); a++)
-          {
-              cout << fors[ i ].conditionType[a] << " ";
-          }
-          cout << "\n\nChange:\n";
-          for(int a=0; a<fors[ i ].change.size(); a++)
-          {
+            cout << i << "th FOR:\n\n";
+            cout << "For Start Line: " << fors[ i ].startLine << endl;
+            cout << "Statement Text start line: " << fors[ i ].statement_text_start << endl;
+            cout << "Statement end start line: " << fors[ i ].statement_text_end << endl;
+            cout << "For end Line: " << fors[ i ].endLine << endl;
+            cout << "\ninitialize:\n";
+            for(int a=0; a<fors[ i ].initialize.size(); a++)
+            {
+                  cout << fors[ i ].initialize[a] << " ";
+            }
+            cout << "\ninitializeType:\n";
+            for(int a=0; a<fors[ i ].initializeType.size(); a++)
+            {
+                  cout << fors[ i ].initializeType[a] << " ";
+            }
+            cout << "\n\nCondition:\n";
+            for(int a=0; a<fors[ i ].condition.size(); a++)
+            {
+                  cout << fors[ i ].condition[a] << " ";
+            }
+            cout << "\nConditionType:\n";
+            for(int a=0; a<fors[ i ].conditionType.size(); a++)
+            {
+                  cout << fors[ i ].conditionType[a] << " ";
+            }
+            cout << "\n\nChange:\n";
+            for(int a=0; a<fors[ i ].change.size(); a++)
+            {
               cout << fors[ i ].change[a] << " ";
-          }
-          cout << "\nChangeType:\n";
-          for(int a=0; a<fors[ i ].changeType.size(); a++)
-          {
-              cout << fors[ i ].changeType[a] << " ";
-          }
-          cout << endl;
-      }
+            }
+            cout << "\nChangeType:\n";
+            for(int a=0; a<fors[ i ].changeType.size(); a++)
+            {
+                  cout << fors[ i ].changeType[a] << " ";
+            }
+            cout << endl;
+            }
 }
 
 int forGroup( int i )
@@ -483,8 +639,11 @@ int forGroup( int i )
             f++;
       }
 
+      //Debug( semi );
       if ( semi != 2 ) {
-            cout << "find error\n";
+            cout << "\nLine No - " << fa.startLine << " : ";
+            CFILE.printThisLine( fa.startLine );
+            CFILE.printTips( "Need exactly TWO semi-colon" );
             return i;
       }
 
@@ -560,195 +719,171 @@ int functionGroup( int i )
             f.endLine = h;
             functions.push_back( f );
             i = h - 1;
-        //statement & endline
+            //statement & endline
       }
       return i;
 }
 
-int whileGroup(int i)
+int whileGroup( int i )
 {
-    int f = 2;
-    while_struct fa;
-    fa.startLine = i+1;
-    fa.statement_text_start = i+3;
-    if(Tokens[i][TokenType[i].size()-1].compare("{") == 0)
-    {
-        fa.statement_text_start = i+2;
-    }
-    while(Tokens[i][f].compare(")") != 0)
-    {
-        fa.condition.push_back(Tokens[i][f]);
-        fa.conditionType.push_back(TokenType[i][f]);
-        f++;
-    }
-    stack <int> temp;
-    int h = fa.statement_text_start - 1;
-    temp.push(1);
-    while(!temp.empty())
-    {
-        //cout << i;
-        for(int k=0; k<TokenType[h].size(); k++)
-        {
-            if(Tokens[h][k].compare("{") == 0)
-                temp.push(1);
-            if(Tokens[h][k].compare("}") == 0)
-            {
-                temp.pop();
-            }
-        }
-        h++;
-    }
-    fa.statement_text_end = h-1;
-    fa.endLine = h;
-    whiles.push_back(fa);
-    i = fa.endLine-1;
-    return i;
-}
-
-int doWhileGroup(int i)
-{
-    int f = 2;
-    do_while_struct fa;
-    fa.startLine = i+1;
-    //cout << Tokens[i][0] << " " << i;
-    fa.statement_text_start = i+3;
-    if(Tokens[i][TokenType[i].size()-1].compare("{") == 0)
-    {
-        fa.statement_text_start = i+2;
-    }
-    stack <int> temp;
-    int h = fa.statement_text_start - 1;
-    temp.push(1);
-    while(!temp.empty())
-    {
-        //cout << i;
-        for(int k=0; k<TokenType[h].size(); k++)
-        {
-            if(Tokens[h][k].compare("{") == 0)
-                temp.push(1);
-            if(Tokens[h][k].compare("}") == 0)
-            {
-                temp.pop();
-            }
-        }
-        h++;
-    }
-    //cout << h;//32
-    //if()
-    fa.statement_text_end = h-1;
-    fa.endLine = h+1;
-    if(Tokens[h-1].size() > 1 && Tokens[h-1][1].compare("while") == 0)
-    {
-        fa.endLine = h;
-        f = 3;
-        //cout << h;
-    }
-    //
-    while(Tokens[fa.endLine-1][f].compare(")") != 0)
-    {
-        fa.condition.push_back(Tokens[fa.endLine-1][f]);
-        fa.conditionType.push_back(TokenType[fa.endLine-1][f]);
-        f++;
-    }
-    do_whiles.push_back(fa);
-    i = fa.endLine-1;
-    return i;
-}
-
-else_if_struct elseIfGroup(int i)
-{
-    int f = 3;
-    else_if_struct fa;
-    fa.startLine = i+1;//24
-    fa.statement_text_start = i+3;//26
-    while(Tokens[i][f].compare(")") != 0)
-    {
-        fa.condition.push_back(Tokens[i][f]);
-        fa.conditionType.push_back(TokenType[i][f]);
-        f++;
-    }
-    if(Tokens[i][TokenType[i].size()-1].compare("{") == 0)
-    {
-        fa.statement_text_start = i+2;//25
-    }
-    if(Tokens[i][TokenType[i].size()-1].compare("{") != 0 && (Tokens[i+1].size() > 0 && Tokens[i+1][0].compare("{") != 0))
-    {
-        //cout << "jja" << Tokens[i][TokenType[i].size()-1] << Tokens[i+1][0] << i;
-        fa.statement_text_start = i+2;
-        fa.statement_text_end = i+2;
-        fa.endLine = i+2;
-        i = i + 1;
-    }
-    else
-    {
-        stack <int> temp;
-        int h = fa.statement_text_start - 1;
-        temp.push(1);
-        while(!temp.empty())
-        {
+      int f = 2;
+      while_struct fa;
+      fa.startLine = i + 1;
+      fa.statement_text_start = i + 3;
+      if ( Tokens[ i ][ TokenType[ i ].size() - 1 ].compare( "{" ) == 0 ) {
+            fa.statement_text_start = i + 2;
+      }
+      while ( Tokens[ i ][ f ].compare(")") != 0 ) {
+            fa.condition.push_back( Tokens[ i ][ f ] );
+            fa.conditionType.push_back( TokenType[ i ][ f ] );
+            f++;
+      }
+      stack < int > temp;
+      int h = fa.statement_text_start - 1;
+      temp.push( 1 );
+      while ( !temp.empty() ) {
             //cout << i;
-            for(int k=0; k<TokenType[h].size(); k++)
-            {
-                if(Tokens[h][k].compare("{") == 0)
-                    temp.push(1);
-                if(Tokens[h][k].compare("}") == 0)
-                {
-                    temp.pop();
-                }
+            for( int k=0; k<TokenType[h].size(); k++) {
+                  if( Tokens[ h ][ k ].compare( "{" ) == 0 )
+                        temp.push(1);
+                  if( Tokens[ h ][ k ].compare( "}" ) == 0 ) {
+                        temp.pop();
+                  }
             }
             h++;
-        }
-        fa.statement_text_end = h-1;
-        fa.endLine = h;
-        //whiles.push_back(fa);
-        //i = fa.endLine-1;
-    }
-    return fa;
+      }
+      fa.statement_text_end = h - 1;
+      fa.endLine = h;
+      whiles.push_back( fa );
+      i = fa.endLine - 1;
+      return i;
 }
 
-else_struct elseGroup(int i)
+int doWhileGroup( int i )
 {
-    else_struct fa;
-    fa.startLine = i+1;
-    fa.statement_text_start = i+3;
-
-    if(Tokens[i][TokenType[i].size()-1].compare("{") == 0)
-    {
-        fa.statement_text_start = i+2;
-    }
-    if(Tokens[i][TokenType[i].size()-1].compare("{") != 0 && (Tokens[i+1].size() > 0 && Tokens[i+1][0].compare("{") != 0))
-    {
-        fa.statement_text_start = i+2;
-        fa.statement_text_end = i+2;
-        fa.endLine = i+2;
-        i = i + 1;
-    }
-    else
-    {
-        stack <int> temp;
-        int h = fa.statement_text_start - 1;
-        temp.push(1);
-        while(!temp.empty())
-        {
+      int f = 2;
+      do_while_struct fa;
+      fa.startLine = i + 1;
+      //cout << Tokens[i][0] << " " << i;
+      fa.statement_text_start = i + 3;
+      if ( Tokens[ i ][ TokenType[ i ].size() - 1 ].compare( "{" ) == 0 ) {
+            fa.statement_text_start = i + 2;
+      }
+      stack < int > temp;
+      int h = fa.statement_text_start - 1;
+      temp.push( 1 );
+      while ( !temp.empty() ) {
             //cout << i;
-            for(int k=0; k<TokenType[h].size(); k++)
-            {
-                if(Tokens[h][k].compare("{") == 0)
-                    temp.push(1);
-                if(Tokens[h][k].compare("}") == 0)
-                {
-                    temp.pop();
-                }
+            for ( int k = 0; k < TokenType[ h ].size(); k++ ) {
+                  if( Tokens[ h ][ k ].compare( "{" ) == 0 )
+                        temp.push( 1 );
+                  if ( Tokens[ h ][ k ].compare( "}" ) == 0 ) {
+                        temp.pop();
+                  }
             }
             h++;
-        }
-        fa.statement_text_end = h-1;
-        fa.endLine = h;
-        //cout << "h = " << h;
-        //whiles.push_back(fa);
-        //i = fa.endLine-1;
-    }
-    return fa;
+      }
+      //cout << h;//32
+      //if()
+      fa.statement_text_end = h - 1;
+      fa.endLine = h + 1;
+      if ( Tokens[h-1].size() > 1 && Tokens[ h - 1 ][ 1 ].compare( "while" ) == 0 ) {
+            fa.endLine = h;
+            f = 3;
+            //cout << h;
+      }
+      //
+      while ( Tokens[ fa.endLine - 1 ][ f ].compare( ")" ) != 0 ) {
+            fa.condition.push_back( Tokens[ fa.endLine - 1 ][ f ] );
+            fa.conditionType.push_back( TokenType[ fa.endLine - 1 ][ f ] );
+            f++;
+      }
+      do_whiles.push_back( fa );
+      i = fa.endLine - 1;
+      return i;
+}
+
+else_if_struct elseIfGroup( int i )
+{
+      int f = 3;
+      else_if_struct fa;
+      fa.startLine = i + 1;//24
+      fa.statement_text_start = i + 3;//26
+      while ( Tokens[ i ][ f ].compare( ")" ) != 0 ) {
+            fa.condition.push_back( Tokens[ i ][ f ] );
+            fa.conditionType.push_back( TokenType[ i ][ f ] );
+            f++;
+      }
+      if ( Tokens[ i ][ TokenType[ i ].size() - 1 ].compare( "{" ) == 0 ) {
+            fa.statement_text_start = i + 2;//25
+      }
+      if ( Tokens[ i ][ TokenType[ i ].size() - 1 ].compare( "{" ) != 0 && ( Tokens[ i + 1 ].size() > 0 && Tokens[ i + 1 ][ 0 ].compare( "{" ) != 0 ) ) {
+            //cout << "jja" << Tokens[i][TokenType[i].size()-1] << Tokens[i+1][0] << i;
+            fa.statement_text_start = i + 2;
+            fa.statement_text_end = i + 2;
+            fa.endLine = i + 2;
+            i = i + 1;
+      }
+      else {
+            stack < int > temp;
+            int h = fa.statement_text_start - 1;
+            temp.push( 1 );
+            while ( !temp.empty() ) {
+                  //cout << i;
+                  for ( int k = 0; k < TokenType[ h ].size(); k++ ) {
+                        if ( Tokens[ h ][ k ].compare( "{" ) == 0 )
+                              temp.push( 1 );
+                        if ( Tokens[ h ][ k ].compare( "}" ) == 0 ) {
+                              temp.pop();
+                        }
+                  }
+                  h++;
+            }
+            fa.statement_text_end = h - 1;
+            fa.endLine = h;
+            //whiles.push_back(fa);
+            //i = fa.endLine-1;
+      }
+      return fa;
+}
+
+else_struct elseGroup( int i )
+{
+      else_struct fa;
+      fa.startLine = i + 1;
+      fa.statement_text_start = i + 3;
+
+      if ( Tokens[ i ][ TokenType[ i ].size() - 1 ].compare( "{" ) == 0 ) {
+            fa.statement_text_start = i + 2;
+      }
+      if ( Tokens[ i ][ TokenType[ i ].size() - 1 ].compare( "{" ) != 0 && ( Tokens[ i + 1 ].size() > 0 && Tokens[ i + 1 ][ 0 ].compare( "{" ) != 0 ) ) {
+            fa.statement_text_start = i + 2;
+            fa.statement_text_end = i + 2;
+            fa.endLine = i + 2;
+            i = i + 1;
+      }
+      else {
+            stack < int > temp;
+            int h = fa.statement_text_start - 1;
+            temp.push( 1 );
+            while ( !temp.empty() ) {
+                  //cout << i;
+                  for ( int k = 0; k < TokenType[ h ].size(); k++ ) {
+                        if ( Tokens[ h ][ k ].compare( "{" ) == 0 )
+                              temp.push( 1 );
+                        if ( Tokens[ h ][ k ].compare( "}" ) == 0 ) {
+                              temp.pop();
+                        }
+                  }
+                  h++;
+            }
+            fa.statement_text_end = h - 1;
+            fa.endLine = h;
+            //cout << "h = " << h;
+            //whiles.push_back(fa);
+            //i = fa.endLine-1;
+      }
+      return fa;
 }
 
 int ifGroup( int i )
@@ -845,10 +980,15 @@ void headerFile_check( int LN )
       HEADER.push_back( "#include<math.h>" );
       HEADER.push_back( "#include<string.h>" );
 
-      string H;
+      string H, afterRomoveSpace;
 
       for ( int i = 0; i < Tokens[ LN ].size(); ++i ) {
             H += Tokens[ LN ][ i ];
+      }
+
+      for ( int i = 0; i < H.size(); ++i ) {
+            if ( H[ i ] != ' ' )
+                  afterRomoveSpace += H[ i ];
       }
 
       for ( int i = 0; i < HEADER.size(); ++i ) {
@@ -857,7 +997,9 @@ void headerFile_check( int LN )
       }
 
       haveERROR[ LN ] = true;
-      cout << "Line No: " << LN + 1 << "->" << "Wrong HEADER File or ERROR\n";
+      cout << "\nLine No - " << LN + 1 << " : ";
+      CFILE.printThisLine( LN + 1 );
+      CFILE.printTips( "Wrong HEADER File or HEAHER ISSUE" );
 }
 
 int headerFiles_check( int LN )
@@ -892,20 +1034,40 @@ void find_MAIN_function()
                   C++;
       }
 
-      if ( C == 1 )
-            return;
-      else if ( C > 1 )
-            cout << "Big ERROR: " << C << " MAIN function in your C file\n";
-      else
-            cout << "Big ERROR: No MAIN function in your C file\n";
+      // TODO : same function name detection
+      if ( C ) return;
+      else     cout << "*** No MAIN function in your C file\n";
+
+}
+void sameFunctionNameDetection()
+{
+      map < string, vector < int > > functionInfo;
+      for ( int i = 0; i < functions.size(); ++i ) {
+            functionInfo[ functions[ i ].fTokens ].push_back( functions[ i ].startLine );
+      }
+      for ( map < string, vector < int > > :: iterator it = functionInfo.begin(); it != functionInfo.end(); ++it ) {
+            vector < int > lineNumbers = it->second;
+            //Debug( lineNumbers );
+            if ( lineNumbers.size() > 1 ) {
+                  cout << "*** \"" << it->first << "\" is found more time as function name in Line number : ";
+                  for ( int i = 0; i < lineNumbers.size(); ++i ) {
+                        if ( i ) cout << ", ";
+                        cout << lineNumbers[ i ];
+                  }
+                  cout << "\n";
+            }
+      }
 }
 
 void initialize_Checking( int LN )
 {
-      // header file check
-      LN = headerFiles_check( LN );  //DONE
       // find MAIN function
-      find_MAIN_function();
+      find_MAIN_function(); //Done
+      // TODO : same function name detection
+      sameFunctionNameDetection();
+      // header file check
+      cout << "\n";
+      LN = headerFiles_check( LN );  //DONE
 }
 
 bool isFunction( int LN )

@@ -4,31 +4,33 @@
 #include < inz.h >
 #include<ws2
 
+int ;
 a += a * b;
 a += a +* b;
 a *= ++a * b++;
 a += a * b*;
 int a, b;
 int a = a++, b = a;
-++a;
+++a
 a += a++ ++b;
 a = a++ + ++b;
 a = a+++++b;
 x=y+x*y;
 
-double inzamam(int a, int b, double c)
+void inzamam(int a, int b, double c)
 {
     c = a+b;
     return c;
 }
 
-int main ( void ) {
-      int fun() {
+int inzamam ( void ) {
 
-      }
+
+
+      return;
 }
 
-int main()
+int mai()
 {
     int a=d, b=e;
 
@@ -74,7 +76,7 @@ int main()
         a = b + 2;
     }
 
-    for(int a=0, b=0; a < 19 && b <= 3 || b==0 ; a++, b=a)
+    for(int a=0, b=0, a < 19 && b <= 3 || b==0 ; a++, b=a)
     {
         a = b + 2;
     }
