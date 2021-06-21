@@ -172,6 +172,7 @@ vector < string > TokenType[ 100 ];
 vector < string > Tokens[ 100 ];
 bool isFinish[ 100 ], haveERROR[ 100 ];
 vector < vector < string > > allVariable;
+vector < string > errosTips[ 100 ];             // 1 based
 printCFile CFILE;
 /*struct perlinestruct
 {
@@ -278,6 +279,20 @@ bool isNumber( string st )
       return true;
 }
 
+string to_string( int number )
+{
+      string str;
+
+      while ( number ) {
+            str += '0' + ( number % 10 );
+            number /= 10;
+      }
+
+      reverse( str.begin(), str.end() );
+
+      return str;
+}
+
 bool validVariableName( string st )
 {
       if ( !( isLetter( st[ 0 ] ) || st[ 0 ] == '_' ) )
@@ -342,9 +357,11 @@ int checking_Equation( int lineNumber, vector < int > checkList )
       }*/
 
       if ( checkList.size() % 2 == 0 || !checkList.size() ) {
-            cout << "\nLine No - " << lineNumber + 1 << " : ";
+            /*cout << "\nLine No - " << lineNumber + 1 << " : ";
             CFILE.printThisLine( lineNumber + 1 );
-            CFILE.printTips( "Fixed this Line" );
+            CFILE.printTips( "Fixed this Line" );*/
+
+            errosTips[ lineNumber + 1 ].push_back( "Fixed this Line" );
             return thisLine_Done;
       }
 
@@ -356,18 +373,20 @@ int checking_Equation( int lineNumber, vector < int > checkList )
             if ( i % 2 == 0 && ( TokenType[ lineNumber ][ checkList[ i ] ] != "identifier" && TokenType[ lineNumber ][ checkList[ i ] ] != "integer" ) ) {
                   //cout << "\nLine No - " << lineNumber + 1 << " 3 problem in this line\n";
                   //Debug( TokenType[ lineNumber ][ checkList[ i ] ] );
-                  cout << "\nLine No - " << lineNumber + 1 << " : ";
+                  /*cout << "\nLine No - " << lineNumber + 1 << " : ";
                   CFILE.printThisLine( lineNumber + 1 );
-                  CFILE.printTips( "Fixed this Line" );
+                  CFILE.printTips( "Fixed this Line" );*/
+                  errosTips[ lineNumber + 1 ].push_back( "Fixed this Line" );
                   //cout << "*";
                   return thisLine_Done;
             }
             if ( i % 2 == 1 && !validoperator( lineNumber, checkList[ i ] ) ) {
                   //cout << "\nLine No - " << lineNumber + 1 << " " << i << " 4 problem in this line\n";
 
-                  cout << "\nLine No - " << lineNumber + 1 << " : ";
+                  /*cout << "\nLine No - " << lineNumber + 1 << " : ";
                   CFILE.printThisLine( lineNumber + 1 );
-                  CFILE.printTips( "Fixed this Line" );
+                  CFILE.printTips( "Fixed this Line" );*/
+                  errosTips[ lineNumber + 1 ].push_back( "Fixed this Line" );
                   //cout << "*8";
                   return thisLine_Done;
             }
@@ -387,9 +406,10 @@ int isDeclareVariableLine( int lineNumber )
       }
 
       if ( Tokens[ lineNumber ].size() <= 2 ) {
-            cout << "\nLine No - " << lineNumber + 1 << " : ";
+            /*cout << "\nLine No - " << lineNumber + 1 << " : ";
             CFILE.printThisLine( lineNumber + 1 );
-            CFILE.printTips( "Need variable name" );
+            CFILE.printTips( "Need variable name" );*/
+            errosTips[ lineNumber + 1 ].push_back( "Need variable name" );
             return thisLine_Done;
       }
 
@@ -409,9 +429,10 @@ int isDeclareVariableLine( int lineNumber )
                   }
                   else if ( isSpecialoperator( lineNumber, i ) ) {
                         //cout << "\nLine No - " << lineNumber + 1 << " 6 problem in this line\n";
-                        cout << "\nLine No - " << lineNumber + 1 << " : ";
+                        /*cout << "\nLine No - " << lineNumber + 1 << " : ";
                         CFILE.printThisLine( lineNumber + 1 );
-                        CFILE.printTips( "Fixed this Line" );
+                        CFILE.printTips( "Fixed this Line" );*/
+                        errosTips[ lineNumber + 1 ].push_back( "Fixed this Line" );
                         return thisLine_Done;
                   }
                   else if ( TokenType[ lineNumber ][ i ] == "identifier" && isSpecialoperator( lineNumber, i + 1 ) ) {
@@ -434,12 +455,14 @@ int isBreakContinue( int lineNumber )
       }
 
       if ( Tokens[ lineNumber ].size() != 2 ) {
-            cout << "\nLine No - " << lineNumber + 1 << " : ";
-            CFILE.printThisLine( lineNumber + 1 );
+            /*cout << "\nLine No - " << lineNumber + 1 << " : ";
+            CFILE.printThisLine( lineNumber + 1 );*/
             if ( Tokens[ lineNumber ][ 0 ] == "break" )
-                  CFILE.printTips( "Replace with \"break;\"" );
+                  errosTips[ lineNumber + 1 ].push_back( "Replace with \"break;\"" );
+                  //CFILE.printTips( "Replace with \"break;\"" );
             if ( Tokens[ lineNumber ][ 0 ] == "continue" )
-                  CFILE.printTips( "Replace with \"continue;\"" );
+                  errosTips[ lineNumber + 1 ].push_back( "Replace with \"continue;\"" );
+                  //CFILE.printTips( "Replace with \"continue;\"" );
       }
 
       return thisLine_Done;
@@ -457,15 +480,17 @@ int isReturnLine( int lineNumber )
             if ( lineNumber >= functions[ i ].startLine && lineNumber <= functions[ i ].endLine ) {
                   // pawa gese
                   if ( functions[ i ].returnType == "void" && Tokens[ lineNumber ].size() > 2 ) {
-                        cout << "\nLine No - " << lineNumber + 1 << " : ";
+                        /*cout << "\nLine No - " << lineNumber + 1 << " : ";
                         CFILE.printThisLine( lineNumber + 1 );
-                        CFILE.printTips( "Function name '" + functions[ i ].fTokens + "' have void return type" );
+                        CFILE.printTips( "Function name '" + functions[ i ].fTokens + "' have void return type" );*/
+                        errosTips[ lineNumber + 1 ].push_back( "Function name '" + functions[ i ].fTokens + "' have void return type" );
                         return thisLine_Done;
                   }
                   else if ( functions[ i ].returnType != "void" && Tokens[ lineNumber ].size() <= 2 ) {
-                        cout << "\nLine No - " << lineNumber + 1 << " : ";
+                        /*cout << "\nLine No - " << lineNumber + 1 << " : ";
                         CFILE.printThisLine( lineNumber + 1 );
-                        CFILE.printTips( "Function name '" + functions[ i ].fTokens + "' have return type, but return value not Found" );
+                        CFILE.printTips( "Function name '" + functions[ i ].fTokens + "' have return type, but return value not Found" );*/
+                        errosTips[ lineNumber + 1 ].push_back( "Function name '" + functions[ i ].fTokens + "' have return type, but return value not Found" );
                         return thisLine_Done;
                   }
                   else {
@@ -481,9 +506,10 @@ int isReturnLine( int lineNumber )
       }
       //have bug
       //cout << "\n\n\n\n***Have BUG***\n\n\n";
-      cout << "\nLine No - " << lineNumber + 1 << " : ";
+      /*cout << "\nLine No - " << lineNumber + 1 << " : ";
       CFILE.printThisLine( lineNumber + 1 );
-      CFILE.printTips( "This Line is Out of any Function" );
+      CFILE.printTips( "This Line is Out of any Function" );*/
+      errosTips[ lineNumber + 1 ].push_back( "This Line is Out of any Function" );
       return thisLine_Done;
 }
 
@@ -493,13 +519,15 @@ void checking_statement( int lineNumber )
       //cout << Tokens[ lineNumber ].size() << " ";
       //return;
       if ( Tokens[ lineNumber ].size() && Tokens[ lineNumber ].back() != ";" ) {
-            cout << "\nLine No - " << lineNumber + 1 << " : ";
+            /*cout << "\nLine No - " << lineNumber + 1 << " : ";
             CFILE.printThisLine( lineNumber + 1 );
-            CFILE.printTips( "Add ';' in this line" );
+            CFILE.printTips( "Add ';' in this line" );*/
+            errosTips[ lineNumber + 1 ].push_back( "Add ';' in this line" );
             //Debug( Tokens[ lineNumber ] );
             //return thisLine_Done;
             return;
       }
+
       if ( Tokens[ lineNumber ].empty() ) {
             //return thisLine_Done;
             return;
@@ -536,9 +564,10 @@ void checking_statement( int lineNumber )
             }
             else if ( isSpecialoperator( lineNumber, i ) ) {
                   //cout << "\nLine No - " << lineNumber + 1 << " 6 problem in this line\n";
-                  cout << "\nLine No - " << lineNumber + 1 << " : ";
+                  /*cout << "\nLine No - " << lineNumber + 1 << " : ";
                   CFILE.printThisLine( lineNumber + 1 );
-                  CFILE.printTips( "Fixed this Line" );
+                  CFILE.printTips( "Fixed this Line" );*/
+                  errosTips[ lineNumber + 1 ].push_back( "Fixed this Line" );
                   //return thisLine_Done;
                   return;
             }
@@ -663,26 +692,33 @@ int forGroup( int i )
 
       //Debug( semi );
       if ( semi != 2 ) {
-            cout << "\nLine No - " << fa.startLine << " : ";
+            /*cout << "\nLine No - " << fa.startLine << " : ";
             CFILE.printThisLine( fa.startLine );
-            CFILE.printTips( "Need exactly TWO semi-colon" );
+            CFILE.printTips( "Need exactly TWO semi-colon" );*/
+            errosTips[ fa.startLine ].push_back( "Expected ';' before ')' token" );
             return i;
       }
 
       stack < int > temp;
       int h = fa.statement_text_start - 1;
-      temp.push( 1 );
+      temp.push( h - 1 );
       while( !temp.empty() ) {
             //cout << i;
             for ( int k = 0; k < TokenType[ h ].size(); k++ ) {
                   if ( Tokens[ h ][ k ].compare( "{" ) == 0 ) {
-                        temp.push( 1 );
+                        temp.push( h );
                   }
                   if ( Tokens[ h ][ k ].compare( "}" ) == 0 ) {
                         temp.pop();
                   }
             }
             h++;
+            if ( h == totalLine )
+                  break;
+      }
+      while ( !temp.empty() ) {
+            errosTips[ temp.top() + 1 ].push_back( "Expected identifier or '('" );
+            temp.pop();
       }
 
       fa.statement_text_end = h - 1;
@@ -695,7 +731,7 @@ int forGroup( int i )
 
 int functionGroup( int i )
 {
-      //cout << i << " ";
+      //
       if ( Tokens[ i ][ TokenType[ i ].size() - 2 ].compare( ")" ) == 0 && Tokens[ i ][ TokenType[ i ].size() - 1 ].compare( ";" ) == 0 ) {
             cout << "function protoType\n";
       }
@@ -712,8 +748,11 @@ int functionGroup( int i )
             else {
                   int j = 2;
                   while ( 1 )  {
-                        if ( j >= Tokens[ i ].size() || ( Tokens[ i ][ j ] != "(" && Tokens[ i ][ j ] != "," ) )
+                        if ( j >= Tokens[ i ].size() || ( Tokens[ i ][ j ] != "(" && Tokens[ i ][ j ] != "," && Tokens[ i ][ j ] != ")" ) ) {
+                              Debug( j );
                               return i;
+                        }
+
                         if ( Tokens[ i ][ j ].compare( ")" ) == 0 )
                               break;
 
@@ -722,27 +761,37 @@ int functionGroup( int i )
                         j += 3;
                   }
             }
+
             f.statement_text_start = i + 3;
             if ( Tokens[ i ][ TokenType[ i ].size() - 1 ].compare( "{" ) == 0 ) {
                   f.statement_text_start = i + 2;
             }
-            stack < int > temp;
             int h = f.statement_text_start - 1;
-            temp.push( 1 );
+            stack < int > temp;
+            temp.push( h - 1 );
+            //Debug( h - 1 );
             while ( !temp.empty() ) {
                   //cout << i;
                   for ( int k = 0; k < TokenType[ h ].size(); k++ ) {
                         if ( Tokens[ h ][ k ].compare( "{" ) == 0 )
-                              temp.push( 1 );
+                              temp.push( h );
                         if ( Tokens[ h ][ k ].compare( "}" ) == 0 ) {
                               temp.pop();
                         }
                   }
                   h++;
+                  if ( h == totalLine )
+                        break;
+            }
+            while ( !temp.empty() ) {
+                  errosTips[ temp.top() + 1 ].push_back( "Expected identifier or '('" );
+                  //Debug( i );
+                  temp.pop();
             }
             f.statement_text_end = h - 1;
             f.endLine = h;
             functions.push_back( f );
+
             i = h - 1;
             //statement & endline
       }
@@ -765,17 +814,23 @@ int whileGroup( int i )
       }
       stack < int > temp;
       int h = fa.statement_text_start - 1;
-      temp.push( 1 );
+      temp.push( h - 1 );
       while ( !temp.empty() ) {
             //cout << i;
             for ( int k  =0; k < TokenType[ h ].size(); k++ ) {
                   if ( Tokens[ h ][ k ].compare( "{" ) == 0 )
-                        temp.push( 1 );
+                        temp.push( h );
                   if ( Tokens[ h ][ k ].compare( "}" ) == 0 ) {
                         temp.pop();
                   }
             }
             h++;
+            if ( h == totalLine )
+                  break;
+      }
+      while ( !temp.empty() ) {
+            errosTips[ temp.top() + 1 ].push_back( "Expected identifier or '('" );
+            temp.pop();
       }
       fa.statement_text_end = h - 1;
       fa.endLine = h;
@@ -796,17 +851,23 @@ int doWhileGroup( int i )
       }
       stack < int > temp;
       int h = fa.statement_text_start - 1;
-      temp.push( 1 );
+      temp.push( h - 1 );
       while ( !temp.empty() ) {
             //cout << i;
             for ( int k = 0; k < TokenType[ h ].size(); k++ ) {
                   if( Tokens[ h ][ k ].compare( "{" ) == 0 )
-                        temp.push( 1 );
+                        temp.push( h );
                   if ( Tokens[ h ][ k ].compare( "}" ) == 0 ) {
                         temp.pop();
                   }
             }
             h++;
+            if ( h == totalLine )
+                  break;
+      }
+      while ( !temp.empty() ) {
+            errosTips[ temp.top() + 1 ].push_back( "Expected identifier or '('" );
+            temp.pop();
       }
       //cout << h;//32
       //if()
@@ -852,17 +913,23 @@ else_if_struct elseIfGroup( int i )
       else {
             stack < int > temp;
             int h = fa.statement_text_start - 1;
-            temp.push( 1 );
+            temp.push( h - 1 );
             while ( !temp.empty() ) {
                   //cout << i;
                   for ( int k = 0; k < TokenType[ h ].size(); k++ ) {
                         if ( Tokens[ h ][ k ].compare( "{" ) == 0 )
-                              temp.push( 1 );
+                              temp.push( h );
                         if ( Tokens[ h ][ k ].compare( "}" ) == 0 ) {
                               temp.pop();
                         }
                   }
                   h++;
+                  if ( h == totalLine )
+                        break;
+            }
+            while ( !temp.empty() ) {
+                  errosTips[ temp.top() + 1 ].push_back( "Expected identifier or '('" );
+                  temp.pop();
             }
             fa.statement_text_end = h - 1;
             fa.endLine = h;
@@ -890,18 +957,25 @@ else_struct elseGroup( int i )
       else {
             stack < int > temp;
             int h = fa.statement_text_start - 1;
-            temp.push( 1 );
+            temp.push( h - 1 );
             while ( !temp.empty() ) {
                   //cout << i;
                   for ( int k = 0; k < TokenType[ h ].size(); k++ ) {
                         if ( Tokens[ h ][ k ].compare( "{" ) == 0 )
-                              temp.push( 1 );
+                              temp.push( h );
                         if ( Tokens[ h ][ k ].compare( "}" ) == 0 ) {
                               temp.pop();
                         }
                   }
                   h++;
+                  if ( h == totalLine )
+                        break;
             }
+            while ( !temp.empty() ) {
+                  errosTips[ temp.top() + 1 ].push_back( "Expected identifier or '('" );
+                  temp.pop();
+            }
+
             fa.statement_text_end = h - 1;
             fa.endLine = h;
             //cout << "h = " << h;
@@ -928,16 +1002,22 @@ int ifGroup( int i )
       if ( Tokens[ i ][ TokenType[ i ].size() - 1 ].compare( "{" ) == 0 || ( Tokens[ i + 1 ].size() > 0 && Tokens[ i + 1 ][ 0 ].compare( "{" ) == 0 ) ) {
             stack < int > temp;
             int h = fa.statement_text_start - 1;
-            temp.push( 1 );
+            temp.push( h - 1 );
             while ( !temp.empty() ) {
                   //cout << i;
                   for ( int k = 0; k < TokenType[ h ].size(); k++ ) {
                         if ( Tokens[ h ][ k ].compare( "{" ) == 0 )
-                              temp.push( 1 );
+                              temp.push( h );
                         if ( Tokens[ h ][ k ].compare( "}" ) == 0 )
                               temp.pop();
                   }
                   h++;
+                  if ( h == totalLine )
+                        break;
+            }
+            while ( !temp.empty() ) {
+                  errosTips[ temp.top() + 1 ].push_back( "Expected identifier or '('" );
+                  temp.pop();
             }
             fa.statement_text_end = h - 1;
             fa.endLine = h;
@@ -978,7 +1058,7 @@ void findGroup( int startLine, int endLine )
 {
       for ( int i = startLine; i <= endLine; i++ ) {
             if ( TokenType[ i ].size() > 3 && TokenType[ i ][ 0 ].compare( "keyword" ) == 0  && TokenType[ i ][ 1 ].compare( "identifier" ) == 0  && Tokens[ i ][ 2 ].compare( "(" ) == 0  && ( Tokens[ i ][ 3 ] == ")" || TokenType[ i ][ 3 ] == "keyword" ) ) { //function
-                  i = functionGroup(i);
+                  i = functionGroup( i );
             }
             else if ( Tokens[ i ].size() > 4 && Tokens[ i ][ 0 ].compare( "for" ) == 0 && Tokens[ i ][ 1 ].compare( "(" ) == 0 ) { //for
                   i = forGroup( i );
@@ -1022,9 +1102,11 @@ void headerFile_check( int LN )
       }
 
       haveERROR[ LN ] = true;
-      cout << "\nLine No - " << LN + 1 << " : ";
+      /*cout << "\nLine No - " << LN + 1 << " : ";
       CFILE.printThisLine( LN + 1 );
-      CFILE.printTips( "Wrong HEADER File or HEAHER ISSUE" );
+      CFILE.printTips( "Wrong HEADER File or HEAHER ISSUE" );*/
+      //errosTips[ LN + 1 ].push_back( "Wrong HEADER File or HEAHER ISSUE" );
+      errosTips[ LN + 1 ].push_back( "Fatal error: No such file or directory" );
 }
 
 int headerFiles_check( int LN )
@@ -1073,13 +1155,18 @@ void sameFunctionNameDetection()
       for ( map < string, vector < int > > :: iterator it = functionInfo.begin(); it != functionInfo.end(); ++it ) {
             vector < int > lineNumbers = it->second;
             //Debug( lineNumbers );
+            string tips = "\"";
             if ( lineNumbers.size() > 1 ) {
-                  cout << "*** \"" << it->first << "\" is found more time as function name in Line number : ";
+                  tips += it->first;
+                  tips += "\" is found more time as function name in Line number : ";
+                  //cout << "*** \"" << it->first << "\" is found more time as function name in Line number : ";
                   for ( int i = 0; i < lineNumbers.size(); ++i ) {
-                        if ( i ) cout << ", ";
-                        cout << lineNumbers[ i ];
+                        if ( i ) tips += ", ";
+                        tips += to_string( lineNumbers[ i ] );
                   }
-                  cout << "\n";
+                  for ( int i = 0; i < lineNumbers.size(); ++i ) {
+                        errosTips[ lineNumbers[ i ] ].push_back( tips );
+                  }
             }
       }
 }
@@ -1159,7 +1246,7 @@ bool isFor( int LN ) // almost okay but special mentioned -> [ TODO : final "for
                   for ( int j = fors[ i ].statement_text_start; j <= fors[ i ].statement_text_end; ++j ) {
                         if ( !isFinish[ j - 1 ] )
                               check_THIS_Line( j - 1 );
-                        //cout << j << "-> CK\n";
+                        //cout << j << "-> OK\n";
                   }
                   /*for ( int j = fors[ i ].startLine; j <= fors[ i ].endLine; ++j )
                         isFinish[ j - 1 ] = true;*/
@@ -1376,10 +1463,22 @@ void syntaxChecking()
       }
 }
 
+void errorPrinting()
+{
+      for ( int i = 0; i <= totalLine; ++i ) {
+            if ( errosTips[ i ].size() ) {
+                  cout << "\nLine No - " << i << " : ";
+                  CFILE.printThisLine( i );
+                  for ( int j = 0; j < errosTips[ i ].size(); ++j )
+                        CFILE.printTips( errosTips[ i ][ j ] );
+            }
+      }
+}
+
 int main()
 {
-      system("g++ HW1.cpp -o HW1");
-      system("HW1");
+      system( "g++ HW1.cpp -o HW1" );
+      system( "HW1" );
 
       FILE *fp;
       string str, Text, strg1, strg2, strg3, strg4;
@@ -1411,20 +1510,26 @@ int main()
             Tokens[ h - 1 ].push_back( strg2 );
             totalLine = max( totalLine, h );
       }
+      Debug( totalLine );
 
       findGroup( 0, totalLine );
       syntaxChecking();
       //printFor();
+      errorPrinting();
 
       return 0;
 }
 
 /*
+TODO : Firstly, store all error then print line by line
+
+TODO : If any error line have "{" / "}", give extra tips
+
 TODO : complete final check of group properties
 
 TODO : final check of main function;
 
-TODO : comment handle
+TODO : comment handle -> Done
 -> replace with space
 
 TODO : Variable handle ***

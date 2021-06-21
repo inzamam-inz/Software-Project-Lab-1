@@ -178,9 +178,8 @@ void lexing()
 int main()
 {
       FILE *fp;
-	string str, codeText;
+	string str, codeText, mainCodeText;
 	char ch;
-
 
 	fp = fopen( "program.c", "r" );
 
@@ -191,6 +190,40 @@ int main()
 
 	while ( ( ch = fgetc( fp ) ) != EOF ) {
             codeText = codeText + ch;
+      }
+
+      mainCodeText = codeText;
+
+      for ( int i = 0; i + 1 < codeText.size(); ++i ) {
+            int starti = i;
+            if ( codeText[ i ] == '/' && codeText[ i + 1 ] == '/' ) {
+                  while ( i < codeText.size() && codeText[ i ] != '\n' )
+                        i++;
+
+                  i--;
+            }
+            if ( codeText[ i ] == '/' && codeText[ i + 1 ] == '*' ) {
+                  while ( i + 1 < codeText.size() && ( codeText[ i ] != '*' || codeText[ i + 1 ] != '/' ) )
+                        i++;
+
+                  if ( i + 1 == codeText.size() && ( codeText[ i ] != '*' || codeText[ i + 1 ] != '/' ) ) {
+                        int lineNumberCount = 1;
+                        for ( int j = 0; j < starti; ++j ) {
+                              if ( mainCodeText[ j ] == '\n' )
+                                    lineNumberCount++;
+                        }
+                        cout << "*** Unterminated comment issue on Line Number - " << lineNumberCount << "\n";
+                  }
+
+
+                  i++;
+            }
+
+            if ( starti == i )
+                  continue;
+
+            while ( starti <= i )
+                  codeText[ starti++ ] = ' ';
       }
 
       //Debug( codeText );
