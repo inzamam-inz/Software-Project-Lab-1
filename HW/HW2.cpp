@@ -172,7 +172,7 @@ vector < string > TokenType[ 100 ];
 vector < string > Tokens[ 100 ];
 bool isFinish[ 100 ], haveERROR[ 100 ];
 vector < vector < string > > allVariable;
-vector < string > errosTips[ 100 ];             // 1 based
+set < string > errosTips[ 100 ];             // 1 based
 printCFile CFILE;
 /*struct perlinestruct
 {
@@ -196,7 +196,7 @@ bool isSmallLetter( char ch );
 bool isLetter( char ch );
 bool isNumber( string st );
 bool validVariableName( string st );
-bool availableVariable( string var, set < string > inScope );
+bool availableVariable( string var, set < string > &inScope );
 bool validoperator( int lineNumber, int columnNumber );
 bool isSpecialoperator( int lineNumber, int columnNumber );
 bool isFunction( int LN );
@@ -318,7 +318,7 @@ bool validVariableName( string st )
 
 bool availableVariable( string var, set < string > &inScope )
 {
-      return inScope.find( var ) == inScope.end();
+      return inScope.find( var ) != inScope.end();
 }
 
 bool validoperator( int lineNumber, int columnNumber )
@@ -372,7 +372,7 @@ int checking_Equation( int lineNumber, vector < int > checkList )
             CFILE.printThisLine( lineNumber + 1 );
             CFILE.printTips( "Fixed this Line" );*/
 
-            errosTips[ lineNumber + 1 ].push_back( "Fixed this Line" );
+            errosTips[ lineNumber + 1 ].insert( "Fixed this Line" );
             return thisLine_Done;
       }
 
@@ -381,13 +381,13 @@ int checking_Equation( int lineNumber, vector < int > checkList )
       }*/
 
       for ( int i = 0; i < checkList.size(); ++i ) {
-            if ( i % 2 == 0 && ( TokenType[ lineNumber ][ checkList[ i ] ] != "identifier" && TokenType[ lineNumber ][ checkList[ i ] ] != "integer" ) ) {
+            if ( i % 2 == 0 && ( TokenType[ lineNumber ][ checkList[ i ] ] != "identifier" && TokenType[ lineNumber ][ checkList[ i ] ] != "integer" && TokenType[ lineNumber ][ checkList[ i ] ] != "double") ) {
                   //cout << "\nLine No - " << lineNumber + 1 << " 3 problem in this line\n";
                   //Debug( TokenType[ lineNumber ][ checkList[ i ] ] );
                   /*cout << "\nLine No - " << lineNumber + 1 << " : ";
                   CFILE.printThisLine( lineNumber + 1 );
                   CFILE.printTips( "Fixed this Line" );*/
-                  errosTips[ lineNumber + 1 ].push_back( "Fixed this Line" );
+                  errosTips[ lineNumber + 1 ].insert( "Fixed this Line" );
                   //cout << "*";
                   return thisLine_Done;
             }
@@ -397,7 +397,7 @@ int checking_Equation( int lineNumber, vector < int > checkList )
                   /*cout << "\nLine No - " << lineNumber + 1 << " : ";
                   CFILE.printThisLine( lineNumber + 1 );
                   CFILE.printTips( "Fixed this Line" );*/
-                  errosTips[ lineNumber + 1 ].push_back( "Fixed this Line" );
+                  errosTips[ lineNumber + 1 ].insert( "Fixed this Line" );
                   //cout << "*8";
                   return thisLine_Done;
             }
@@ -420,7 +420,7 @@ int isDeclareVariableLine( int lineNumber )
             /*cout << "\nLine No - " << lineNumber + 1 << " : ";
             CFILE.printThisLine( lineNumber + 1 );
             CFILE.printTips( "Need variable name" );*/
-            errosTips[ lineNumber + 1 ].push_back( "Need variable name" );
+            errosTips[ lineNumber + 1 ].insert( "Need variable name" );
             return thisLine_Done;
       }
 
@@ -443,7 +443,7 @@ int isDeclareVariableLine( int lineNumber )
                         /*cout << "\nLine No - " << lineNumber + 1 << " : ";
                         CFILE.printThisLine( lineNumber + 1 );
                         CFILE.printTips( "Fixed this Line" );*/
-                        errosTips[ lineNumber + 1 ].push_back( "Fixed this Line" );
+                        errosTips[ lineNumber + 1 ].insert( "Fixed this Line" );
                         return thisLine_Done;
                   }
                   else if ( TokenType[ lineNumber ][ i ] == "identifier" && isSpecialoperator( lineNumber, i + 1 ) ) {
@@ -469,10 +469,10 @@ int isBreakContinue( int lineNumber )
             /*cout << "\nLine No - " << lineNumber + 1 << " : ";
             CFILE.printThisLine( lineNumber + 1 );*/
             if ( Tokens[ lineNumber ][ 0 ] == "break" )
-                  errosTips[ lineNumber + 1 ].push_back( "Replace with \"break;\"" );
+                  errosTips[ lineNumber + 1 ].insert( "Replace with \"break;\"" );
                   //CFILE.printTips( "Replace with \"break;\"" );
             if ( Tokens[ lineNumber ][ 0 ] == "continue" )
-                  errosTips[ lineNumber + 1 ].push_back( "Replace with \"continue;\"" );
+                  errosTips[ lineNumber + 1 ].insert( "Replace with \"continue;\"" );
                   //CFILE.printTips( "Replace with \"continue;\"" );
       }
 
@@ -495,14 +495,14 @@ int isReturnLine( int lineNumber )
                         /*cout << "\nLine No - " << lineNumber + 1 << " : ";
                         CFILE.printThisLine( lineNumber + 1 );
                         CFILE.printTips( "Function name '" + functions[ i ].fTokens + "' have void return type" );*/
-                        errosTips[ lineNumber + 1 ].push_back( "Function name '" + functions[ i ].fTokens + "' have void return type" );
+                        errosTips[ lineNumber + 1 ].insert( "Function name '" + functions[ i ].fTokens + "' have void return type" );
                         return thisLine_Done;
                   }
                   else if ( functions[ i ].returnType != "void" && Tokens[ lineNumber ].size() <= 2 ) {
                         /*cout << "\nLine No - " << lineNumber + 1 << " : ";
                         CFILE.printThisLine( lineNumber + 1 );
                         CFILE.printTips( "Function name '" + functions[ i ].fTokens + "' have return type, but return value not Found" );*/
-                        errosTips[ lineNumber + 1 ].push_back( "Function name '" + functions[ i ].fTokens + "' have return type, but return value not Found" );
+                        errosTips[ lineNumber + 1 ].insert( "Function name '" + functions[ i ].fTokens + "' have return type, but return value not Found" );
                         return thisLine_Done;
                   }
                   else {
@@ -521,7 +521,7 @@ int isReturnLine( int lineNumber )
       /*cout << "\nLine No - " << lineNumber + 1 << " : ";
       CFILE.printThisLine( lineNumber + 1 );
       CFILE.printTips( "This Line is Out of any Function" );*/
-      errosTips[ lineNumber + 1 ].push_back( "This Line is Out of any Function" );
+      errosTips[ lineNumber + 1 ].insert( "This Line is Out of any Function" );
       return thisLine_Done;
 }
 
@@ -534,7 +534,7 @@ void checking_statement( int lineNumber )
             /*cout << "\nLine No - " << lineNumber + 1 << " : ";
             CFILE.printThisLine( lineNumber + 1 );
             CFILE.printTips( "Add ';' in this line" );*/
-            errosTips[ lineNumber + 1 ].push_back( "Add ';' in this line" );
+            errosTips[ lineNumber + 1 ].insert( "Add ';' in this line" );
             //Debug( Tokens[ lineNumber ] );
             //return thisLine_Done;
             return;
@@ -579,7 +579,7 @@ void checking_statement( int lineNumber )
                   /*cout << "\nLine No - " << lineNumber + 1 << " : ";
                   CFILE.printThisLine( lineNumber + 1 );
                   CFILE.printTips( "Fixed this Line" );*/
-                  errosTips[ lineNumber + 1 ].push_back( "Fixed this Line" );
+                  errosTips[ lineNumber + 1 ].insert( "Fixed this Line" );
                   //return thisLine_Done;
                   return;
             }
@@ -696,7 +696,7 @@ int forGroup( int i )
             /*cout << "\nLine No - " << fa.startLine << " : ";
             CFILE.printThisLine( fa.startLine );
             CFILE.printTips( "Need exactly TWO semi-colon" );*/
-            errosTips[ fa.startLine ].push_back( "Expected ';' before ')' token" );
+            errosTips[ fa.startLine ].insert( "Expected ';' before ')' token" );
             return i;
       }
 
@@ -718,7 +718,7 @@ int forGroup( int i )
                   break;
       }
       while ( !temp.empty() ) {
-            errosTips[ temp.top() + 1 ].push_back( "Expected identifier or '('" );
+            errosTips[ temp.top() + 1 ].insert( "Expected identifier or '('" );
             temp.pop();
       }
 
@@ -785,7 +785,7 @@ int functionGroup( int i )
                         break;
             }
             while ( !temp.empty() ) {
-                  errosTips[ temp.top() + 1 ].push_back( "Expected identifier or '('" );
+                  errosTips[ temp.top() + 1 ].insert( "Expected identifier or '('" );
                   //Debug( i );
                   temp.pop();
             }
@@ -830,7 +830,7 @@ int whileGroup( int i )
                   break;
       }
       while ( !temp.empty() ) {
-            errosTips[ temp.top() + 1 ].push_back( "Expected identifier or '('" );
+            errosTips[ temp.top() + 1 ].insert( "Expected identifier or '('" );
             temp.pop();
       }
       fa.statement_text_end = h - 1;
@@ -867,7 +867,7 @@ int doWhileGroup( int i )
                   break;
       }
       while ( !temp.empty() ) {
-            errosTips[ temp.top() + 1 ].push_back( "Expected identifier or '('" );
+            errosTips[ temp.top() + 1 ].insert( "Expected identifier or '('" );
             temp.pop();
       }
       //cout << h;//32
@@ -929,7 +929,7 @@ else_if_struct elseIfGroup( int i )
                         break;
             }
             while ( !temp.empty() ) {
-                  errosTips[ temp.top() + 1 ].push_back( "Expected identifier or '('" );
+                  errosTips[ temp.top() + 1 ].insert( "Expected identifier or '('" );
                   temp.pop();
             }
             fa.statement_text_end = h - 1;
@@ -973,7 +973,7 @@ else_struct elseGroup( int i )
                         break;
             }
             while ( !temp.empty() ) {
-                  errosTips[ temp.top() + 1 ].push_back( "Expected identifier or '('" );
+                  errosTips[ temp.top() + 1 ].insert( "Expected identifier or '('" );
                   temp.pop();
             }
 
@@ -1017,7 +1017,7 @@ int ifGroup( int i )
                         break;
             }
             while ( !temp.empty() ) {
-                  errosTips[ temp.top() + 1 ].push_back( "Expected identifier or '('" );
+                  errosTips[ temp.top() + 1 ].insert( "Expected identifier or '('" );
                   temp.pop();
             }
             fa.statement_text_end = h - 1;
@@ -1102,12 +1102,12 @@ void headerFile_check( int LN )
                   return;
       }
 
-      haveERROR[ LN ] = true;
-      /*cout << "\nLine No - " << LN + 1 << " : ";
+      /*haveERROR[ LN ] = true;
+      cout << "\nLine No - " << LN + 1 << " : ";
       CFILE.printThisLine( LN + 1 );
       CFILE.printTips( "Wrong HEADER File or HEAHER ISSUE" );*/
       //errosTips[ LN + 1 ].push_back( "Wrong HEADER File or HEAHER ISSUE" );
-      errosTips[ LN + 1 ].push_back( "Fatal error: No such file or directory" );
+      errosTips[ LN + 1 ].insert( "Fatal error: No such file or directory" );
 }
 
 int headerFiles_check( int LN )
@@ -1166,7 +1166,7 @@ void sameFunctionNameDetection()
                         tips += to_string( lineNumbers[ i ] );
                   }
                   for ( int i = 0; i < lineNumbers.size(); ++i ) {
-                        errosTips[ lineNumbers[ i ] ].push_back( tips );
+                        errosTips[ lineNumbers[ i ] ].insert( tips );
                   }
             }
       }
@@ -1470,8 +1470,8 @@ void errorPrinting()
             if ( errosTips[ i ].size() ) {
                   cout << "\nLine No - " << i << " : ";
                   CFILE.printThisLine( i );
-                  for ( int j = 0; j < errosTips[ i ].size(); ++j )
-                        CFILE.printTips( errosTips[ i ][ j ] );
+                  for ( set < string > :: iterator it = errosTips[ i ].begin(); it != errosTips[ i ].end(); ++it )
+                        CFILE.printTips( *it );
             }
       }
 }
@@ -1479,11 +1479,89 @@ void errorPrinting()
 // last challenging task
 // variable handling
 
-void variableHandling( int startLine, int endLine, set < string > takenVarible )
+bool isItDeclarationLine( int lineNumber )
 {
+      set < string > rightType;
+      rightType.insert( "char" );
+      rightType.insert( "int" );
+      rightType.insert( "double" );
+
+      //Debug( Tokens[ lineNumber ][ 0 ] );
+      //return true;
+      return ( !Tokens[ lineNumber ].empty() && rightType.find( Tokens[ lineNumber ][ 0 ] ) != rightType.end() );
+}
+
+void getVariableFromThisLine( int lineNumber, set < string > &takenVarible )
+{
+      takenVarible.insert( Tokens[ lineNumber ][ 1 ] );
+      if ( !validVariableName( Tokens[ lineNumber ][ 1 ] ) ) {
+            errosTips[ lineNumber + 1 ].insert( "'" + Tokens[ lineNumber ][ 1 ] + "' is not valid variable" );
+      }
+      if( availableVariable( Tokens[ lineNumber ][ 1 ], takenVarible ) ) {
+            ///Debug( takenVarible );
+            //Debug( Tokens[ i ][ j ] );
+            errosTips[ lineNumber + 1 ].insert( "'" + Tokens[ lineNumber ][ 1 ] + "' is already used" );
+      }
+      else
+            takenVarible.insert( Tokens[ lineNumber ][ 1 ] );
+
+      for ( int i = 2; i < Tokens[ lineNumber ].size(); ++i ) {
+            if ( Tokens[ lineNumber ][ i ] == "," ) {
+                  if ( !validVariableName( Tokens[ lineNumber ][ i + 1 ] ) ) {
+                        errosTips[ lineNumber + 1 ].insert( "'" + Tokens[ lineNumber ][ i + 1 ] + "' is not valid variable" );
+                  }
+                  if( availableVariable( Tokens[ lineNumber ][ i + 1 ], takenVarible ) ) {
+                        ///Debug( takenVarible );
+                        //Debug( Tokens[ i ][ j ] );
+                        errosTips[ lineNumber + 1 ].insert( "'" + Tokens[ lineNumber ][ i + 1 ] + "' is already used" );
+                  }
+                  else
+                        takenVarible.insert( Tokens[ lineNumber ][ i + 1 ] );
+            }
+      }
+}
+
+void tryToGetVariableFromThisLine( int startLine, int endLine, set < string > &takenVarible )
+{
+      //set < string > takenVariable;
+      //return;
       for ( int i = startLine; i <= endLine; ++i ) {  // 0 based
+            // declaration line
+            if ( errosTips[ i + 1 ].empty() && isItDeclarationLine( i ) ) {
+                  getVariableFromThisLine( i, takenVarible );
+                  //Debug( i );
+            }
+            // function
+
+            // for
 
       }
+      //Debug( takenVarible );
+}
+
+void variableHandling( int startLine, int endLine, set < string > takenVarible )
+{
+      //return;
+      for ( int i = startLine; i <= endLine; ++i ) {  // 0 based
+            if ( !errosTips[ i + 1 ].empty() || Tokens[ i ].empty() || Tokens[ i ][ 0 ] == "#" )
+                  continue;
+            tryToGetVariableFromThisLine( i, i, takenVarible);
+
+            for ( int j = 0; j < Tokens[ i ].size(); ++j ) {
+                  if ( TokenType[ i ][ j ] == "identifier" ) {
+                        if ( !validVariableName( Tokens[ i ][ j ] ) ) {
+                              errosTips[ i + 1 ].insert( "'" + Tokens[ i ][ j ] + "' is not valid variable" );
+                        }
+                        if( !availableVariable( Tokens[ i ][ j ], takenVarible ) ) {
+                              ///Debug( takenVarible );
+                              //Debug( Tokens[ i ][ j ] );
+                              errosTips[ i + 1 ].insert( "'" + Tokens[ i ][ j ] + "' is undeclared here" );
+                        }
+                  }
+            }
+
+      }
+      Debug( takenVarible );
 }
 
 int main()
@@ -1528,6 +1606,8 @@ int main()
       findGroup( 0, totalLine );
       syntaxChecking();
       //printFor();
+      set < string > takenVariable;
+      variableHandling( 0, totalLine - 1, takenVariable );
       errorPrinting();
 
       return 0;

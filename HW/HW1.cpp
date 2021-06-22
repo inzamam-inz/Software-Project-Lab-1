@@ -62,7 +62,7 @@ string check;
 ofstream file( "output.txt" );
 
 
-bool digitCheck( char ch )
+bool isDigit( char ch )
 {
       if ( ch >= '0' && ch <= '9' )
             return true;
@@ -72,7 +72,7 @@ bool digitCheck( char ch )
 
 bool operatorCheck( char ch )
 {
-      if ( ch == '{' || ch == '}' || ch == '[' || ch == ']' || ch == '(' || ch == ')' || ch == '#' || ch == ';' || ch == ':' || ch == '?' || ch == '.' || ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '%' || ch == '^' || ch == '&' ||ch ==  '|' || ch == '!' || ch == '=' || ch == '<' || ch == '>' || ch == ',' )
+      if ( ch == '{' || ch == '}' || ch == '[' || ch == ']' || ch == '(' || ch == ')' || ch == '#' || ch == ';' || ch == ':' || ch == '?' || ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '%' || ch == '^' || ch == '&' ||ch ==  '|' || ch == '!' || ch == '=' || ch == '<' || ch == '>' || ch == ',' )
             return true;
       else
             return false;
@@ -86,19 +86,47 @@ bool operatorCheckdup(char ch)
             return false;
 }
 
+bool isItInteger( string check )
+{
+      for ( int i = 0; i < check.size(); ++i ) {
+            if ( !isDigit( check[ i ] ) )
+                  return false;
+      }
+
+      return true;
+}
+
+bool isItDouble( string check )
+{
+      int dotCount = 0;
+      for ( int i = 0; i < check.size(); ++i ) {
+            if ( isDigit( check[ i ] ) )
+                  continue;
+            if ( check[ i ] == '.' )
+                  dotCount++;
+            else
+                  return false;
+      }
+
+      return dotCount <= 1;
+}
+
 void keyword_identifier_check( int l, int col )
 {
       if ( check.size() == 0 )
             return;
-      int flag = 0;
+
       for ( int k = 0; k < 32; k++ ) {
             if ( check.compare( keywords[ k ] ) == 0 ) {
-                  flag = 1;
-                  break;
+                  file << "keyword\t" << check << "\t" << perline[ l ].line << "\t" << col - ( check.size() ) + 1 << "\n";
+                  check = "";
+                  return;
             }
       }
-      if ( flag == 1 )
-            file << "keyword\t" << check << "\t" << perline[ l ].line << "\t" << col - ( check.size() ) + 1 << "\n";
+      if ( isItInteger( check ) )
+            file << "integer\t" << check << "\t" << perline[ l ].line << "\t" << col - ( check.size() ) + 1 << "\n";
+      else if ( isItDouble( check ) )
+            file << "double\t" << check << "\t" << perline[ l ].line << "\t" << col - ( check.size() ) + 1 << "\n";
       else
             file << "identifier\t" << check << "\t" << perline[ l ].line << "\t" << col - ( check.size() ) + 1 << "\n";
 
@@ -130,12 +158,12 @@ void lexing()
                         file << "character\t" << perline[ i ].text[ j ] << perline[ i ].text[ j + 1 ] << "\t" << perline[ i ].line << "\t" << j + 1 << "\n";//check which character
                         j += 2;
                   }
-                  else if ( digitCheck( perline[ i ].text[ j ] ) ) { //digitChecking(done)
+                  /*else if ( check == "" && isDigit( perline[ i ].text[ j ] ) ) { //isDigiting(done)
                         keyword_identifier_check( i, j );
                         int f = 0, a = perline[ i ].text[ j ] - '0';
                         j++;
                         int temp = j;
-                        while ( digitCheck( perline[ i ].text[ j ] ) || perline[ i ].text[ j ] == '.' ) {
+                        while ( isDigit( perline[ i ].text[ j ] ) || perline[ i ].text[ j ] == '.' ) {
                               if ( perline[ i ].text[ j ] == '.' ) {
                                     f = 1;
                                     file << "float\t" << a << ".";
@@ -149,7 +177,7 @@ void lexing()
                               file << "integer\t" << a << "\t" << perline[ i ].line << "\t" << temp << "\n";
                         else
                               file << a << "\t" << perline[ i ].line << "\t" << temp << "\n";
-                  }
+                  }*/
                   else if ( perline[ i ].text[ j ] == '"' ) { //stringChecking(done)
                         keyword_identifier_check( i, j );
                         j++;
