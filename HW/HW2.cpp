@@ -293,6 +293,17 @@ string to_string( int number )
       return str;
 }
 
+int strTint( string str )
+{
+      int n = 0;
+      for ( int i = 0; i < str.size(); i++ ) {
+            n *= 10;
+            n += str[ i ] - '0';
+      }
+
+      return n;
+}
+
 bool validVariableName( string st )
 {
       if ( !( isLetter( st[ 0 ] ) || st[ 0 ] == '_' ) )
@@ -467,6 +478,7 @@ int isBreakContinue( int lineNumber )
 
       return thisLine_Done;
 }
+
 int isReturnLine( int lineNumber )
 {
       if ( Tokens[ lineNumber ][ 0 ] != "return" ) {
@@ -603,17 +615,6 @@ void checking_statement( int lineNumber )
       int a, b;
       //if ( a == b == a )  return;
       //a += a++++b;
-}
-
-int strTint( string str )
-{
-      int n = 0;
-      for ( int i = 0; i < str.size(); i++ ) {
-            n *= 10;
-            n += str[ i ] - '0';
-      }
-
-      return n;
 }
 
 void printFor()
@@ -1475,6 +1476,16 @@ void errorPrinting()
       }
 }
 
+// last challenging task
+// variable handling
+
+void variableHandling( int startLine, int endLine, set < string > takenVarible )
+{
+      for ( int i = startLine; i <= endLine; ++i ) {  // 0 based
+
+      }
+}
+
 int main()
 {
       system( "g++ HW1.cpp -o HW1" );
@@ -1494,6 +1505,8 @@ int main()
       while ( ( ch = fgetc( fp ) ) != EOF ) {
             Text = Text + ch;
       }
+
+      //Debug( Text );
 
       stringstream X( Text );
       while ( getline(X, str, '\n' ) ) {
@@ -1528,9 +1541,6 @@ TODO : If any error line have "{" / "}", give extra tips
 TODO : complete final check of group properties
 
 TODO : final check of main function;
-
-TODO : comment handle -> Done
--> replace with space
 
 TODO : Variable handle ***
 -> stack and set

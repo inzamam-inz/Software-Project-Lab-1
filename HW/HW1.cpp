@@ -130,7 +130,7 @@ void lexing()
                         file << "character\t" << perline[ i ].text[ j ] << perline[ i ].text[ j + 1 ] << "\t" << perline[ i ].line << "\t" << j + 1 << "\n";//check which character
                         j += 2;
                   }
-                  else if ( digitCheck(perline[ i ].text[ j ] ) ) { //digitChecking(done)
+                  else if ( digitCheck( perline[ i ].text[ j ] ) ) { //digitChecking(done)
                         keyword_identifier_check( i, j );
                         int f = 0, a = perline[ i ].text[ j ] - '0';
                         j++;
@@ -162,7 +162,7 @@ void lexing()
                         j++;
                         file << "string\t" << strg  << "\t" << perline[ i ].line << "\t" << temp + 1 << "\n"; //char check in string
                   }
-                  else if ( perline[ i ].text[ j ] == ' ' || perline[ i ].text[ j ] == '\n' ) { //keyword_identifer_checking(done)
+                  else if ( perline[ i ].text[ j ] == ' ' || perline[ i ].text[ j ] == '\n' ) { //keyword_identifier_checking(done)
                         //cout << check << i << " " << j <<"\n";
                         keyword_identifier_check( i, j );
 
@@ -222,11 +222,15 @@ int main()
             if ( starti == i )
                   continue;
 
-            while ( starti <= i )
-                  codeText[ starti++ ] = ' ';
+            while ( starti <= i ) {
+                  if ( codeText[ starti ] != '\n' )
+                        codeText[ starti ] = ' ';
+                  starti++;
+            }
+
       }
 
-      //Debug( codeText );
+      Debug( codeText );
 
       stringstream X( codeText );
       while ( getline( X, str, '\n' ) ) {
