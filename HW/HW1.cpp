@@ -53,7 +53,7 @@ struct perlinestruct {
       string text;
 };
 
-perlinestruct perline[ 100 ];
+perlinestruct perline[ 2000 ];
 string keywords[ 32 ] = { "auto", "break", "case", "char", "const", "continue", "default", "do", "double", "else",
                           "enum", "extern", "float", "for", "goto", "if", "int", "long", "register", "return", "short",
                           "signed", "sizeof", "static", "struct", "switch", "typedef", "union", "unsigned", "void", "volatile", "while" };
@@ -111,7 +111,7 @@ bool isItDouble( string check )
       return dotCount <= 1;
 }
 
-void keyword_identifier_check( int l, int col )
+void keyword_identifier_number_check( int l, int col )
 {
       if ( check.size() == 0 )
             return;
@@ -139,12 +139,12 @@ void lexing()
             int lenPerLine = perline[ i ].text.size();
             for ( int j = 0; j < lenPerLine; ) {
                   if ( operatorCheck( perline[ i ].text[ j ] ) && operatorCheckdup( perline[ i ].text[ j + 1 ] ) ) {//operatorChecking(done)
-                        keyword_identifier_check( i, j );
+                        keyword_identifier_number_check( i, j );
                         file << "operator\t" << perline[ i ].text[ j ] << perline[ i ].text[ j + 1 ] << "\t" << perline[ i ].line << "\t" << j + 1 << "\n";
                         j += 2;
                   }
                   else if ( operatorCheck( perline[ i ].text[ j ] ) ) { //operatorChecking(done)
-                        keyword_identifier_check( i, j );
+                        keyword_identifier_number_check( i, j );
                         file << "operator\t" << perline[ i ].text[ j ] << "\t" << perline[ i ].line << "\t" << j + 1 << "\n";
                         j += 1;
                   }
@@ -154,12 +154,12 @@ void lexing()
                         j += 1;
                   }*/
                   else if ( perline[ i ].text[ j ] == '\\' ) { //charChecking(done)
-                        keyword_identifier_check( i, j );
+                        keyword_identifier_number_check( i, j );
                         file << "character\t" << perline[ i ].text[ j ] << perline[ i ].text[ j + 1 ] << "\t" << perline[ i ].line << "\t" << j + 1 << "\n";//check which character
                         j += 2;
                   }
                   /*else if ( check == "" && isDigit( perline[ i ].text[ j ] ) ) { //isDigiting(done)
-                        keyword_identifier_check( i, j );
+                        keyword_identifier_number_check( i, j );
                         int f = 0, a = perline[ i ].text[ j ] - '0';
                         j++;
                         int temp = j;
@@ -179,7 +179,7 @@ void lexing()
                               file << a << "\t" << perline[ i ].line << "\t" << temp << "\n";
                   }*/
                   else if ( perline[ i ].text[ j ] == '"' ) { //stringChecking(done)
-                        keyword_identifier_check( i, j );
+                        keyword_identifier_number_check( i, j );
                         j++;
                         int temp = j;
                         string strg;
@@ -190,9 +190,9 @@ void lexing()
                         j++;
                         file << "string\t" << strg  << "\t" << perline[ i ].line << "\t" << temp + 1 << "\n"; //char check in string
                   }
-                  else if ( perline[ i ].text[ j ] == ' ' || perline[ i ].text[ j ] == '\n' ) { //keyword_identifier_checking(done)
+                  else if ( perline[ i ].text[ j ] == ' ' || perline[ i ].text[ j ] == '\n' ) { //keyword_identifier_number_checking(done)
                         //cout << check << i << " " << j <<"\n";
-                        keyword_identifier_check( i, j );
+                        keyword_identifier_number_check( i, j );
 
                         j++;
                   }
@@ -208,6 +208,10 @@ int main()
       FILE *fp;
 	string str, codeText, mainCodeText;
 	char ch;
+
+	#ifndef ONLINE_JUDGE
+            //freopen( "Error.txt", "w", stderr );
+      #endif
 
 	fp = fopen( "program.c", "r" );
 
@@ -258,7 +262,7 @@ int main()
 
       }
 
-      Debug( codeText );
+      //Debug( codeText );
 
       stringstream X( codeText );
       while ( getline( X, str, '\n' ) ) {
