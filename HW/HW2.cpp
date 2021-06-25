@@ -169,7 +169,7 @@ vector < string > TokenType[ maximumLineCount ];
 vector < string > Tokens[ maximumLineCount ];
 bool isFinish[ maximumLineCount ], haveERROR[ maximumLineCount ];
 vector < vector < string > > allVariable;
-set < string > errosTips[ maximumLineCount ];             // 1 based
+set < string > errorsTips[ maximumLineCount ];             // 1 based
 printCFile CFILE;
 /*struct perlinestruct
 {
@@ -372,7 +372,7 @@ int checking_Equation( int lineNumber, vector < int > checkList )
             CFILE.printThisLine( lineNumber + 1 );
             CFILE.printTips( "Fixed this Line" );*/
 
-            errosTips[ lineNumber + 1 ].insert( "Fixed this Line" );
+            errorsTips[ lineNumber + 1 ].insert( "Fixed this Line" );
             return thisLine_Done;
       }
 
@@ -387,7 +387,7 @@ int checking_Equation( int lineNumber, vector < int > checkList )
                   /*cout << "\nLine No - " << lineNumber + 1 << " : ";
                   CFILE.printThisLine( lineNumber + 1 );
                   CFILE.printTips( "Fixed this Line" );*/
-                  errosTips[ lineNumber + 1 ].insert( "Fixed this Line" );
+                  errorsTips[ lineNumber + 1 ].insert( "Fixed this Line" );
                   //cout << "*";
                   return thisLine_Done;
             }
@@ -397,7 +397,7 @@ int checking_Equation( int lineNumber, vector < int > checkList )
                   /*cout << "\nLine No - " << lineNumber + 1 << " : ";
                   CFILE.printThisLine( lineNumber + 1 );
                   CFILE.printTips( "Fixed this Line" );*/
-                  errosTips[ lineNumber + 1 ].insert( "Fixed this Line" );
+                  errorsTips[ lineNumber + 1 ].insert( "Fixed this Line" );
                   //cout << "*8";
                   return thisLine_Done;
             }
@@ -420,7 +420,7 @@ int isDeclareVariableLine( int lineNumber )
             /*cout << "\nLine No - " << lineNumber + 1 << " : ";
             CFILE.printThisLine( lineNumber + 1 );
             CFILE.printTips( "Need variable name" );*/
-            errosTips[ lineNumber + 1 ].insert( "Need variable name" );
+            errorsTips[ lineNumber + 1 ].insert( "Need variable name" );
             return thisLine_Done;
       }
 
@@ -443,7 +443,7 @@ int isDeclareVariableLine( int lineNumber )
                         /*cout << "\nLine No - " << lineNumber + 1 << " : ";
                         CFILE.printThisLine( lineNumber + 1 );
                         CFILE.printTips( "Fixed this Line" );*/
-                        errosTips[ lineNumber + 1 ].insert( "Fixed this Line" );
+                        errorsTips[ lineNumber + 1 ].insert( "Fixed this Line" );
                         return thisLine_Done;
                   }
                   else if ( TokenType[ lineNumber ][ i ] == "identifier" && isSpecialoperator( lineNumber, i + 1 ) ) {
@@ -469,10 +469,10 @@ int isBreakContinue( int lineNumber )
             /*cout << "\nLine No - " << lineNumber + 1 << " : ";
             CFILE.printThisLine( lineNumber + 1 );*/
             if ( Tokens[ lineNumber ][ 0 ] == "break" )
-                  errosTips[ lineNumber + 1 ].insert( "Replace with \"break;\"" );
+                  errorsTips[ lineNumber + 1 ].insert( "Replace with \"break;\"" );
                   //CFILE.printTips( "Replace with \"break;\"" );
             if ( Tokens[ lineNumber ][ 0 ] == "continue" )
-                  errosTips[ lineNumber + 1 ].insert( "Replace with \"continue;\"" );
+                  errorsTips[ lineNumber + 1 ].insert( "Replace with \"continue;\"" );
                   //CFILE.printTips( "Replace with \"continue;\"" );
       }
 
@@ -495,14 +495,14 @@ int isReturnLine( int lineNumber )
                         /*cout << "\nLine No - " << lineNumber + 1 << " : ";
                         CFILE.printThisLine( lineNumber + 1 );
                         CFILE.printTips( "Function name '" + functions[ i ].fTokens + "' have void return type" );*/
-                        errosTips[ lineNumber + 1 ].insert( "Function name '" + functions[ i ].fTokens + "' have void return type" );
+                        errorsTips[ lineNumber + 1 ].insert( "Function name '" + functions[ i ].fTokens + "' have void return type" );
                         return thisLine_Done;
                   }
                   else if ( functions[ i ].returnType != "void" && Tokens[ lineNumber ].size() <= 2 ) {
                         /*cout << "\nLine No - " << lineNumber + 1 << " : ";
                         CFILE.printThisLine( lineNumber + 1 );
                         CFILE.printTips( "Function name '" + functions[ i ].fTokens + "' have return type, but return value not Found" );*/
-                        errosTips[ lineNumber + 1 ].insert( "Function name '" + functions[ i ].fTokens + "' have return type, but return value not Found" );
+                        errorsTips[ lineNumber + 1 ].insert( "Function name '" + functions[ i ].fTokens + "' have return type, but return value not Found" );
                         return thisLine_Done;
                   }
                   else {
@@ -521,8 +521,31 @@ int isReturnLine( int lineNumber )
       /*cout << "\nLine No - " << lineNumber + 1 << " : ";
       CFILE.printThisLine( lineNumber + 1 );
       CFILE.printTips( "This Line is Out of any Function" );*/
-      errosTips[ lineNumber + 1 ].insert( "This Line is Out of any Function" );
+      errorsTips[ lineNumber + 1 ].insert( "This Line is Out of any Function" );
       return thisLine_Done;
+}
+
+string addSemiColonTipsModify( int lineNumber )
+{
+      // keyword
+      if ( Tokens[ lineNumber ].size() > 1 && Tokens[ lineNumber ][ 0 ] == "else" && Tokens[ lineNumber ][ 1 ] == "if" ) {
+            return "This 'else if' has no previous 'if'";
+      }
+      else if ( Tokens[ lineNumber ][ 0 ] == "else" ) {
+            return "This 'else' has no previous 'if'";
+      }
+      else if ( Tokens[ lineNumber ][ 0 ] == "for" ) {
+            return "Wrong 'for loop' formation";
+      }
+      else if ( Tokens[ lineNumber ][ 0 ] == "while" || Tokens[ lineNumber ][ 0 ] == "do" ) {
+            return "Wrong 'while/do-while loop' formation";
+      }
+      else if ( Tokens[ lineNumber ].back() == "{" || Tokens[ lineNumber ].back() == "}" ) {
+            return "Expected valid identifier or valid formation before";
+      }
+      else  {
+            return "Expected ';' in this line";
+      }
 }
 
 void checking_statement( int lineNumber )
@@ -534,7 +557,7 @@ void checking_statement( int lineNumber )
             /*cout << "\nLine No - " << lineNumber + 1 << " : ";
             CFILE.printThisLine( lineNumber + 1 );
             CFILE.printTips( "Add ';' in this line" );*/
-            errosTips[ lineNumber + 1 ].insert( "Add ';' in this line" );
+            errorsTips[ lineNumber + 1 ].insert( addSemiColonTipsModify( lineNumber ) );
             //Debug( Tokens[ lineNumber ] );
             //return thisLine_Done;
             return;
@@ -579,7 +602,7 @@ void checking_statement( int lineNumber )
                   /*cout << "\nLine No - " << lineNumber + 1 << " : ";
                   CFILE.printThisLine( lineNumber + 1 );
                   CFILE.printTips( "Fixed this Line" );*/
-                  errosTips[ lineNumber + 1 ].insert( "Fixed this Line" );
+                  errorsTips[ lineNumber + 1 ].insert( "Fixed this Line" );
                   //return thisLine_Done;
                   return;
             }
@@ -696,7 +719,7 @@ int forGroup( int i )
             /*cout << "\nLine No - " << fa.startLine << " : ";
             CFILE.printThisLine( fa.startLine );
             CFILE.printTips( "Need exactly TWO semi-colon" );*/
-            errosTips[ fa.startLine ].insert( "Expected ';' before ')' token" );
+            errorsTips[ fa.startLine ].insert( "Expected ';' before ')' token" );
             return i;
       }
 
@@ -718,7 +741,7 @@ int forGroup( int i )
                   break;
       }
       while ( !temp.empty() ) {
-            errosTips[ temp.top() + 1 ].insert( "Expected identifier or '('" );
+            errorsTips[ temp.top() + 1 ].insert( "Expected identifier or '('" );
             temp.pop();
       }
 
@@ -785,7 +808,7 @@ int functionGroup( int i )
                         break;
             }
             while ( !temp.empty() ) {
-                  errosTips[ temp.top() + 1 ].insert( "Expected identifier or '('" );
+                  errorsTips[ temp.top() + 1 ].insert( "Expected identifier or '('" );
                   //Debug( i );
                   temp.pop();
             }
@@ -808,7 +831,7 @@ int whileGroup( int i )
       if ( Tokens[ i ][ TokenType[ i ].size() - 1 ].compare( "{" ) == 0 ) {
             fa.statement_text_start = i + 2;
       }
-      while ( Tokens[ i ][ f ].compare(")") != 0 ) {
+      while ( Tokens[ i ][ f ].compare( ")" ) != 0 ) {
             fa.condition.push_back( Tokens[ i ][ f ] );
             fa.conditionType.push_back( TokenType[ i ][ f ] );
             f++;
@@ -830,7 +853,7 @@ int whileGroup( int i )
                   break;
       }
       while ( !temp.empty() ) {
-            errosTips[ temp.top() + 1 ].insert( "Expected identifier or '('" );
+            errorsTips[ temp.top() + 1 ].insert( "Expected identifier or '('" );
             temp.pop();
       }
       fa.statement_text_end = h - 1;
@@ -867,7 +890,7 @@ int doWhileGroup( int i )
                   break;
       }
       while ( !temp.empty() ) {
-            errosTips[ temp.top() + 1 ].insert( "Expected identifier or '('" );
+            errorsTips[ temp.top() + 1 ].insert( "Expected identifier or '('" );
             temp.pop();
       }
       //cout << h;//32
@@ -885,6 +908,7 @@ int doWhileGroup( int i )
             fa.conditionType.push_back( TokenType[ fa.endLine - 1 ][ f ] );
             f++;
       }
+
       do_whiles.push_back( fa );
       i = fa.endLine - 1;
       return i;
@@ -896,14 +920,17 @@ else_if_struct elseIfGroup( int i )
       else_if_struct fa;
       fa.startLine = i + 1;//24
       fa.statement_text_start = i + 3;//26
+
       while ( Tokens[ i ][ f ].compare( ")" ) != 0 ) {
             fa.condition.push_back( Tokens[ i ][ f ] );
             fa.conditionType.push_back( TokenType[ i ][ f ] );
             f++;
       }
+
       if ( Tokens[ i ][ TokenType[ i ].size() - 1 ].compare( "{" ) == 0 ) {
             fa.statement_text_start = i + 2;//25
       }
+
       if ( Tokens[ i ][ TokenType[ i ].size() - 1 ].compare( "{" ) != 0 && ( Tokens[ i + 1 ].size() > 0 && Tokens[ i + 1 ][ 0 ].compare( "{" ) != 0 ) ) {
             //cout << "jja" << Tokens[i][TokenType[i].size()-1] << Tokens[i+1][0] << i;
             fa.statement_text_start = i + 2;
@@ -915,27 +942,32 @@ else_if_struct elseIfGroup( int i )
             stack < int > temp;
             int h = fa.statement_text_start - 1;
             temp.push( h - 1 );
+
             while ( !temp.empty() ) {
                   //cout << i;
                   for ( int k = 0; k < TokenType[ h ].size(); k++ ) {
                         if ( Tokens[ h ][ k ].compare( "{" ) == 0 )
                               temp.push( h );
+
                         if ( Tokens[ h ][ k ].compare( "}" ) == 0 ) {
                               temp.pop();
                         }
                   }
+
                   h++;
                   if ( h == totalLine )
                         break;
             }
+
             while ( !temp.empty() ) {
-                  errosTips[ temp.top() + 1 ].insert( "Expected identifier or '('" );
+                  errorsTips[ temp.top() + 1 ].insert( "Expected identifier or '('" );
                   temp.pop();
             }
+
             fa.statement_text_end = h - 1;
             fa.endLine = h;
-            //whiles.push_back(fa);
-            //i = fa.endLine-1;
+            //whiles.push_back( fa );
+            //i = fa.endLine - 1;
       }
 
       else_ifs.push_back( fa );
@@ -952,6 +984,7 @@ else_struct elseGroup( int i )
       if ( Tokens[ i ][ TokenType[ i ].size() - 1 ].compare( "{" ) == 0 ) {
             fa.statement_text_start = i + 2;
       }
+
       if ( Tokens[ i ][ TokenType[ i ].size() - 1 ].compare( "{" ) != 0 && ( Tokens[ i + 1 ].size() > 0 && Tokens[ i + 1 ][ 0 ].compare( "{" ) != 0 ) ) {
             fa.statement_text_start = i + 2;
             fa.statement_text_end = i + 2;
@@ -962,21 +995,25 @@ else_struct elseGroup( int i )
             stack < int > temp;
             int h = fa.statement_text_start - 1;
             temp.push( h - 1 );
+
             while ( !temp.empty() ) {
                   //cout << i;
                   for ( int k = 0; k < TokenType[ h ].size(); k++ ) {
                         if ( Tokens[ h ][ k ].compare( "{" ) == 0 )
                               temp.push( h );
+
                         if ( Tokens[ h ][ k ].compare( "}" ) == 0 ) {
                               temp.pop();
                         }
                   }
+
                   h++;
                   if ( h == totalLine )
                         break;
             }
+
             while ( !temp.empty() ) {
-                  errosTips[ temp.top() + 1 ].insert( "Expected identifier or '('" );
+                  errorsTips[ temp.top() + 1 ].insert( "Expected identifier or '('" );
                   temp.pop();
             }
 
@@ -998,34 +1035,42 @@ int ifGroup( int i )
       if_struct fa;
       fa.startLine = i + 1;
       fa.statement_text_start = i + 3;
+
       while ( Tokens[ i ][ f ].compare( ")" ) != 0 ) {
             fa.condition.push_back( Tokens[ i ][ f ] );
             fa.conditionType.push_back( TokenType[ i ][ f ] );
             f++;
       }
+
       if ( Tokens[ i ][ TokenType[ i ].size() - 1 ].compare( "{" ) == 0 ) {
             fa.statement_text_start = i + 2;
       }
+
       if ( Tokens[ i ][ TokenType[ i ].size() - 1 ].compare( "{" ) == 0 || ( Tokens[ i + 1 ].size() > 0 && Tokens[ i + 1 ][ 0 ].compare( "{" ) == 0 ) ) {
             stack < int > temp;
             int h = fa.statement_text_start - 1;
             temp.push( h - 1 );
+
             while ( !temp.empty() ) {
                   //cout << i;
                   for ( int k = 0; k < TokenType[ h ].size(); k++ ) {
                         if ( Tokens[ h ][ k ].compare( "{" ) == 0 )
                               temp.push( h );
+
                         if ( Tokens[ h ][ k ].compare( "}" ) == 0 )
                               temp.pop();
                   }
+
                   h++;
                   if ( h == totalLine )
                         break;
             }
+
             while ( !temp.empty() ) {
-                  errosTips[ temp.top() + 1 ].insert( "Expected identifier or '('" );
+                  errorsTips[ temp.top() + 1 ].insert( "Expected identifier or '('" );
                   temp.pop();
             }
+
             fa.statement_text_end = h - 1;
             fa.endLine = h;
             i = fa.endLine - 1;
@@ -1036,6 +1081,7 @@ int ifGroup( int i )
             fa.endLine = i + 2;
             i = i + 1;
       }
+
       i++;
       //cout << i+1;
       while ( 1 ) {
@@ -1055,6 +1101,7 @@ int ifGroup( int i )
                   break;
             }
       }
+
       ifs.push_back( fa );
       i--;//
       return i;
@@ -1112,8 +1159,8 @@ void headerFile_check( int LN )
       cout << "\nLine No - " << LN + 1 << " : ";
       CFILE.printThisLine( LN + 1 );
       CFILE.printTips( "Wrong HEADER File or HEAHER ISSUE" );*/
-      //errosTips[ LN + 1 ].push_back( "Wrong HEADER File or HEAHER ISSUE" );
-      errosTips[ LN + 1 ].insert( "Fatal error: No such file or directory" );
+      //errorsTips[ LN + 1 ].push_back( "Wrong HEADER File or HEAHER ISSUE" );
+      errorsTips[ LN + 1 ].insert( "Fatal error: No such file or directory" );
 }
 
 int headerFiles_check( int LN )
@@ -1149,8 +1196,8 @@ void find_MAIN_function()
       }
 
       // TODO : same function name detection
-      if ( C ) return;
-      else     cout << "*** No MAIN function in your C file\n";
+      if ( C )  return;
+      else      cout << "*** No MAIN function in your C file\n";
 
 }
 void sameFunctionNameDetection()
@@ -1159,20 +1206,24 @@ void sameFunctionNameDetection()
       for ( int i = 0; i < functions.size(); ++i ) {
             functionInfo[ functions[ i ].fTokens ].push_back( functions[ i ].startLine );
       }
+
       for ( map < string, vector < int > > :: iterator it = functionInfo.begin(); it != functionInfo.end(); ++it ) {
             vector < int > lineNumbers = it->second;
             //Debug( lineNumbers );
             string tips = "\"";
+
             if ( lineNumbers.size() > 1 ) {
                   tips += it->first;
                   tips += "\" is found more time as function name in Line number : ";
                   //cout << "*** \"" << it->first << "\" is found more time as function name in Line number : ";
+
                   for ( int i = 0; i < lineNumbers.size(); ++i ) {
                         if ( i ) tips += ", ";
                         tips += to_string( lineNumbers[ i ] );
                   }
+
                   for ( int i = 0; i < lineNumbers.size(); ++i ) {
-                        errosTips[ lineNumbers[ i ] ].insert( tips );
+                        errorsTips[ lineNumbers[ i ] ].insert( tips );
                   }
             }
       }
@@ -1464,7 +1515,10 @@ void syntaxChecking()
       initialize_Checking( LN );
 
       for ( int i = 0; i < totalLine; ++i ) {
-            if ( !isFinish[ i ] ) {
+            if ( Tokens[ i ].empty() ) {
+                  isFinish[ i ] = true;
+            }
+            else if ( !isFinish[ i ] ) {
                   check_THIS_Line( i );
             }
       }
@@ -1473,10 +1527,10 @@ void syntaxChecking()
 void errorPrinting()
 {
       for ( int i = 0; i <= totalLine; ++i ) {
-            if ( errosTips[ i ].size() ) {
+            if ( errorsTips[ i ].size() ) {
                   cout << "\nLine No - " << i << " : ";
                   CFILE.printThisLine( i );
-                  for ( set < string > :: iterator it = errosTips[ i ].begin(); it != errosTips[ i ].end(); ++it )
+                  for ( set < string > :: iterator it = errorsTips[ i ].begin(); it != errorsTips[ i ].end(); ++it )
                         CFILE.printTips( *it );
             }
       }
@@ -1500,11 +1554,11 @@ bool isItDeclarationLine( int lineNumber )
 void addThisInScope( string token, set < string > &takenVarible, int lineNumber )
 {
       if ( !validVariableName( token ) ) {
-            errosTips[ lineNumber + 1 ].insert( "'" + token + "' is not valid variable" );
+            errorsTips[ lineNumber + 1 ].insert( "'" + token + "' is not valid variable" );
       }
       else if( availableVariable( token, takenVarible ) ) {
             //Debug( takenVarible );
-            errosTips[ lineNumber + 1 ].insert( "'" + token + "' is already used" );
+            errorsTips[ lineNumber + 1 ].insert( "'" + token + "' is already used" );
       }
       else {
             takenVarible.insert( token );
@@ -1513,15 +1567,15 @@ void addThisInScope( string token, set < string > &takenVarible, int lineNumber 
 
 void getVariableFromThisLine( int lineNumber, set < string > &takenVarible )
 {
-      if ( lineNumber == 86 ) {
+      /*if ( lineNumber == 86 ) {
             Debug( "aaaaaa" );
       }
-      /*if ( !validVariableName( Tokens[ lineNumber ][ 1 ] ) ) {
-            errosTips[ lineNumber + 1 ].insert( "'" + Tokens[ lineNumber ][ 1 ] + "' is not valid variable" );
+      if ( !validVariableName( Tokens[ lineNumber ][ 1 ] ) ) {
+            errorsTips[ lineNumber + 1 ].insert( "'" + Tokens[ lineNumber ][ 1 ] + "' is not valid variable" );
       }
       else if( availableVariable( Tokens[ lineNumber ][ 1 ], takenVarible ) ) {
             //Debug( takenVarible );
-            errosTips[ lineNumber + 1 ].insert( "'" + Tokens[ lineNumber ][ 1 ] + "' is already used" );
+            errorsTips[ lineNumber + 1 ].insert( "'" + Tokens[ lineNumber ][ 1 ] + "' is already used" );
       }
       else {
             takenVarible.insert( Tokens[ lineNumber ][ 1 ] );
@@ -1533,12 +1587,12 @@ void getVariableFromThisLine( int lineNumber, set < string > &takenVarible )
             if ( Tokens[ lineNumber ][ i ] == "," ) {
                   addThisInScope( Tokens[ lineNumber ][ i + 1 ], takenVarible, lineNumber );
                   /*if ( !validVariableName( Tokens[ lineNumber ][ i + 1 ] ) ) {
-                        errosTips[ lineNumber + 1 ].insert( "'" + Tokens[ lineNumber ][ i + 1 ] + "' is not valid variable" );
+                        errorsTips[ lineNumber + 1 ].insert( "'" + Tokens[ lineNumber ][ i + 1 ] + "' is not valid variable" );
                   }
                   else if( availableVariable( Tokens[ lineNumber ][ i + 1 ], takenVarible ) ) {
                         //Debug( takenVarible );
                         //Debug( Tokens[ i ][ j ] );
-                        errosTips[ lineNumber + 1 ].insert( "'" + Tokens[ lineNumber ][ i + 1 ] + "' is already used" );
+                        errorsTips[ lineNumber + 1 ].insert( "'" + Tokens[ lineNumber ][ i + 1 ] + "' is already used" );
                   }
                   else
                         takenVarible.insert( Tokens[ lineNumber ][ i + 1 ] );*/
@@ -1554,7 +1608,7 @@ void tryToGetVariableFromThisDeclarationLine( int startLine, int endLine, set < 
       //return;
       for ( int i = startLine; i <= endLine; ++i ) {  // 0 based
             // declaration line
-            if ( errosTips[ i + 1 ].empty() && isItDeclarationLine( i ) ) {
+            if ( errorsTips[ i + 1 ].empty() && isItDeclarationLine( i ) ) {
                   getVariableFromThisLine( i, takenVarible );
                   //Debug( i );
             }
@@ -1576,7 +1630,7 @@ void tryToGetVariableFromThisLineAllType( int startLine, int endLine, set < stri
       }
       for ( int i = startLine; i <= endLine; ++i ) {  // 0 based
             // declaration line
-            /*if ( errosTips[ i + 1 ].empty() && isItDeclarationLine( i ) ) {
+            /*if ( errorsTips[ i + 1 ].empty() && isItDeclarationLine( i ) ) {
                   getVariableFromThisLine( i, takenVarible );
                   //Debug( i );
             }*/
@@ -1688,12 +1742,12 @@ void identifierCheckingOfThisLine( int LN, set < string > &takenVarible )
                         Debug(Tokens[ LN ][ j ]  );
                   }
                   if ( !validVariableName( Tokens[ LN ][ j ] ) ) {
-                        errosTips[ LN + 1 ].insert( "'" + Tokens[ LN ][ j ] + "' is not valid variable" );
+                        errorsTips[ LN + 1 ].insert( "'" + Tokens[ LN ][ j ] + "' is not valid variable" );
                   }
                   if( !availableVariable( Tokens[ LN ][ j ], takenVarible ) ) {
                         //Debug( takenVarible );
                         //Debug( Tokens[ i ][ j ] );
-                        errosTips[ LN + 1 ].insert( "'" + Tokens[ LN ][ j ] + "' is undeclared here" );
+                        errorsTips[ LN + 1 ].insert( "'" + Tokens[ LN ][ j ] + "' is undeclared here" );
                   }
             }
       }
@@ -1767,12 +1821,12 @@ int variableHandling( int startLine, int endLine, set < string > takenVarible )
 
                   if ( TokenType[ i ][ j ] == "identifier" ) {
                         if ( !validVariableName( Tokens[ i ][ j ] ) ) {
-                              errosTips[ i + 1 ].insert( "'" + Tokens[ i ][ j ] + "' is not valid variable" );
+                              errorsTips[ i + 1 ].insert( "'" + Tokens[ i ][ j ] + "' is not valid variable" );
                         }
                         if( !availableVariable( Tokens[ i ][ j ], takenVarible ) ) {
                               //Debug( takenVarible );
                               //Debug( Tokens[ i ][ j ] );
-                              errosTips[ i + 1 ].insert( "'" + Tokens[ i ][ j ] + "' is undeclared here" );
+                              errorsTips[ i + 1 ].insert( "'" + Tokens[ i ][ j ] + "' is undeclared here" );
                         }
                   }
                   else if ( Tokens[ i ][ j ] == "{" ) {
@@ -1788,6 +1842,150 @@ int variableHandling( int startLine, int endLine, set < string > takenVarible )
       }
       return 0;
       Debug( takenVarible );
+}
+
+class finalKEYChecking {
+      public:
+            finalFORChecking() {
+            }
+
+            void checking_condition( int lineNumber, vector < int > checkList ) {
+                  if ( checkList.size() % 2 == 0 || !checkList.size() ) {
+                        errorsTips[ lineNumber + 1 ].insert( "Not valid expression" );
+                        return;
+                  }
+
+                  for ( int i = 0; i < checkList.size(); ++i ) {
+                        if ( i % 2 == 0 && ( TokenType[ lineNumber ][ checkList[ i ] ] != "identifier" && TokenType[ lineNumber ][ checkList[ i ] ] != "integer" && TokenType[ lineNumber ][ checkList[ i ] ] != "double") ) {
+                              errorsTips[ lineNumber + 1 ].insert( "Not valid expression" );
+                              return;
+                        }
+                        if ( i % 2 == 1 && !validoperator( lineNumber, checkList[ i ] ) ) {
+                              errorsTips[ lineNumber + 1 ].insert( "Not valid expression" );
+                              return;
+                        }
+                  }
+
+                  return;
+            }
+
+
+            bool initializeDeclaration( int lineNumber ) {
+                  if ( Tokens[ lineNumber ][ 2 ] != "int" ) {
+                        return false;
+                  }
+
+                  if ( Tokens[ lineNumber ].size() > 3 && TokenType[ lineNumber ][ 3 ] != "identifier" ) {
+                        errorsTips[ lineNumber + 1 ].insert( "Need variable name" );
+                        return true;
+                  }
+
+                  vector < int > checkList;
+                  for ( int i = 3; i < Tokens[ lineNumber ].size(); ++i ) {
+                        if ( Tokens[ lineNumber ][ i ] == "," || Tokens[ lineNumber ][ i ] == ";" ) {
+                              checking_condition( lineNumber, checkList );
+                              checkList.clear();
+                        }
+                        else {
+                              if ( isSpecialoperator( lineNumber, i ) && TokenType[ lineNumber ][ i + 1 ] == "identifier" ) {
+                                    ++i;
+                                    checkList.push_back( i );
+                              }
+                              else if ( isSpecialoperator( lineNumber, i ) ) {
+                                    errorsTips[ lineNumber + 1 ].insert( "Fixed this Line" );
+                                    return true;
+                              }
+                              else if ( TokenType[ lineNumber ][ i ] == "identifier" && isSpecialoperator( lineNumber, i + 1 ) ) {
+                                    checkList.push_back( i );
+                                    ++i;
+                              }
+                              else {
+                                    checkList.push_back( i );
+                              }
+                        }
+                        if ( Tokens[ lineNumber ][ i ] == ";" ) {
+                              break;
+                        }
+                  }
+
+                  return true;
+            }
+};
+
+void finalChecking()
+{
+      finalKEYChecking FKC;
+      vector < int > checkList;
+
+      // for
+      for ( int i = 0; i < fors.size(); ++i ) {
+            bool ok = FKC.initializeDeclaration( fors[ i ].startLine - 1 );
+            if ( !ok ) {
+                  checkList.clear();
+                  for ( int j = 2; Tokens[ fors[ i ].startLine - 1 ][ j ] != ";"; ++j ) {
+                        checkList.push_back( j );
+                  }
+                  FKC.checking_condition( fors[ i ].startLine - 1, checkList );
+            }
+
+            int j = 2;
+            for ( ; Tokens[ fors[ i ].startLine - 1 ][ j ] != ";"; ) {
+                  ++j;
+            }
+
+            ++j;
+            checkList.clear();
+            for ( ; Tokens[ fors[ i ].startLine - 1 ][ j ] != ";"; ++j ) {
+                  checkList.push_back( j );
+            }
+            FKC.checking_condition( fors[ i ].startLine - 1, checkList );
+
+            ++j;
+            checkList.clear();
+            for ( ; Tokens[ fors[ i ].startLine - 1 ][ j ] != ")"; ++j ) {
+                  checkList.push_back( j );
+            }
+            FKC.checking_condition( fors[ i ].startLine - 1, checkList );
+      }
+
+      // if
+      for ( int i = 0; i < ifs.size(); ++i ) {
+            checkList.clear();
+            for ( int j = 2; Tokens[ ifs[ i ].startLine - 1 ][ j ] != ")"; ++j ) {
+                  checkList.push_back( j );
+            }
+            FKC.checking_condition( ifs[ i ].startLine - 1, checkList );
+      }
+      // else if
+      for ( int i = 0; i < else_ifs.size(); ++i ) {
+            checkList.clear();
+            Debug( else_ifs[ i ].startLine );
+            for ( int j = 3; Tokens[ else_ifs[ i ].startLine - 1 ][ j ] != ")"; ++j ) {
+                  checkList.push_back( j );
+            }
+            FKC.checking_condition( else_ifs[ i ].startLine - 1, checkList );
+      }
+
+      // while
+      for ( int i = 0; i < whiles.size(); ++i ) {
+            checkList.clear();
+            for ( int j = 2; Tokens[ whiles[ i ].startLine - 1 ][ j ] != ")"; ++j ) {
+                  checkList.push_back( j );
+            }
+            FKC.checking_condition( whiles[ i ].startLine - 1, checkList );
+      }
+
+      // do while
+      for ( int i = 0; i < do_whiles.size(); ++i ) {
+            checkList.clear();
+            for ( int j = 2; Tokens[ do_whiles[ i ].endLine - 1 ][ j ] != ")"; ++j ) {
+                  checkList.push_back( j );
+            }
+            FKC.checking_condition( do_whiles[ i ].endLine - 1, checkList );
+            if ( Tokens[ do_whiles[ i ].endLine - 1 ].back() != ";" ) {
+                  errorsTips[ do_whiles[ i ].endLine ].insert( "Expected ';' in this line" );
+            }
+      }
 }
 
 int main()
@@ -1834,6 +2032,7 @@ int main()
       //printFor();
       set < string > takenVariable;
       variableHandling( 0, totalLine, takenVariable );
+      finalChecking();
       errorPrinting();
 
       return 0;
