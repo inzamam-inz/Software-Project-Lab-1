@@ -1,6 +1,5 @@
 
 /*   ALLAH is Almighty.....  */
-/*   https://www.cs.uic.edu/~troy/spring01/eecs473/mp1.html   */
 
 #include <bits/stdc++.h>
 using namespace std;
@@ -15,12 +14,25 @@ using namespace __gnu_pbds;
 #define all( x )                          ( x ).begin(), ( x ).end()
 #define Long                              long long
 
+
+
+// Function Prototype
+bool isDigit( char ch );
+bool operatorCheck( char ch );
+bool operatorCheckdup(char ch);
+bool isItInteger( string check );
+bool isItDouble( string check );
+void keyword_identifier_number_check( int l, int col );
+void lexing();
+
+
+
+//For Debugging
 #ifndef ONLINE_JUDGE
 #define Debug( x )                        cerr << "#[ " << #x << " = "; PrintForDebug( x ); cerr << " ]\n";
 #else
 #define Debug( x )
 #endif
-
 
 template < class Type > void PrintForDebug( Type Var ) {
       cerr << setprecision( 15 ) << Var;
@@ -60,6 +72,7 @@ string keywords[ 32 ] = { "auto", "break", "case", "char", "const", "continue", 
 int totalLine = 0;
 string check;
 ofstream file( "output.txt" );
+
 
 
 bool isDigit( char ch )
@@ -243,8 +256,9 @@ int main()
                         int lineNumberCount = 1;
 
                         for ( int j = 0; j < starti; ++j ) {
-                              if ( mainCodeText[ j ] == '\n' )
+                              if ( mainCodeText[ j ] == '\n' ) {
                                     lineNumberCount++;
+                              }
                         }
 
                         cout << "*** Unterminated comment issue on Line Number - " << lineNumberCount << "\n";

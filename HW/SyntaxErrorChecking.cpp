@@ -52,6 +52,7 @@ typedef tree < Long, null_type, less < Long >, rb_tree_tag, tree_order_statistic
 #define maximumLineCount        2000
 
 
+
 struct func {
       int startLine;
       int endLine;
@@ -121,7 +122,87 @@ struct if_struct {
       vector < else_if_struct > if_elses;
 };
 
-struct printCFile {
+
+// ALL Function Prototype
+string trim_left( string st, char ch );
+string trim_right( string st, char ch );
+string trim_both( string st, char ch );
+bool isDigit( char ch );
+bool isCapitalLetter( char ch );
+bool isSmallLetter( char ch );
+bool isLetter( char ch );
+bool isNumber( string st );
+string to_string( int number );
+int strTint( string str );
+bool validVariableName( string st );
+bool availableVariable( string var, set < string > &inScope );
+bool validoperator( int lineNumber, int columnNumber );
+bool isSpecialoperator( int lineNumber, int columnNumber );
+int checking_Equation( int lineNumber, vector < int > checkList );
+int isDeclareVariableLine( int lineNumber );
+int isBreakContinue( int lineNumber );
+int isReturnLine( int lineNumber );
+string addSemiColonTipsModify( int lineNumber );
+void checking_statement( int lineNumber );
+int forGroup( int i );
+int functionGroup( int i );
+int whileGroup( int i );
+int doWhileGroup( int i );
+else_if_struct elseIfGroup( int i );
+else_struct elseGroup( int i );
+int ifGroup( int i );
+void findGroup( int startLine, int endLine );
+void headerFile_check( int LN );
+int headerFiles_check( int LN );
+void find_MAIN_function();
+void sameFunctionNameDetection();
+void initialize_Checking( int LN );
+bool isFunction( int LN );
+bool isFor( int LN );
+bool isWhile( int LN );
+bool isDOWhile( int LN );
+void isIFELSE( else_if_struct &elseIf );
+void isELSE( else_struct &els );
+bool isIF( int LN );
+void check_THIS_Line ( int LN );
+void syntaxChecking();
+void errorPrinting();
+bool isItDeclarationLine( int lineNumber );
+void addThisInScope( string token, set < string > &takenVarible, int lineNumber );
+void getVariableFromThisLine( int lineNumber, set < string > &takenVarible );
+void tryToGetVariableFromThisDeclarationLine( int startLine, int endLine, set < string > &takenVarible );
+void tryToGetVariableFromThisLineAllType( int startLine, int endLine, set < string > &takenVarible );
+int isFunctionScope( int LN );
+int isForScope( int LN );
+int isWhileScope( int LN );
+int isDoWhileScope( int LN );
+int isIfScope( int LN );
+int isElseIfScope( int LN );
+int isElseScope( int LN );
+void identifierCheckingOfThisLine( int LN, set < string > &takenVarible );
+int variableHandling( int startLine, int endLine, set < string > takenVarible );
+void finalChecking();
+
+
+
+vector < for_struct > fors;
+vector < func > functions;
+vector < while_struct > whiles;
+vector < do_while_struct > do_whiles;
+vector < if_struct > ifs;
+vector < else_if_struct > else_ifs;
+vector < else_struct > elses;
+int totalLine = 0;
+vector < string > TokenType[ maximumLineCount ];
+vector < string > Tokens[ maximumLineCount ];
+bool isFinish[ maximumLineCount ], haveERROR[ maximumLineCount ];
+vector < vector < string > > allVariable;
+set < string > errorsTips[ maximumLineCount ];             // 1 based
+
+
+
+struct printCFile
+{
       FILE *fp;
       string str, codeText;
       char ch;
@@ -155,75 +236,144 @@ struct printCFile {
       }
 };
 
+struct finalKEYChecking
+{
+      void partIncreaseDecrease( int lineNumber, vector < int > segment ) {
+            vector < int > checkList;
 
-vector < for_struct > fors;
-vector < func > functions;
-vector < while_struct > whiles;
-vector < do_while_struct > do_whiles;
-vector < if_struct > ifs;
-vector < else_if_struct > else_ifs;
-vector < else_struct > elses;
-int totalLine = 0;
-vector < string > TokenType[ maximumLineCount ];
-vector < string > Tokens[ maximumLineCount ];
-bool isFinish[ maximumLineCount ], haveERROR[ maximumLineCount ];
-vector < vector < string > > allVariable;
-set < string > errorsTips[ maximumLineCount ];             // 1 based
-printCFile CFILE;
+            for ( int i = 0; i < segment.size(); ++i ) {
+                  if ( i + 1 < segment.size() && isSpecialoperator( lineNumber, segment[ i ] ) && TokenType[ lineNumber ][ segment[ i ] + 1 ] == "identifier" ) {
+                        ++i;
+                        checkList.push_back( segment[ i ] );
+                  }
+                  else if ( isSpecialoperator( lineNumber, segment[ i ] ) ) {
+                        errorsTips[ lineNumber + 1 ].insert( "Fix this Line" );
+                        return;
+                  }
+                  else if ( TokenType[ lineNumber ][ segment[ i ] ] == "identifier" && isSpecialoperator( lineNumber, segment[ i ] + 1 ) ) {
+                        checkList.push_back( segment[ i ] );
+                        ++i;
+                  }
+                  else {
+                        checkList.push_back( segment[ i ] );
+                  }
+            }
 
+            int useless = checking_Equation( lineNumber, checkList );
+      }
 
+      void increaseDecrease( int lineNumber, vector < int > segment ) {
+            vector < int > part;
 
-// ALL FUNCTIONS PROTOTYPE
-string trim_left( string st, char ch );
-string trim_right( string st, char ch );
-string trim_both( string st, char ch );
-bool isDigit( char ch );
-bool isCapitalLetter( char ch );
-bool isSmallLetter( char ch );
-bool isLetter( char ch );
-bool isNumber( string st );
-bool validVariableName( string st );
-bool availableVariable( string var, set < string > &inScope );
-bool validoperator( int lineNumber, int columnNumber );
-bool isSpecialoperator( int lineNumber, int columnNumber );
-bool isFunction( int LN );
-bool isFor( int LN );
-bool isWhile( int LN );
-bool isDOWhile( int LN );
-bool isIF( int LN );
-void checking_statement( int lineNumber );
-void findGroup( int startLine, int endLine );
-void headerFile_check( int LN );
-void find_MAIN_function();
-void initialize_Checking( int LN );
-void check_THIS_Line ( int LN );
-void syntaxChecking();
-int checking_Equation( int lineNumber, vector < int > checkList );
-int isDeclareVariableLine( int lineNumber );
-int strTint( string str );
-int forGroup( int i );
-int functionGroup( int i );
-int whileGroup( int i );
-int doWhileGroup( int i );
-int ifGroup( int i );
-int headerFiles_check( int LN );
-else_if_struct elseIfGroup( int i );
-else_struct elseGroup( int i );
+            for ( int i = 0; i < segment.size(); ++i ) {
+                  if ( Tokens[ lineNumber ][ segment[ i ] ] == "," ) {
+                        partIncreaseDecrease( lineNumber, part );
+                        part.clear();
+                  }
+                  else {
+                        part.push_back( segment[ i ] );
+                  }
+            }
+      }
 
+      void checking_condition( int lineNumber, vector < int > checkList ) {
+            vector < int > segment;
 
+            if ( lineNumber == 92 ) {
+                  for ( int i = 0; i < checkList.size(); ++i ) {
+                        cout <<  Tokens[ lineNumber ][ checkList[ i ] ] << " ";
+                  }
+                  cout << "\n";
+                  //Debug( checkList );
+            }
+
+            while ( !checkList.empty() && Tokens[ lineNumber ][ checkList.back() ] != "||" && Tokens[ lineNumber ][ checkList.back() ] != "&&" ) {
+                  segment.push_back( checkList.back() );
+                  checkList.pop_back();
+            }
+
+            if ( segment.size() % 2 == 0 || !segment.size() ) {
+                  errorsTips[ lineNumber + 1 ].insert( "Not valid expression" );
+                  return;
+            }
+
+            for ( int i = 0; i < segment.size(); ++i ) {
+                  if ( i % 2 == 0 && ( TokenType[ lineNumber ][ segment[ i ] ] != "identifier" && TokenType[ lineNumber ][ segment[ i ] ] != "integer" && TokenType[ lineNumber ][ segment[ i ] ] != "double") ) {
+                        errorsTips[ lineNumber + 1 ].insert( "Not valid expression" );
+                        return;
+                  }
+
+                  if ( i % 2 == 1 && !validoperator( lineNumber, segment[ i ] ) ) {
+                        errorsTips[ lineNumber + 1 ].insert( "Not valid expression" );
+                        return;
+                  }
+            }
+
+            if ( !checkList.empty() ) {
+                  checkList.pop_back();
+                  checking_condition( lineNumber, checkList );
+            }
+
+            return;
+      }
+
+      bool initializeDeclaration( int lineNumber ) {
+            if ( Tokens[ lineNumber ][ 2 ] != "int" ) {
+                  return false;
+            }
+
+            if ( Tokens[ lineNumber ].size() > 3 && TokenType[ lineNumber ][ 3 ] != "identifier" ) {
+                  errorsTips[ lineNumber + 1 ].insert( "Need variable name" );
+                  return true;
+            }
+
+            vector < int > checkList;
+            for ( int i = 3; i < Tokens[ lineNumber ].size(); ++i ) {
+                  if ( Tokens[ lineNumber ][ i ] == "," || Tokens[ lineNumber ][ i ] == ";" ) {
+                        checking_condition( lineNumber, checkList );
+                        checkList.clear();
+                  }
+                  else {
+                        if ( isSpecialoperator( lineNumber, i ) && TokenType[ lineNumber ][ i + 1 ] == "identifier" ) {
+                              ++i;
+                              checkList.push_back( i );
+                        }
+                        else if ( isSpecialoperator( lineNumber, i ) ) {
+                              errorsTips[ lineNumber + 1 ].insert( "Fix this Line" );
+                              return true;
+                        }
+                        else if ( TokenType[ lineNumber ][ i ] == "identifier" && isSpecialoperator( lineNumber, i + 1 ) ) {
+                              checkList.push_back( i );
+                              ++i;
+                        }
+                        else {
+                              checkList.push_back( i );
+                        }
+                  }
+
+                  if ( Tokens[ lineNumber ][ i ] == ";" ) {
+                        break;
+                  }
+            }
+
+            return true;
+      }
+};
 
 string trim_left( string st, char ch )
 {
-      while ( st.size() && st[ 0 ] == ch )
+      while ( st.size() && st[ 0 ] == ch ) {
             st.erase( 0, 1 );
+      }
 
       return st;
 }
 
 string trim_right( string st, char ch )
 {
-      while ( st.size() && st[ st.size() - 1 ] == ch )
+      while ( st.size() && st[ st.size() - 1 ] == ch ) {
             st.erase( st.size() - 1, 1 );
+      }
 
       return st;
 }
@@ -259,8 +409,9 @@ bool isLetter( char ch )
 bool isNumber( string st )
 {
       for ( int i = 0; i < st.size(); ++i ) {
-            if ( !isDigit( st[ i ] ) )
+            if ( !isDigit( st[ i ] ) ) {
                   return false;
+            }
       }
 
       return true;
@@ -293,12 +444,14 @@ int strTint( string str )
 
 bool validVariableName( string st )
 {
-      if ( !( isLetter( st[ 0 ] ) || st[ 0 ] == '_' ) )
+      if ( !( isLetter( st[ 0 ] ) || st[ 0 ] == '_' ) ) {
             return false;
+      }
 
       for ( int i = 1; i < st.size(); ++i ) {
-            if ( !( isLetter( st[ i ] ) || isDigit( st[ i ] ) || st[ i ] == '_' ) )
+            if ( !( isLetter( st[ i ] ) || isDigit( st[ i ] ) || st[ i ] == '_' ) ) {
                   return false;
+            }
       }
 
       return true;
@@ -352,18 +505,18 @@ bool isSpecialoperator( int lineNumber, int columnNumber )
 int checking_Equation( int lineNumber, vector < int > checkList )
 {
       if ( checkList.size() % 2 == 0 || !checkList.size() ) {
-            errorsTips[ lineNumber + 1 ].insert( "Fixed this Line" );
+            errorsTips[ lineNumber + 1 ].insert( "Fix this Line" );
             return thisLine_Done;
       }
 
       for ( int i = 0; i < checkList.size(); ++i ) {
             if ( i % 2 == 0 && ( TokenType[ lineNumber ][ checkList[ i ] ] != "identifier" && TokenType[ lineNumber ][ checkList[ i ] ] != "integer" && TokenType[ lineNumber ][ checkList[ i ] ] != "double") ) {
-                  errorsTips[ lineNumber + 1 ].insert( "Fixed this Line" );
+                  errorsTips[ lineNumber + 1 ].insert( "Fix this Line" );
                   return thisLine_Done;
             }
 
             if ( i % 2 == 1 && !validoperator( lineNumber, checkList[ i ] ) ) {
-                  errorsTips[ lineNumber + 1 ].insert( "Fixed this Line" );
+                  errorsTips[ lineNumber + 1 ].insert( "Fix this Line" );
                   return thisLine_Done;
             }
       }
@@ -401,7 +554,7 @@ int isDeclareVariableLine( int lineNumber )
                         checkList.push_back( i );
                   }
                   else if ( isSpecialoperator( lineNumber, i ) ) {
-                        errorsTips[ lineNumber + 1 ].insert( "Fixed this Line" );
+                        errorsTips[ lineNumber + 1 ].insert( "Fix this Line" );
                         return thisLine_Done;
                   }
                   else if ( TokenType[ lineNumber ][ i ] == "identifier" && isSpecialoperator( lineNumber, i + 1 ) ) {
@@ -468,6 +621,35 @@ int isReturnLine( int lineNumber )
       return thisLine_Done;
 }
 
+bool isCallingFunction( int lineNumber )
+{
+      bool isHere = false;
+
+      for ( int i = 0; i < Tokens[ lineNumber ].size(); ++i ) {
+            if ( TokenType[ lineNumber ][ i ] != "identifier" ) {
+                  continue;
+            }
+
+            for ( int j = 0; j < functions.size(); ++j ) {
+                  if ( functions[ j ].fTokens == Tokens[ lineNumber ][ i ] ) {
+                        isHere |= true;
+                        break;
+                  }
+            }
+
+            if ( isHere ) {
+                  break;
+            }
+      }
+
+      if ( isHere ) {
+
+      }
+      else {
+            return isHere;  // return false;
+      }
+}
+
 string addSemiColonTipsModify( int lineNumber )
 {
       // keyword
@@ -514,6 +696,12 @@ void checking_statement( int lineNumber )
             return;
       }
 
+      //printf, scanf function -> TODO
+
+      if ( isCallingFunction( lineNumber ) ) {
+            return;
+      }
+
       vector < int > checkList;
       for ( int i = 0; i < Tokens[ lineNumber ].size() - 1; ++i ) {
             if ( isSpecialoperator( lineNumber, i ) && TokenType[ lineNumber ][ i + 1 ] == "identifier" ) {
@@ -521,7 +709,7 @@ void checking_statement( int lineNumber )
                   checkList.push_back( i );
             }
             else if ( isSpecialoperator( lineNumber, i ) ) {
-                  errorsTips[ lineNumber + 1 ].insert( "Fixed this Line" );
+                  errorsTips[ lineNumber + 1 ].insert( "Fix this Line" );
                   return;
             }
             else if ( TokenType[ lineNumber ][ i ] == "identifier" && isSpecialoperator( lineNumber, i + 1 ) ) {
@@ -1065,6 +1253,7 @@ void find_MAIN_function()
       else      cout << "*** No MAIN function in your C file\n";
 
 }
+
 void sameFunctionNameDetection()
 {
       map < string, vector < int > > functionInfo;
@@ -1331,6 +1520,8 @@ void syntaxChecking()
 
 void errorPrinting()
 {
+      printCFile CFILE;
+
       for ( int i = 0; i <= totalLine; ++i ) {
             if ( errorsTips[ i ].size() ) {
                   cout << "\nLine No - " << i << " : ";
@@ -1578,77 +1769,6 @@ int variableHandling( int startLine, int endLine, set < string > takenVarible )
       return 0;
 }
 
-class finalKEYChecking {
-      public:
-            finalFORChecking() {
-
-            }
-
-            void checking_condition( int lineNumber, vector < int > checkList ) {
-                  if ( checkList.size() % 2 == 0 || !checkList.size() ) {
-                        errorsTips[ lineNumber + 1 ].insert( "Not valid expression" );
-                        return;
-                  }
-
-                  for ( int i = 0; i < checkList.size(); ++i ) {
-                        if ( i % 2 == 0 && ( TokenType[ lineNumber ][ checkList[ i ] ] != "identifier" && TokenType[ lineNumber ][ checkList[ i ] ] != "integer" && TokenType[ lineNumber ][ checkList[ i ] ] != "double") ) {
-                              errorsTips[ lineNumber + 1 ].insert( "Not valid expression" );
-                              return;
-                        }
-
-                        if ( i % 2 == 1 && !validoperator( lineNumber, checkList[ i ] ) ) {
-                              errorsTips[ lineNumber + 1 ].insert( "Not valid expression" );
-                              return;
-                        }
-                  }
-
-                  return;
-            }
-
-
-            bool initializeDeclaration( int lineNumber ) {
-                  if ( Tokens[ lineNumber ][ 2 ] != "int" ) {
-                        return false;
-                  }
-
-                  if ( Tokens[ lineNumber ].size() > 3 && TokenType[ lineNumber ][ 3 ] != "identifier" ) {
-                        errorsTips[ lineNumber + 1 ].insert( "Need variable name" );
-                        return true;
-                  }
-
-                  vector < int > checkList;
-                  for ( int i = 3; i < Tokens[ lineNumber ].size(); ++i ) {
-                        if ( Tokens[ lineNumber ][ i ] == "," || Tokens[ lineNumber ][ i ] == ";" ) {
-                              checking_condition( lineNumber, checkList );
-                              checkList.clear();
-                        }
-                        else {
-                              if ( isSpecialoperator( lineNumber, i ) && TokenType[ lineNumber ][ i + 1 ] == "identifier" ) {
-                                    ++i;
-                                    checkList.push_back( i );
-                              }
-                              else if ( isSpecialoperator( lineNumber, i ) ) {
-                                    errorsTips[ lineNumber + 1 ].insert( "Fixed this Line" );
-                                    return true;
-                              }
-                              else if ( TokenType[ lineNumber ][ i ] == "identifier" && isSpecialoperator( lineNumber, i + 1 ) ) {
-                                    checkList.push_back( i );
-                                    ++i;
-                              }
-                              else {
-                                    checkList.push_back( i );
-                              }
-                        }
-
-                        if ( Tokens[ lineNumber ][ i ] == ";" ) {
-                              break;
-                        }
-                  }
-
-                  return true;
-            }
-};
-
 void finalChecking()
 {
       finalKEYChecking FKC;
@@ -1683,7 +1803,7 @@ void finalChecking()
             for ( ; Tokens[ fors[ i ].startLine - 1 ][ j ] != ")"; ++j ) {
                   checkList.push_back( j );
             }
-            FKC.checking_condition( fors[ i ].startLine - 1, checkList );
+            FKC.increaseDecrease( fors[ i ].startLine - 1, checkList );
       }
 
       // if
