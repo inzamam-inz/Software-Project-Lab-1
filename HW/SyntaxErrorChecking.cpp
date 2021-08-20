@@ -698,6 +698,11 @@ void checkingAsPrintfFunction( int lineNumber )
             for ( int i = 3; i + 3 < Tokens[ lineNumber ].size(); ++i ) {
                   if ( Tokens[ lineNumber ][ i ] == "," && TokenType[ lineNumber ][ i + 1 ] == "identifier" ) {
                         cvar2++;
+                        ++i;
+                  }
+                  else {
+                  //  TODO
+                  //  ERROR
                   }
             }
 
@@ -706,13 +711,74 @@ void checkingAsPrintfFunction( int lineNumber )
                   Debug( cvar1 );
                   Debug( cvar2 );
                   //  TODO
-                  //  error
+                  //  ERROR
             }
             else {
+                  // TODO
+                  // ERROR
                   Debug( lineNumber + 1 );
             }
       }
       else {
+            // TODO
+            // ERROR
+            cout << lineNumber + 1 << "\n";
+      }
+}
+
+void checkingAsScanfFunction( int lineNumber )
+{
+      //scanf( "%d", &var );
+      if ( whichFunctionCalling( lineNumber ) != 0 ) {
+            errorsTips[ lineNumber + 1 ].insert( "Don\'t expect any token before \'scanf\' function" );
+            return;
+      }
+
+      // basic structure ->
+      // 1. scanf + ( + string + , + & + variables + ) + ;
+
+      int cvar1 = 0, cvar2 = 0;
+      if ( Tokens[ lineNumber ].size() >= 8 && Tokens[ lineNumber ][ 0 ] == "scanf" && Tokens[ lineNumber ][ 1 ] == "(" && TokenType[ lineNumber ][ 2 ] == "string" && TokenType[ lineNumber ][ 3 ] == "," && Tokens[ lineNumber ][ (int)Tokens[ lineNumber ].size() - 2 ] == ")" && Tokens[ lineNumber ].back() == ";" ) {
+            for ( int i = 0; i < Tokens[ lineNumber ][ 2 ].size(); ++i ) {
+                  if ( i + 1 < Tokens[ lineNumber ][ 2 ].size() && Tokens[ lineNumber ][ 2 ][ i ] == '%' && ( Tokens[ lineNumber ][ 2 ][ i + 1 ] == 'd' || Tokens[ lineNumber ][ 2 ][ i + 1 ] == 'c' || Tokens[ lineNumber ][ 2 ][ i + 1 ] == 'f' ) ) {
+                        cvar1++;
+                        ++i;
+                  }
+                  else if ( Tokens[ lineNumber ][ 2 ][ i ] != ' ' ) {
+                        Debug( lineNumber + 1 );
+                        // TODO
+                        // ERROR
+                  }
+            }
+
+            for ( int i = 3; i + 4 < Tokens[ lineNumber ].size(); ++i ) {
+                  if ( Tokens[ lineNumber ][ i ] == "," && Tokens[ lineNumber ][ i ] == "&" && TokenType[ lineNumber ][ i + 1 ] == "identifier" ) {
+                        cvar2++;
+                        i += 2;
+                  }
+                  else {
+                        Debug( lineNumber + 1 );
+                        // TODO
+                        // ERROR
+                  }
+            }
+
+            if ( cvar1 != cvar2 ) {
+                  Debug( lineNumber );
+                  Debug( cvar1 );
+                  Debug( cvar2 );
+                  //  TODO
+                  //  ERROR
+            }
+            else {
+                  // TODO
+                  // ERROR
+                  Debug( lineNumber + 1 );
+            }
+      }
+      else {
+            // TODO
+            // ERROR
             cout << lineNumber + 1 << "\n";
       }
 }
@@ -734,6 +800,9 @@ void checkThisFunctionCallingLine( int lineNumber )
       if ( functionName == "printf" ) {
             Debug( functionName );
             checkingAsPrintfFunction( lineNumber );
+      }
+      else if ( functionName == "scanf" ) {
+            checkingAsScanfFunction( lineNumber );
       }
 
 }
