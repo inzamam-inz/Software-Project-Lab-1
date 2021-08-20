@@ -1,6 +1,6 @@
-𝐒𝐨𝐟𝐭𝐰𝐚𝐫𝐞 𝐏𝐫𝐨𝐣𝐞𝐜𝐭 𝐋𝐚𝐛 𝟏 - 𝟐𝟎𝟐𝟎
+                                           #𝐒𝐨𝐟𝐭𝐰𝐚𝐫𝐞 𝐏𝐫𝐨𝐣𝐞𝐜𝐭 𝐋𝐚𝐛 𝟏 - 𝟐𝟎𝟐𝟎
 
-                                              Mini C compiler
+                                              <b>Mini C compiler</b>
                                     
 It is a simple C compiler which will be used to compile a C program. It will be able to handle basic and fundamental syntactical structures. It can handle typical variables, loops, conditionals etc.
 
