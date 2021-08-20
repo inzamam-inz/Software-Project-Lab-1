@@ -625,32 +625,126 @@ bool isCallingFunction( int lineNumber )
 {
       bool isHere = false;
 
-      for ( int i = 0; i < Tokens[ lineNumber ].size(); ++i ) {
-            if ( TokenType[ lineNumber ][ i ] != "identifier" ) {
+      for ( int i = 0; i + 1 < Tokens[ lineNumber ].size(); ++i ) {
+            if ( ( TokenType[ lineNumber ][ i ] != "identifier" && Tokens[ lineNumber ][ i ] != "prinft" && Tokens[ lineNumber ][ i ] != "scanf" ) || Tokens[ lineNumber ][ i + 1 ] != "(" ) {
                   continue;
             }
 
+            bool isFunc = false;
             for ( int j = 0; j < functions.size(); ++j ) {
-                  if ( functions[ j ].fTokens == Tokens[ lineNumber ][ i ] ) {
-                        isHere |= true;
+                  if ( lineNumber + 1 == functions[ j ].startLine ) {
+                        isFunc = true;
                         break;
                   }
             }
+
+            isHere |= !isFunc;
 
             if ( isHere ) {
                   break;
             }
       }
 
-      if ( lineNumber == 43 ) {
-            Debug( isHere );
+//      if ( isHere ) {
+//            cout << lineNumber << " ";
+//      }
+
+      return isHere;  // return false;
+}
+
+int whichFunctionCalling( int lineNumber )
+{
+      for ( int i = 0; i + 1 < Tokens[ lineNumber ].size(); ++i ) {
+            if ( ( TokenType[ lineNumber ][ i ] != "identifier" && Tokens[ lineNumber ][ i ] != "prinft" && Tokens[ lineNumber ][ i ] != "scanf" ) || Tokens[ lineNumber ][ i + 1 ] != "(" ) {
+                  continue;
+            }
+
+            bool isFunc = false;
+            for ( int j = 0; j < functions.size(); ++j ) {
+                  if ( lineNumber + 1 == functions[ j ].startLine ) {
+                        isFunc = true;
+                        break;
+                  }
+            }
+
+            if ( !isFunc ) {
+                  return i;  // i -> column position of function
+            }
       }
 
-      if ( isHere ) {
+      return -1;  // return false;
+}
 
+void checkingAsPrintfFunction( int lineNumber )
+{
+      //printf( "%d", var );
+      if ( whichFunctionCalling( lineNumber ) != 0 ) {
+            errorsTips[ lineNumber + 1 ].insert( "Don\'t expect any token before \'printf\' function" );
+            return;
+      }
+
+      // basic structure ->
+      // 1. printf + ( + string + ) + ;
+      // 2. printf + ( + string + , + variables + ) + ;
+
+      int cvar1 = 0, cvar2 = 0;
+      if ( Tokens[ lineNumber ].size() >= 5 && Tokens[ lineNumber ][ 0 ] == "printf" && Tokens[ lineNumber ][ 1 ] == "(" && TokenType[ lineNumber ][ 2 ] == "string" && Tokens[ lineNumber ][ (int)Tokens[ lineNumber ].size() - 2 ] == ")" && Tokens[ lineNumber ].back() == ";" ) {
+            for ( int i = 0; i + 1 < Tokens[ lineNumber ][ 2 ].size(); ++i ) {
+                  if ( Tokens[ lineNumber ][ 2 ][ i ] == '%' && ( Tokens[ lineNumber ][ 2 ][ i + 1 ] == 'd' || Tokens[ lineNumber ][ 2 ][ i + 1 ] == 'c' || Tokens[ lineNumber ][ 2 ][ i + 1 ] == 'f' ) ) {
+                        cvar1++;
+                  }
+            }
+
+            for ( int i = 3; i + 3 < Tokens[ lineNumber ].size(); ++i ) {
+                  if ( Tokens[ lineNumber ][ i ] == "," && TokenType[ lineNumber ][ i + 1 ] == "identifier" ) {
+                        cvar2++;
+                  }
+            }
+
+            if ( cvar1 != cvar2 ) {
+                  Debug( lineNumber );
+                  Debug( cvar1 );
+                  Debug( cvar2 );
+                  //  TODO
+                  //  error
+            }
+            else {
+                  Debug( lineNumber + 1 );
+            }
       }
       else {
-            return isHere;  // return false;
+            cout << lineNumber + 1 << "\n";
+      }
+}
+
+void checkThisFunctionCallingLine( int lineNumber )
+{
+      int posOfFunction = whichFunctionCalling( lineNumber );
+      if ( posOfFunction == -1 ) {
+            assert( false );
+            return;
+      }
+
+      string functionName = Tokens[ lineNumber ][ posOfFunction ];
+      string deleteThisError = "\'" + functionName + "\'" + " is undeclared here";
+      //cout << functionName << "|->    " << deleteThisError << "\n";
+      errorsTips[ lineNumber + 1 ].erase( deleteThisError );
+
+      // printf
+      if ( functionName == "printf" ) {
+            Debug( functionName );
+            checkingAsPrintfFunction( lineNumber );
+      }
+
+}
+
+void functionCallingLine()
+{
+      for ( int i = 0; i < totalLine; ++i ) {
+            if ( isCallingFunction( i ) ) {
+                  errorsTips[ i + 1 ].erase( "Fix this Line");
+                  checkThisFunctionCallingLine( i );
+            }
       }
 }
 
@@ -702,9 +796,9 @@ void checking_statement( int lineNumber )
 
       //printf, scanf function -> TODO
 
-      if ( isCallingFunction( lineNumber ) ) {
+      /*if ( isCallingFunction( lineNumber ) ) {
             return;
-      }
+      }*/
 
       vector < int > checkList;
       for ( int i = 0; i < Tokens[ lineNumber ].size() - 1; ++i ) {
@@ -1901,6 +1995,7 @@ int main()
       set < string > takenVariable;
       variableHandling( 0, totalLine, takenVariable );
       finalChecking();
+      functionCallingLine();
       errorPrinting();
 
       cout << '\n';
