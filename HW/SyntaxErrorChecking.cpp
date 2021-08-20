@@ -702,7 +702,7 @@ void checkingAsPrintfFunction( int lineNumber )
                   }
                   else {
                   //  TODO
-                  //  ERROR
+                  //  Fix it
                   }
             }
 
@@ -713,15 +713,10 @@ void checkingAsPrintfFunction( int lineNumber )
                   //  TODO
                   //  ERROR
             }
-            else {
-                  // TODO
-                  // ERROR
-                  Debug( lineNumber + 1 );
-            }
       }
       else {
             // TODO
-            // ERROR
+            // printf er moto na structure na
             cout << lineNumber + 1 << "\n";
       }
 }
@@ -770,17 +765,101 @@ void checkingAsScanfFunction( int lineNumber )
                   //  TODO
                   //  ERROR
             }
-            else {
-                  // TODO
-                  // ERROR
-                  Debug( lineNumber + 1 );
-            }
       }
       else {
             // TODO
             // ERROR
             cout << lineNumber + 1 << "\n";
       }
+}
+
+void checkingAsCustomFunction( int lineNumber )
+{
+      int posOfFunction = whichFunctionCalling( lineNumber );
+      string functionName = Tokens[ lineNumber ][ posOfFunction ];
+
+      // is known function
+      bool isKnown = false;
+      int idOfFunction = -1;
+      for ( int i = 0; i < functions.size(); ++i ) {
+            if ( functions[ i ].fTokens == functionName ) {
+                  isKnown |= true;
+                  idOfFunction = i;
+                  break;
+            }
+      }
+
+      if ( !isKnown ) {
+            // TODO
+            // unknown function
+      }
+
+      // function parameter
+      int numberOfParameterInThisLineFunction = 0;
+      int numberOfParameterOfThisFunction = functions[ idOfFunction ].parameter.size();
+      vector < int > checkList;
+      for ( int i = posOfFunction + 2; i < Tokens[ lineNumber ].size(); ++i ) {
+            if ( Tokens[ lineNumber ][ i ] == "(" ) {
+                  break;
+            }
+
+            checkList.push_back( i );
+      }
+
+      if ( checkList.empty() ) {
+            if ( !numberOfParameterOfThisFunction ) {
+                  // less parameter for this function
+            }
+      }
+      else if ( (int)checkList.size() % 2 == 0 ) {
+            // have a problem in passing parameter
+            //return;
+      }
+      else {
+            for ( int i = 0; i < checkList.size(); ++i ) {
+                  if ( i % 2 && Tokens[ lineNumber ][ checkList[ i ] ] == "," ) {
+                        continue;
+                  }
+                  else if ( i % 2 == 0 && TokenType[ lineNumber ][ checkList[ i ] ] == "identifier" ) {
+                        numberOfParameterInThisLineFunction++;
+                  }
+                  else {
+                        // have a problem in passing parameter
+                  }
+            }
+            if ( numberOfParameterInThisLineFunction != numberOfParameterOfThisFunction ) {
+                  // less or more parameter for this function
+            }
+      }
+
+      // treat as a statement
+      // make a fake Line
+      // line number is 1990
+      int ln = 1990;
+      for ( int i = 0; i <= posOfFunction; ++i ) {
+            Tokens[ ln ].push_back( Tokens[ lineNumber ][ i ] );
+            TokenType[ ln ].push_back( TokenType[ lineNumber ][ i ] );
+      }
+
+      int next = posOfFunction;
+      for ( int i = posOfFunction; i < Tokens[ lineNumber ].size(); ++i ) {
+            if ( Tokens[ lineNumber ][ i ] == ")" ) {
+                  next = i + 1;
+                  break;
+            }
+      }
+
+      for ( int i = next; i < Tokens[ lineNumber ].size(); ++i ) {
+            Tokens[ ln ].push_back( Tokens[ lineNumber ][ i ] );
+            TokenType[ ln ].push_back( TokenType[ lineNumber ][ i ] );
+      }
+
+      checking_statement( ln );
+      errorsTips[ lineNumber + 1 ] = errorsTips[ ln + 1 ];
+
+      Tokens[ ln ].clear();
+      TokenType[ ln ].clear();
+      errorsTips[ ln + 1 ].clear();
 }
 
 void checkThisFunctionCallingLine( int lineNumber )
@@ -798,13 +877,16 @@ void checkThisFunctionCallingLine( int lineNumber )
 
       // printf
       if ( functionName == "printf" ) {
-            Debug( functionName );
+            //Debug( functionName );
             checkingAsPrintfFunction( lineNumber );
       }
       else if ( functionName == "scanf" ) {
             checkingAsScanfFunction( lineNumber );
       }
-
+      else {
+            cout << lineNumber << " ------";
+            checkingAsCustomFunction( lineNumber );
+      }
 }
 
 void functionCallingLine()
