@@ -642,6 +642,10 @@ bool isCallingFunction( int lineNumber )
             }
       }
 
+      if ( lineNumber == 43 ) {
+            Debug( isHere );
+      }
+
       if ( isHere ) {
 
       }
@@ -1499,6 +1503,7 @@ void check_THIS_Line( int LN )
             return;
       }
       else {
+            //if ( LN == 43 )   cout << "--------------";
             checking_statement( LN );
       }
 }
