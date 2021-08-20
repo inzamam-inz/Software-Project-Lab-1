@@ -625,28 +625,43 @@ bool isCallingFunction( int lineNumber )
 {
       bool isHere = false;
 
-      for ( int i = 0; i < Tokens[ lineNumber ].size(); ++i ) {
-            if ( TokenType[ lineNumber ][ i ] != "identifier" ) {
+      for ( int i = 0; i + 1 < Tokens[ lineNumber ].size(); ++i ) {
+            if ( ( TokenType[ lineNumber ][ i ] != "identifier" && Tokens[ lineNumber ][ i ] != "prinft" && Tokens[ lineNumber ][ i ] != "scanf" ) || Tokens[ lineNumber ][ i + 1 ] != "(" ) {
                   continue;
             }
 
+            bool isFunc = false;
             for ( int j = 0; j < functions.size(); ++j ) {
-                  if ( functions[ j ].fTokens == Tokens[ lineNumber ][ i ] ) {
-                        isHere |= true;
+                  if ( lineNumber + 1 == functions[ j ].startLine ) {
+                        isFunc = true;
+                        //cout << functions[ j ].fTokens << "|";
                         break;
                   }
             }
+
+            isHere |= !isFunc;
 
             if ( isHere ) {
                   break;
             }
       }
 
-      if ( isHere ) {
+      /*if ( lineNumber == 43 ) {
+            Debug( isHere );
+      }*/
 
+      if ( isHere ) {
+            cout << lineNumber << " ";
       }
       else {
             return isHere;  // return false;
+      }
+}
+
+void funCallingLine()
+{
+      for ( int i = 0; i < totalLine; ++i ) {
+            bool ok = isCallingFunction( i );
       }
 }
 
@@ -698,9 +713,9 @@ void checking_statement( int lineNumber )
 
       //printf, scanf function -> TODO
 
-      if ( isCallingFunction( lineNumber ) ) {
+      /*if ( isCallingFunction( lineNumber ) ) {
             return;
-      }
+      }*/
 
       vector < int > checkList;
       for ( int i = 0; i < Tokens[ lineNumber ].size() - 1; ++i ) {
@@ -1499,6 +1514,7 @@ void check_THIS_Line( int LN )
             return;
       }
       else {
+            //if ( LN == 43 )   cout << "--------------";
             checking_statement( LN );
       }
 }
@@ -1900,6 +1916,7 @@ int main()
 
       cout << '\n';
       Debug( totalLine );
+      funCallingLine();
 
       return 0;
 }
