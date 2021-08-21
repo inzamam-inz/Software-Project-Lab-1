@@ -142,6 +142,13 @@ int checking_Equation( int lineNumber, vector < int > checkList );
 int isDeclareVariableLine( int lineNumber );
 int isBreakContinue( int lineNumber );
 int isReturnLine( int lineNumber );
+bool isCallingFunction( int lineNumber );
+int whichFunctionCalling( int lineNumber );
+void checkingAsPrintfFunction( int lineNumber );
+void checkingAsScanfFunction( int lineNumber );
+void checkingAsCustomFunction( int lineNumber );
+void checkThisFunctionCallingLine( int lineNumber );
+void functionCallingLine();
 string addSemiColonTipsModify( int lineNumber );
 void checking_statement( int lineNumber );
 int forGroup( int i );
@@ -182,7 +189,7 @@ int isElseScope( int LN );
 void identifierCheckingOfThisLine( int LN, set < string > &takenVarible );
 int variableHandling( int startLine, int endLine, set < string > takenVarible );
 void finalChecking();
-
+int main();
 
 
 vector < for_struct > fors;
@@ -737,9 +744,9 @@ void checkingAsScanfFunction( int lineNumber )
       // 1. scanf + ( + string + , + & + variables + ) + ;
 
       int cvar1 = 0, cvar2 = 0;
-      if ( lineNumber == 35 ) {
+      /*if ( lineNumber == 35 ) {
             Debug( Tokens[ lineNumber ].size() );
-      }
+      }*/
       if ( Tokens[ lineNumber ].size() >= 8 && Tokens[ lineNumber ][ 0 ] == "scanf" && Tokens[ lineNumber ][ 1 ] == "(" && TokenType[ lineNumber ][ 2 ] == "string" && Tokens[ lineNumber ][ 3 ] == "," && Tokens[ lineNumber ][ (int)Tokens[ lineNumber ].size() - 2 ] == ")" && Tokens[ lineNumber ].back() == ";" ) {
             for ( int i = 0; i < Tokens[ lineNumber ][ 2 ].size(); ++i ) {
                   if ( i + 1 < Tokens[ lineNumber ][ 2 ].size() && Tokens[ lineNumber ][ 2 ][ i ] == '%' && ( Tokens[ lineNumber ][ 2 ][ i + 1 ] == 'd' || Tokens[ lineNumber ][ 2 ][ i + 1 ] == 'c' || Tokens[ lineNumber ][ 2 ][ i + 1 ] == 'f' ) ) {
