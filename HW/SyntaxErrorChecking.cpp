@@ -279,13 +279,13 @@ struct finalKEYChecking
       void checking_condition( int lineNumber, vector < int > checkList ) {
             vector < int > segment;
 
-            if ( lineNumber == 92 ) {
+            /*if ( lineNumber == 92 ) {
                   for ( int i = 0; i < checkList.size(); ++i ) {
                         cout <<  Tokens[ lineNumber ][ checkList[ i ] ] << " ";
                   }
                   cout << "\n";
                   //Debug( checkList );
-            }
+            }*/
 
             while ( !checkList.empty() && Tokens[ lineNumber ][ checkList.back() ] != "||" && Tokens[ lineNumber ][ checkList.back() ] != "&&" ) {
                   segment.push_back( checkList.back() );
@@ -701,23 +701,27 @@ void checkingAsPrintfFunction( int lineNumber )
                         ++i;
                   }
                   else {
-                  //  TODO
-                  //  Fix it
+                        errorsTips[ lineNumber + 1 ].insert( "Format specifier and variable don\'t match" );
+                        //  TODO
+                        //  Fix it
                   }
             }
 
             if ( cvar1 != cvar2 ) {
-                  Debug( lineNumber );
-                  Debug( cvar1 );
-                  Debug( cvar2 );
+//                  Debug( lineNumber );
+//                  Debug( cvar1 );
+//                  Debug( cvar2 );
                   //  TODO
                   //  ERROR
+                  errorsTips[ lineNumber + 1 ].insert( "Format specifier and variable count not same" );
             }
       }
       else {
             // TODO
             // printf er moto na structure na
-            cout << lineNumber + 1 << "\n";
+            errorsTips[ lineNumber + 1 ].insert( "\'printf\' structure violated" );
+
+            //cout << lineNumber + 1 << "\n";
       }
 }
 
@@ -733,43 +737,50 @@ void checkingAsScanfFunction( int lineNumber )
       // 1. scanf + ( + string + , + & + variables + ) + ;
 
       int cvar1 = 0, cvar2 = 0;
-      if ( Tokens[ lineNumber ].size() >= 8 && Tokens[ lineNumber ][ 0 ] == "scanf" && Tokens[ lineNumber ][ 1 ] == "(" && TokenType[ lineNumber ][ 2 ] == "string" && TokenType[ lineNumber ][ 3 ] == "," && Tokens[ lineNumber ][ (int)Tokens[ lineNumber ].size() - 2 ] == ")" && Tokens[ lineNumber ].back() == ";" ) {
+      if ( lineNumber == 35 ) {
+            Debug( Tokens[ lineNumber ].size() );
+      }
+      if ( Tokens[ lineNumber ].size() >= 8 && Tokens[ lineNumber ][ 0 ] == "scanf" && Tokens[ lineNumber ][ 1 ] == "(" && TokenType[ lineNumber ][ 2 ] == "string" && Tokens[ lineNumber ][ 3 ] == "," && Tokens[ lineNumber ][ (int)Tokens[ lineNumber ].size() - 2 ] == ")" && Tokens[ lineNumber ].back() == ";" ) {
             for ( int i = 0; i < Tokens[ lineNumber ][ 2 ].size(); ++i ) {
                   if ( i + 1 < Tokens[ lineNumber ][ 2 ].size() && Tokens[ lineNumber ][ 2 ][ i ] == '%' && ( Tokens[ lineNumber ][ 2 ][ i + 1 ] == 'd' || Tokens[ lineNumber ][ 2 ][ i + 1 ] == 'c' || Tokens[ lineNumber ][ 2 ][ i + 1 ] == 'f' ) ) {
                         cvar1++;
                         ++i;
                   }
                   else if ( Tokens[ lineNumber ][ 2 ][ i ] != ' ' ) {
-                        Debug( lineNumber + 1 );
+                        //Debug( lineNumber + 1 );
                         // TODO
                         // ERROR
+                        errorsTips[ lineNumber + 1 ].insert( "Invalid Format specifying" );
                   }
             }
 
             for ( int i = 3; i + 4 < Tokens[ lineNumber ].size(); ++i ) {
-                  if ( Tokens[ lineNumber ][ i ] == "," && Tokens[ lineNumber ][ i ] == "&" && TokenType[ lineNumber ][ i + 1 ] == "identifier" ) {
+                  if ( Tokens[ lineNumber ][ i ] == "," && Tokens[ lineNumber ][ i + 1 ] == "&" && TokenType[ lineNumber ][ i + 2 ] == "identifier" ) {
                         cvar2++;
                         i += 2;
                   }
                   else {
-                        Debug( lineNumber + 1 );
+                        //Debug( lineNumber + 1 );
                         // TODO
                         // ERROR
+                        errorsTips[ lineNumber + 1 ].insert( "Invalid formation of variable" );
                   }
             }
 
             if ( cvar1 != cvar2 ) {
-                  Debug( lineNumber );
-                  Debug( cvar1 );
-                  Debug( cvar2 );
+//                  Debug( lineNumber );
+//                  Debug( cvar1 );
+//                  Debug( cvar2 );
                   //  TODO
                   //  ERROR
+                  errorsTips[ lineNumber + 1 ].insert( "Format specifier and variable count not same" );
             }
       }
       else {
             // TODO
             // ERROR
-            cout << lineNumber + 1 << "\n";
+            //cout << lineNumber + 1 << "\n";
+            errorsTips[ lineNumber + 1 ].insert( "\'scanf\' structure violated" );
       }
 }
 
@@ -791,7 +802,7 @@ void checkingAsCustomFunction( int lineNumber )
 
       if ( !isKnown ) {
             // TODO
-            errorsTips[ lineNumber + 1 ].insert( "unknown function" );
+            errorsTips[ lineNumber + 1 ].insert( "\'" + functionName + "\'" + " is undefined" );
             // unknown function
             return;
       }
@@ -801,21 +812,26 @@ void checkingAsCustomFunction( int lineNumber )
       int numberOfParameterOfThisFunction = functions[ idOfFunction ].parameter.size();
       vector < int > checkList;
       for ( int i = posOfFunction + 2; i < Tokens[ lineNumber ].size(); ++i ) {
-            if ( Tokens[ lineNumber ][ i ] == "(" ) {
+            if ( Tokens[ lineNumber ][ i ] == ")" ) {
                   break;
             }
 
             checkList.push_back( i );
       }
 
+      /*if ( lineNumber == 50 ) {
+            Debug( posOfFunction );
+            Debug( checkList );
+      }*/
+
       if ( checkList.empty() ) {
             if ( !numberOfParameterOfThisFunction ) {
                   // less parameter for this function
-                  errorsTips[ lineNumber + 1 ].insert( "less parameter for this function" );
+                  errorsTips[ lineNumber + 1 ].insert( "Expected parameter but none was passed" );
             }
       }
       else if ( (int)checkList.size() % 2 == 0 ) {
-            errorsTips[ lineNumber + 1 ].insert( "have a problem in passing parameter" );
+            errorsTips[ lineNumber + 1 ].insert( "Structure violated while passing parameter" );
             // have a problem in passing parameter
             //return;
       }
@@ -828,12 +844,17 @@ void checkingAsCustomFunction( int lineNumber )
                         numberOfParameterInThisLineFunction++;
                   }
                   else {
-                        errorsTips[ lineNumber + 1 ].insert( "have a problem in passing parameter" );
+                        errorsTips[ lineNumber + 1 ].insert( "Structure violated while passing parameter" );
                         // have a problem in passing parameter
                   }
             }
             if ( numberOfParameterInThisLineFunction != numberOfParameterOfThisFunction ) {
                   // less or more parameter for this function
+                  errorsTips[ lineNumber + 1 ].insert( "Fewer or more parameter than Expected" );
+            /*if ( lineNumber == 50 ) {
+                  Debug( numberOfParameterInThisLineFunction );
+                  Debug( numberOfParameterOfThisFunction );
+            }*/
             }
       }
 
@@ -860,7 +881,10 @@ void checkingAsCustomFunction( int lineNumber )
       }
 
       checking_statement( ln );
-      errorsTips[ lineNumber + 1 ] = errorsTips[ ln + 1 ];
+      //errorsTips[ lineNumber + 1 ] = errorsTips[ ln + 1 ];
+      for ( set < string > :: iterator it = errorsTips[ ln + 1 ].begin(); it != errorsTips[ ln + 1 ].end(); ++it ) {
+            errorsTips[ lineNumber + 1 ].insert( *it );
+      }
 
       Tokens[ ln ].clear();
       TokenType[ ln ].clear();
@@ -877,9 +901,11 @@ void checkingAsCustomFunction( int lineNumber )
 
       bool haveReturnFunction = ( functions[ idOfFunction ].returnType != "void" );
 
-      if ( haveReturnFunction != haveReturnLine ) {
-            //ERROR
-            cout << "ERROR 10\n";
+      if ( haveReturnFunction && !haveReturnLine ) {
+            errorsTips[ lineNumber + 1 ].insert( "\'" + functionName + "\'" + " have return type but no container to contain" );
+      }
+      else if ( !haveReturnFunction && haveReturnLine ) {
+            errorsTips[ lineNumber + 1 ].insert( "\'" + functionName + "\'" + " have no return type");
       }
 }
 
@@ -1091,7 +1117,7 @@ int functionGroup( int i )
                   int j = 2;
                   while ( 1 )  {
                         if ( j >= Tokens[ i ].size() || ( Tokens[ i ][ j ] != "(" && Tokens[ i ][ j ] != "," && Tokens[ i ][ j ] != ")" ) ) {
-                              Debug( j );
+                              //Debug( j );
                               return i;
                         }
 
