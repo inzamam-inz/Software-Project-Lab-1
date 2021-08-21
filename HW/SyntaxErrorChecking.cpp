@@ -791,7 +791,9 @@ void checkingAsCustomFunction( int lineNumber )
 
       if ( !isKnown ) {
             // TODO
+            errorsTips[ lineNumber + 1 ].insert( "unknown function" );
             // unknown function
+            return;
       }
 
       // function parameter
@@ -809,9 +811,11 @@ void checkingAsCustomFunction( int lineNumber )
       if ( checkList.empty() ) {
             if ( !numberOfParameterOfThisFunction ) {
                   // less parameter for this function
+                  errorsTips[ lineNumber + 1 ].insert( "less parameter for this function" );
             }
       }
       else if ( (int)checkList.size() % 2 == 0 ) {
+            errorsTips[ lineNumber + 1 ].insert( "have a problem in passing parameter" );
             // have a problem in passing parameter
             //return;
       }
@@ -824,6 +828,7 @@ void checkingAsCustomFunction( int lineNumber )
                         numberOfParameterInThisLineFunction++;
                   }
                   else {
+                        errorsTips[ lineNumber + 1 ].insert( "have a problem in passing parameter" );
                         // have a problem in passing parameter
                   }
             }
@@ -860,6 +865,22 @@ void checkingAsCustomFunction( int lineNumber )
       Tokens[ ln ].clear();
       TokenType[ ln ].clear();
       errorsTips[ ln + 1 ].clear();
+
+      // return type
+      bool haveReturnLine = false;
+      for ( int i = 0; i < Tokens[ lineNumber ].size(); ++i ) {
+            if ( Tokens[ lineNumber ][ i ] == "=" || Tokens[ lineNumber ][ i ] == "==" ) {
+                  haveReturnLine = true;
+                  break;
+            }
+      }
+
+      bool haveReturnFunction = ( functions[ idOfFunction ].returnType != "void" );
+
+      if ( haveReturnFunction != haveReturnLine ) {
+            //ERROR
+            cout << "ERROR 10\n";
+      }
 }
 
 void checkThisFunctionCallingLine( int lineNumber )
@@ -884,7 +905,7 @@ void checkThisFunctionCallingLine( int lineNumber )
             checkingAsScanfFunction( lineNumber );
       }
       else {
-            cout << lineNumber << " ------";
+            //cout << lineNumber << " ------";
             checkingAsCustomFunction( lineNumber );
       }
 }
