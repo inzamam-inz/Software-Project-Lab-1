@@ -1,0 +1,9 @@
+int main()
+{
+	int a, b, add;
+	a = 46;
+	b = 6;
+	add = a + b;
+	
+	return 0;
+}

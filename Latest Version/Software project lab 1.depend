@@ -1,0 +1,48 @@
+# depslib dependency file v1.0
+1629892851 source:f:\iit\3rd semester\spl1\spl final\software project lab 1\tokenization.cpp
+	<bits/stdc++.h>
+	"Header.h"
+
+1629894018 f:\iit\3rd semester\spl1\spl final\software project lab 1\header.h
+	<bits/stdc++.h>
+
+1629830172 source:f:\iit\3rd semester\spl1\spl final\software project lab 1\main.cpp
+	<bits/stdc++.h>
+	"Header.h"
+
+1629576860 source:f:\iit\3rd semester\spl1\spl final\software project lab 1\supporter.cpp
+	<bits/stdc++.h>
+	"Header.h"
+
+1629891378 source:f:\iit\3rd semester\spl1\spl final\software project lab 1\readtokenfile.cpp
+	<bits/stdc++.h>
+	"Header.h"
+
+1629646041 source:f:\iit\3rd semester\spl1\spl final\software project lab 1\grouping.cpp
+	<bits/stdc++.h>
+	"Header.h"
+
+1629894323 source:f:\iit\3rd semester\spl1\spl final\software project lab 1\linebylinesyntaxerrorchecking.cpp
+	<bits/stdc++.h>
+	"Header.h"
+
+1629895083 source:f:\iit\3rd semester\spl1\spl final\software project lab 1\variablehandling.cpp
+	<bits/stdc++.h>
+	"Header.h"
+
+1629646358 source:f:\iit\3rd semester\spl1\spl final\software project lab 1\specialchecking.cpp
+	<bits/stdc++.h>
+	"Header.h"
+
+1629749309 source:f:\iit\3rd semester\spl1\spl final\software project lab 1\functiocallinglinecheck.cpp
+	<bits/stdc++.h>
+	"Header.h"
+
+1629757245 source:f:\iit\3rd semester\spl1\spl final\software project lab 1\errorprinting.cpp
+	<bits/stdc++.h>
+	"Header.h"
+
+1629895208 source:f:\iit\3rd semester\spl1\spl final\software project lab 1\miniccompiler.cpp
+	<bits/stdc++.h>
+	"Header.h"
+
