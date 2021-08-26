@@ -13,6 +13,7 @@ int variableHandling( int startLine, int endLine, set < string > takenVarible, i
             while ( Tokens[ startLine ].empty() || Tokens[ startLine ][ 0 ] == "#" ) {
                   startLine++;
             }
+            startLine--;
       }
       tryToGetVariableFromThisLineAllType( startLine, startLine, takenVarible, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
       identifierCheckingOfThisLine( startLine, takenVarible, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );

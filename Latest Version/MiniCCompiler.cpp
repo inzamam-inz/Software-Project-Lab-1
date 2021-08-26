@@ -171,11 +171,11 @@ void miniCCompiler()
      userManual();
 
       cout << "\n\n";
-      cout << "\t\t\tYour Input C Code:\n\n" << readInputCode();
-      cout << "\n\n";
-      cout << "\t\t\tErrors of Your C Code:\n\n";
+      //cout << "\t\t\tYour Input C Code:\n\n" << readInputCode();
 
       sourceCodeMakeToken();
+      cout << "\n\n";
+      cout << "\t\t\tErrors of Your C Code:\n\n";
       syntaxErrorChecking();
        /*FILE *fp;
       string Text;

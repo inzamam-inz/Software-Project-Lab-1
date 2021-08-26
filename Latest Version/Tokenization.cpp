@@ -137,6 +137,8 @@ string readInputCode()
       }
 
       mainCodeText = codeText;
+      cout << "\n\n\t\t\tYour Input C Code:\n\n";
+      cout <<  mainCodeText << "\n\n";
 
       for ( int i = 0; i + 1 < (int) codeText.size(); ++i ) {
             int starti = i;
@@ -162,7 +164,10 @@ string readInputCode()
                               }
                         }
 
-                        cout << "*** Unterminated comment issue on Line Number - " << lineNumberCount << "\n";
+                        //cout << mainCodeText;
+                        cout << "\n\n*** Unterminated comment issue on Line Number - " << lineNumberCount << "\n";
+
+                        exit( 0 );
                   }
 
                   i++;
@@ -181,5 +186,6 @@ string readInputCode()
             }
       }
 
+      //cout << mainCodeText;
       return codeText;
 }
