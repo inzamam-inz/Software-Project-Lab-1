@@ -25,14 +25,14 @@ void syntaxErrorChecking()
       int TL = readTokenFile( Tokens, TokenType );
       findGroup( 0, TL, TL, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
       lineByLineSyntaxErrorChecking( TL, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
-      //cout << "------------------\n";
       variableHandling( 0, TL, takenVariable, TL, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
-      //errorPrinting( TL, errorsTips );
-      //cout << "------------------\n";
       specialChecking( TL, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
       functionCallingLine( TL, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
       errorPrinting( TL, errorsTips );
 
+      //cout << "------------------\n";
+      //errorPrinting( TL, errorsTips );
+      //cout << "------------------\n";
       /*for ( int i = 0; i < functions.size(); ++i ) {
             Debug( functions[ i ].fTokens );
             Debug( functions[ i ].startLine );
@@ -44,8 +44,9 @@ void syntaxErrorChecking()
             Debug( functions[ i ].returnType );
 
             cout << "\n\n";
-      }
-      Debug( TL );*/
+      }*/
+      cout << "\n\n";
+      Debug( TL );
 }
 
 void sourceCodeMakeToken()
@@ -177,21 +178,5 @@ void miniCCompiler()
       cout << "\n\n";
       cout << "\t\t\tErrors of Your C Code:\n\n";
       syntaxErrorChecking();
-       /*FILE *fp;
-      string Text;
-      char ch;
-      fp = fopen( "TokenFile.txt", "r" );
-      if ( fp == NULL ) {
-            printf( "error while opening the file\n" );
-            exit( 0 );
-      }
-      while ( ( ch = fgetc( fp ) ) != EOF ) {
-            Text = Text + ch;
-            //cout << ch;
-            cout << "*";
-      }
-      fclose( fp );
-
-      Debug( Text );*/
 }
 

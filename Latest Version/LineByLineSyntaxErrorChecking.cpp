@@ -13,7 +13,6 @@ void lineByLineSyntaxErrorChecking( int totalLine, vector < string > Tokens[], v
       initialize_Checking( LN, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
 
       for ( int i = 0; i < totalLine; ++i ) {
-            //cout << isFinish[ i ] << "|";
             if ( Tokens[ i ].empty() ) {
                   isFinish[ i ] = true;
             }

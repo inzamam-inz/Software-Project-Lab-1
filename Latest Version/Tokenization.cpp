@@ -22,7 +22,6 @@ string keyword_identifier_number_check( int l, int col, string &check )
       for ( int k = 0; k < 32; k++ ) {
             if ( check.compare( keywords[ k ] ) == 0 ) {
                   string toR = "keyword\t" + check + "\t" + to_string( perline[ l ].line ) + "\t" + to_string( col - ( check.size() ) + 1 ) + "\n";
-                  //file << "keyword\t" << check << "\t" << perline[ l ].line << "\t" << col - ( check.size() ) + 1 << "\n";
                   check = "";
                   return toR;
             }
@@ -31,15 +30,12 @@ string keyword_identifier_number_check( int l, int col, string &check )
       string toR;
       if ( isItInteger( check ) ) {
             toR = "integer\t" + check + "\t" + to_string( perline[ l ].line ) + "\t" + to_string( col - ( check.size() ) + 1 ) + "\n";
-            //file << "integer\t" << check << "\t" << perline[ l ].line << "\t" << col - ( check.size() ) + 1 << "\n";
       }
       else if ( isItDouble( check ) ) {
             toR = "double\t" + check + "\t" + to_string( perline[ l ].line ) + "\t" + to_string( col - ( check.size() ) + 1 ) + "\n";
-            //file << "double\t" << check << "\t" << perline[ l ].line << "\t" << col - ( check.size() ) + 1 << "\n";
       }
       else {
             toR = "identifier\t" + check + "\t" + to_string( perline[ l ].line ) + "\t" + to_string( col - ( check.size() ) + 1 ) + "\n";
-            //file << "identifier\t" << check << "\t" << perline[ l ].line << "\t" << col - ( check.size() ) + 1 << "\n";
       }
 
       check = "";
@@ -58,7 +54,7 @@ void tokenization( int totalLine )
             int lenPerLine = perline[ i ].text.size();
 
             for ( int j = 0; j < lenPerLine; ) {
-                  if ( operatorCheck( perline[ i ].text[ j ] ) && operatorCheckdup( perline[ i ].text[ j + 1 ] ) ) {   //operatorChecking
+                  if ( operatorCheck( perline[ i ].text[ j ] ) && operatorCheckdup( perline[ i ].text[ j + 1 ] ) ) {//operatorChecking
                         file << keyword_identifier_number_check( i, j, check );
 
                         file << "operator\t" << perline[ i ].text[ j ] << perline[ i ].text[ j + 1 ] << "\t" << perline[ i ].line << "\t" << j + 1 << "\n";
@@ -91,7 +87,7 @@ void tokenization( int totalLine )
                         j++;
                         file << "string\t" << strg  << "\t" << perline[ i ].line << "\t" << temp + 1 << "\n";       //char check in string
                   }
-                  else if ( perline[ i ].text[ j ] == ' ' || perline[ i ].text[ j ] == '\n' ) {      //keyword_identifier_number_checking
+                  else if ( perline[ i ].text[ j ] == ' ' || perline[ i ].text[ j ] == '\n' ) {//keyword_identifier_number_checking
                         file << keyword_identifier_number_check( i, j, check );
 
                         j++;
@@ -122,7 +118,7 @@ int inputCodeInLineByLine( string codeText )
 string readInputCode()
 {
       FILE *fp;
-	string codeText, mainCodeText;
+	string codeText, orginal;
 	char ch;
 
 	fp = fopen( "sourceCode.c", "r" );
@@ -136,9 +132,9 @@ string readInputCode()
             codeText = codeText + ch;
       }
 
-      mainCodeText = codeText;
+      orginal = codeText;
       cout << "\n\n\t\t\tYour Input C Code:\n\n";
-      cout <<  mainCodeText << "\n\n";
+      cout <<  orginal << "\n\n";
 
       for ( int i = 0; i + 1 < (int) codeText.size(); ++i ) {
             int starti = i;
@@ -159,12 +155,12 @@ string readInputCode()
                         int lineNumberCount = 1;
 
                         for ( int j = 0; j < starti; ++j ) {
-                              if ( mainCodeText[ j ] == '\n' ) {
+                              if ( orginal[ j ] == '\n' ) {
                                     lineNumberCount++;
                               }
                         }
 
-                        //cout << mainCodeText;
+                        //cout << orginal;
                         cout << "\n\n*** Unterminated comment issue on Line Number - " << lineNumberCount << "\n";
 
                         exit( 0 );
@@ -186,6 +182,6 @@ string readInputCode()
             }
       }
 
-      //cout << mainCodeText;
+      //cout << orginal;
       return codeText;
 }

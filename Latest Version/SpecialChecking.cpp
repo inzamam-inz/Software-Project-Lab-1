@@ -10,7 +10,6 @@ void specialChecking( int totalLine, vector < string > Tokens[], vector < string
                vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses )
 {
       vector < int > checkList;
-
       // for
       for ( int i = 0; i < (int) fors.size(); ++i ) {
             bool ok = initializeDeclaration( fors[ i ].startLine - 1, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
@@ -42,7 +41,6 @@ void specialChecking( int totalLine, vector < string > Tokens[], vector < string
             }
             increaseDecrease( fors[ i ].startLine - 1, checkList, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
       }
-
       // if
       for ( int i = 0; i < (int) ifs.size(); ++i ) {
             checkList.clear();
@@ -52,7 +50,6 @@ void specialChecking( int totalLine, vector < string > Tokens[], vector < string
 
             checking_condition( ifs[ i ].startLine - 1, checkList, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
       }
-
       // else if
       for ( int i = 0; i < (int) else_ifs.size(); ++i ) {
             checkList.clear();
@@ -62,7 +59,6 @@ void specialChecking( int totalLine, vector < string > Tokens[], vector < string
 
             checking_condition( else_ifs[ i ].startLine - 1, checkList, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
       }
-
       // while
       for ( int i = 0; i < (int) whiles.size(); ++i ) {
             checkList.clear();
@@ -71,7 +67,6 @@ void specialChecking( int totalLine, vector < string > Tokens[], vector < string
             }
             checking_condition( whiles[ i ].startLine - 1, checkList, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
       }
-
       // do while
       for ( int i = 0; i < (int) do_whiles.size(); ++i ) {
             checkList.clear();

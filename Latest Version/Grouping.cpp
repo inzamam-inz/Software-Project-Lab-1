@@ -68,6 +68,10 @@ int functionGroup( int i, vector < string > Tokens[], vector < string > TokenTyp
             }
 
             int h = f.statement_text_start - 1;
+            if ( Tokens[ h + 1 ].back() != "{" ) {
+                  return i;
+            }
+
             stack < int > temp;
             temp.push( h - 1 );
 
@@ -140,6 +144,16 @@ int forGroup( int i, vector < string > Tokens[], vector < string > TokenType[], 
 
       if ( semi != 2 ) {
             errorsTips[ fa.startLine ].insert( "Expected ';' before ')' token" );
+            return i;
+      }
+
+      if ( Tokens[ i ][ TokenType[ i ].size() - 1 ].compare( "{" ) != 0 && ( Tokens[ i + 1 ].size() > 0 && Tokens[ i + 1 ][ 0 ].compare( "{" ) != 0 ) ) {
+            fa.statement_text_start = i + 2;
+            fa.statement_text_end = i + 2;
+            fa.endLine = i + 2;
+            i = i + 1;
+            fors.push_back( fa );
+            i = fa.endLine - 1;
             return i;
       }
 
