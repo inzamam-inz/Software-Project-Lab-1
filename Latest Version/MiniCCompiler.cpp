@@ -44,7 +44,7 @@ void syntaxErrorChecking()
             Debug( functions[ i ].returnType );
 
             cout << "\n\n";
-      }*/
+      }/**/
       cout << "\n\n";
       Debug( TL );
 }

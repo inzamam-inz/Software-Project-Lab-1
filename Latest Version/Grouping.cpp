@@ -10,7 +10,9 @@ void findGroup( int startLine, int endLine, int totalLine, vector < string > Tok
                vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses )
 {
       for ( int i = startLine; i <= endLine; i++ ) {
+                  cout << i << "\n";
             if ( TokenType[ i ].size() > 3 && TokenType[ i ][ 0 ].compare( "keyword" ) == 0  && TokenType[ i ][ 1 ].compare( "identifier" ) == 0  && Tokens[ i ][ 2 ].compare( "(" ) == 0  && ( Tokens[ i ][ 3 ] == ")" || TokenType[ i ][ 3 ] == "keyword" ) ) { //function
+                  cout << i << "<- ";
                   i = functionGroup( i, Tokens, TokenType, totalLine, isFinish, errorsTips, functions );
             }
             else if ( Tokens[ i ].size() > 4 && Tokens[ i ][ 0 ].compare( "for" ) == 0 && Tokens[ i ][ 1 ].compare( "(" ) == 0 ) { //for
@@ -68,9 +70,10 @@ int functionGroup( int i, vector < string > Tokens[], vector < string > TokenTyp
             }
 
             int h = f.statement_text_start - 1;
-            if ( Tokens[ h + 1 ].back() != "{" ) {
-                  return i;
-            }
+//            if ( Tokens[ h ].back() != "{" ) {
+//                  return i;
+//            }
+            cout << h << ")";
 
             stack < int > temp;
             temp.push( h - 1 );
