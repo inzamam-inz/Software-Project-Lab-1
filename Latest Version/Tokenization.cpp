@@ -9,71 +9,101 @@ using namespace std;
 perlinestruct perline[ 2000 ];
 
 
-string keyword_identifier_number_check( int l, int col, string &check )
+string getPrintString( string item, int l, int col )
 {
+      string toR;
+
+      if ( isItInteger( item ) ) {
+            toR = "integer\t" + item + "\t" + to_string( perline[ l ].line ) + "\t";
+            toR += to_string( col - ( item.size() ) + 1 ) + "\n";
+      }
+      else if ( isItDouble( item ) ) {
+            toR = "double\t" + item + "\t" + to_string( perline[ l ].line ) + "\t";
+            toR +=  to_string( col - ( item.size() ) + 1 ) + "\n";
+      }
+      else {
+            toR = "identifier\t" + item + "\t" + to_string( perline[ l ].line ) + "\t";
+            toR += to_string( col - ( item.size() ) + 1 ) + "\n";
+      }
+
+      return toR;
+}
+
+string keyword_identifier_number_check( int l, int col, string &item )
+{
+      if ( item.size() == 0 ) {
+            return "";
+      }
+
       string keywords[ 32 ] = { "auto", "break", "case", "char", "const", "continue", "default", "do", "double", "else",
                           "enum", "extern", "float", "for", "goto", "if", "int", "long", "register", "return", "short",
                           "signed", "sizeof", "static", "struct", "switch", "typedef", "union", "unsigned", "void", "volatile", "while" };
 
-      if ( check.size() == 0 ) {
-            return "";
-      }
-
       for ( int k = 0; k < 32; k++ ) {
-            if ( check.compare( keywords[ k ] ) == 0 ) {
-                  string toR = "keyword\t" + check + "\t" + to_string( perline[ l ].line ) + "\t" + to_string( col - ( check.size() ) + 1 ) + "\n";
-                  check = "";
+            if ( item.compare( keywords[ k ] ) == 0 ) {
+                  string toR = "keyword\t" + item + "\t" + to_string( perline[ l ].line ) + "\t";
+                  toR += to_string( col - ( item.size() ) + 1 ) + "\n";
+                  item = "";
                   return toR;
             }
       }
 
-      string toR;
-      if ( isItInteger( check ) ) {
-            toR = "integer\t" + check + "\t" + to_string( perline[ l ].line ) + "\t" + to_string( col - ( check.size() ) + 1 ) + "\n";
-      }
-      else if ( isItDouble( check ) ) {
-            toR = "double\t" + check + "\t" + to_string( perline[ l ].line ) + "\t" + to_string( col - ( check.size() ) + 1 ) + "\n";
-      }
-      else {
-            toR = "identifier\t" + check + "\t" + to_string( perline[ l ].line ) + "\t" + to_string( col - ( check.size() ) + 1 ) + "\n";
+      string toR = getPrintString( item, l, col );
+
+      item = "";
+      return toR;
+}
+
+int inputCodeInLineByLine( string inputFile )
+{
+      int totalLine = 0;
+      string part;
+
+      stringstream X( inputFile );
+      while ( getline( X, part, '\n' ) ) {
+            perline[ totalLine ].text = part + " ";
+            perline[ totalLine++ ].line = totalLine;
       }
 
-      check = "";
-      return toR;
+      return totalLine;
 }
 
 void tokenization( int totalLine )
 {
-      ofstream file( "TokenFile.txt" );
-      string keywords[ 32 ] = { "auto", "break", "case", "char", "const", "continue", "default", "do", "double", "else",
-                                "enum", "extern", "float", "for", "goto", "if", "int", "long", "register", "return", "short",
-                                "signed", "sizeof", "static", "struct", "switch", "typedef", "union", "unsigned", "void", "volatile", "while" };
-      string check;
+      ofstream take( "TokenFile.txt" );
+      string item;
 
       for ( int i = 0; i < totalLine; i++ ) {
             int lenPerLine = perline[ i ].text.size();
 
             for ( int j = 0; j < lenPerLine; ) {
-                  if ( operatorCheck( perline[ i ].text[ j ] ) && operatorCheckdup( perline[ i ].text[ j + 1 ] ) ) {//operatorChecking
-                        file << keyword_identifier_number_check( i, j, check );
+                  if ( operatorCheck( perline[ i ].text[ j ] ) && operatorCheckdup( perline[ i ].text[ j + 1 ] ) ) {
+                        string toR = keyword_identifier_number_check( i, j, item );
+                        take << toR;
 
-                        file << "operator\t" << perline[ i ].text[ j ] << perline[ i ].text[ j + 1 ] << "\t" << perline[ i ].line << "\t" << j + 1 << "\n";
+                        take << "operator\t" << perline[ i ].text[ j ] << perline[ i ].text[ j + 1 ] << "\t";
+                        take << perline[ i ].line << "\t" << j + 1 << "\n";
                         j += 2;
                   }
-                  else if ( operatorCheck( perline[ i ].text[ j ] ) ) {   //operatorChecking
-                        file << keyword_identifier_number_check( i, j, check );
+                  else if ( operatorCheck( perline[ i ].text[ j ] ) ) {
+                        string toR = keyword_identifier_number_check( i, j, item );
+                        take << toR;
 
-                        file << "operator\t" << perline[ i ].text[ j ] << "\t" << perline[ i ].line << "\t" << j + 1 << "\n";
+                        take << "operator\t" << perline[ i ].text[ j ] << "\t";
+                        take << perline[ i ].line << "\t" << j + 1 << "\n";
                         j += 1;
                   }
-                  else if ( perline[ i ].text[ j ] == '\\' ) {   //charChecking
-                        file << keyword_identifier_number_check( i, j, check );
+                  else if ( perline[ i ].text[ j ] == '\\' ) {
+                        string toR = keyword_identifier_number_check( i, j, item );
+                        take << toR;
 
-                        file << "character\t" << perline[ i ].text[ j ] << perline[ i ].text[ j + 1 ] << "\t" << perline[ i ].line << "\t" << j + 1 << "\n";    //check which character
+                        take << "character\t" << perline[ i ].text[ j ] << perline[ i ].text[ j + 1 ] << "\t";
+                        take << perline[ i ].line << "\t" << j + 1 << "\n";
                         j += 2;
                   }
-                  else if ( perline[ i ].text[ j ] == '"' ) {    //stringChecking
-                        file << keyword_identifier_number_check( i, j, check );
+                  else if ( perline[ i ].text[ j ] == '"' ) {
+                        string toR = keyword_identifier_number_check( i, j, item );
+                        take << toR;
 
                         j++;
                         int temp = j;
@@ -85,73 +115,61 @@ void tokenization( int totalLine )
                         }
 
                         j++;
-                        file << "string\t" << strg  << "\t" << perline[ i ].line << "\t" << temp + 1 << "\n";       //char check in string
+                        take << "string\t" << strg  << "\t";
+                        take << perline[ i ].line << "\t" << temp + 1 << "\n";
                   }
-                  else if ( perline[ i ].text[ j ] == ' ' || perline[ i ].text[ j ] == '\n' ) {//keyword_identifier_number_checking
-                        file << keyword_identifier_number_check( i, j, check );
+                  else if ( perline[ i ].text[ j ] == ' ' || perline[ i ].text[ j ] == '\n' ) {
+                        string toR = keyword_identifier_number_check( i, j, item );
+                        take << toR;
 
                         j++;
                   }
                   else {
-                        check = check + perline[ i ].text[ j++ ];
+                        item = item + perline[ i ].text[ j++ ];
                   }
             }
       }
 
-      file.close();
-}
-
-int inputCodeInLineByLine( string codeText )
-{
-      int totalLine = 0;
-      string part;
-
-      stringstream X( codeText );
-      while ( getline( X, part, '\n' ) ) {
-            perline[ totalLine ].text = part + " ";
-            perline[ totalLine++ ].line = totalLine;
-      }
-
-      return totalLine;
+      take.close();
 }
 
 string readInputCode()
 {
       FILE *fp;
-	string codeText, orginal;
+	string inputFile, orginal;
 	char ch;
 
 	fp = fopen( "sourceCode.c", "r" );
 
 	if ( fp == NULL ){
-		printf( "error while opening the file is named \'sourceCode.c\'\n" );
+		printf( "error while opening the input file\n" );
 		exit( 0 );
 	}
 
 	while ( ( ch = fgetc( fp ) ) != EOF ) {
-            codeText = codeText + ch;
+            inputFile = inputFile + ch;
       }
 
-      orginal = codeText;
+      orginal = inputFile;
       cout << "\n\n\t\t\tYour Input C Code:\n\n";
       cout <<  orginal << "\n\n";
 
-      for ( int i = 0; i + 1 < (int) codeText.size(); ++i ) {
+      for ( int i = 0; i + 1 < (int) inputFile.size(); ++i ) {
             int starti = i;
-            if ( codeText[ i ] == '/' && codeText[ i + 1 ] == '/' ) {
-                  while ( i < (int) codeText.size() && codeText[ i ] != '\n' ) {
+            if ( inputFile[ i ] == '/' && inputFile[ i + 1 ] == '/' ) {
+                  while ( i < (int) inputFile.size() && inputFile[ i ] != '\n' ) {
                         i++;
                   }
 
                   i--;
             }
 
-            if ( codeText[ i ] == '/' && codeText[ i + 1 ] == '*' ) {
-                  while ( i + 1 < (int) codeText.size() && ( codeText[ i ] != '*' || codeText[ i + 1 ] != '/' ) ) {
+            if ( inputFile[ i ] == '/' && inputFile[ i + 1 ] == '*' ) {
+                  while ( i + 1 < (int) inputFile.size() && ( inputFile[ i ] != '*' || inputFile[ i + 1 ] != '/' ) ) {
                         i++;
                   }
 
-                  if ( i + 1 == (int) codeText.size() && ( codeText[ i ] != '*' || codeText[ i + 1 ] != '/' ) ) {
+                  if ( i + 1 == (int) inputFile.size() && ( inputFile[ i ] != '*' || inputFile[ i + 1 ] != '/' ) ) {
                         int lineNumberCount = 1;
 
                         for ( int j = 0; j < starti; ++j ) {
@@ -160,7 +178,6 @@ string readInputCode()
                               }
                         }
 
-                        //cout << orginal;
                         cout << "\n\n*** Unterminated comment issue on Line Number - " << lineNumberCount << "\n";
 
                         exit( 0 );
@@ -174,14 +191,13 @@ string readInputCode()
             }
 
             while ( starti <= i ) {
-                  if ( codeText[ starti ] != '\n' ) {
-                        codeText[ starti ] = ' ';
+                  if ( inputFile[ starti ] != '\n' ) {
+                        inputFile[ starti ] = ' ';
                   }
 
                   starti++;
             }
       }
 
-      //cout << orginal;
-      return codeText;
+      return inputFile;
 }

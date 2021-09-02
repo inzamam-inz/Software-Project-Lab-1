@@ -34,6 +34,7 @@
 		</Compiler>
 		<Unit filename="ErrorPrinting.cpp" />
 		<Unit filename="FunctioCallingLineCheck.cpp" />
+		<Unit filename="FunctionPrototypeLine.cpp" />
 		<Unit filename="Grouping.cpp" />
 		<Unit filename="Header.h" />
 		<Unit filename="LineByLineSyntaxErrorChecking.cpp" />

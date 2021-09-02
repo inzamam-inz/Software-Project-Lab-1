@@ -23,30 +23,20 @@ void syntaxErrorChecking()
 
 
       int TL = readTokenFile( Tokens, TokenType );
-      findGroup( 0, TL, TL, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
-      lineByLineSyntaxErrorChecking( TL, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
-      variableHandling( 0, TL, takenVariable, TL, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
-      specialChecking( TL, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
-      functionCallingLine( TL, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+      functionPrototypeLine( TL, parameterCalling );
+      findGroup( 0, TL, TL, parameterCalling );
+      lineByLineSyntaxErrorChecking( TL, parameterCalling );
+      variableHandling( 0, TL, takenVariable, TL, parameterCalling );
+      specialChecking( TL, parameterCalling );
+      functionCallingLine( TL, parameterCalling );
       errorPrinting( TL, errorsTips );
 
-      //cout << "------------------\n";
-      //errorPrinting( TL, errorsTips );
-      //cout << "------------------\n";
-      /*for ( int i = 0; i < functions.size(); ++i ) {
-            Debug( functions[ i ].fTokens );
-            Debug( functions[ i ].startLine );
-            Debug( functions[ i ].statement_text_start );
-            Debug( functions[ i ].statement_text_end );
-            Debug( functions[ i ].endLine );
-            Debug( functions[ i ].parameter );
-            Debug( functions[ i ].parameterType );
-            Debug( functions[ i ].returnType );
+      E -> E * E
+      E -> E + E
 
-            cout << "\n\n";
-      }/**/
-      cout << "\n\n";
-      Debug( TL );
+      num = S + B;
+
+      cout << "[ Number of Line in Your C file = " << TL << " ]\n";
 }
 
 void sourceCodeMakeToken()
@@ -55,7 +45,6 @@ void sourceCodeMakeToken()
 
 	codeText = readInputCode();
 	int TL = inputCodeInLineByLine( codeText );
-      //Debug( TL );
       tokenization( TL );
 }
 
@@ -169,11 +158,7 @@ void userManual()
 
 void miniCCompiler()
 {
-     userManual();
-
-      cout << "\n\n";
-      //cout << "\t\t\tYour Input C Code:\n\n" << readInputCode();
-
+      userManual();
       sourceCodeMakeToken();
       cout << "\n\n";
       cout << "\t\t\tErrors of Your C Code:\n\n";

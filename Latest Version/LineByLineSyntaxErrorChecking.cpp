@@ -6,37 +6,34 @@
 using namespace std;
 
 
-void lineByLineSyntaxErrorChecking( int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses )
+void lineByLineSyntaxErrorChecking( int totalLine, parameterStruct )
 {
       int LN = 0;
-      initialize_Checking( LN, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+      initialize_Checking( LN, totalLine, parameterCalling );
 
       for ( int i = 0; i < totalLine; ++i ) {
             if ( Tokens[ i ].empty() ) {
                   isFinish[ i ] = true;
             }
             else if ( !isFinish[ i ] ) {
-                  check_THIS_Line( i, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+                  check_THIS_Line( i, totalLine, parameterCalling );
             }
       }
 }
 
-void initialize_Checking( int LN, int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses )
+void initialize_Checking( int LN, int totalLine, parameterStruct )
 {
       // find MAIN function
-      find_MAIN_function( totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+      find_MAIN_function( totalLine, parameterCalling );
 
       // TODO : same function name detection
-      sameFunctionNameDetection( totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+      sameFunctionNameDetection( totalLine, parameterCalling );
 
       // header file check
-      LN = headerFiles_check( LN, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+      LN = headerFiles_check( LN, totalLine, parameterCalling );
 }
 
-void find_MAIN_function( int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses )
+void find_MAIN_function( int totalLine, parameterStruct )
 {
       int C = 0;
       for ( int i = 0; i < (int) functions.size(); ++i ) {
@@ -53,8 +50,7 @@ void find_MAIN_function( int totalLine, vector < string > Tokens[], vector < str
       }
 }
 
-void sameFunctionNameDetection( int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses )
+void sameFunctionNameDetection( int totalLine, parameterStruct )
 {
       map < string, vector < int > > functionInfo;
       for ( int i = 0; i < (int) functions.size(); ++i ) {
@@ -99,9 +95,10 @@ void sameFunctionNameDetection( int totalLine, vector < string > Tokens[], vecto
       }
 }
 
-int headerFiles_check( int LN, int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses )
+int headerFiles_check( int LN, int totalLine, parameterStruct )
 {
+      bool isHeaderFile = false;
+
       while ( LN < totalLine ) {
             if ( Tokens[ LN ].empty() ) {
                   // any empty line -> skip
@@ -112,7 +109,7 @@ int headerFiles_check( int LN, int totalLine, vector < string > Tokens[], vector
             else if ( Tokens[ LN ][ 0 ] == "#" ) {
                   // Maybe this line -> header file
                   //cout << LN << "<<<";
-                  headerFile_check( LN, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+                  headerFile_check( LN, totalLine, parameterCalling, isHeaderFile );
                   isFinish[ LN ] = true;
                   ++LN;
             }
@@ -121,12 +118,24 @@ int headerFiles_check( int LN, int totalLine, vector < string > Tokens[], vector
             }
       }
 
+      if ( !isHeaderFile ) {
+            cout << "***No HeaderFile***\n";
+      }
+
       return LN;
 }
 
-void headerFile_check( int LN, int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses )
+void headerFile_check( int LN, int totalLine, parameterStruct, bool &isHeaderFile )
 {
+      if ( (int) Tokens[ LN ].size() < 3 ) {
+            errorsTips[ LN + 1 ].insert( "Have error in This Line" );
+            return;
+      }
+
+      if ( Tokens[ LN ][ 1 ] == "define" ) {
+            return;
+      }
+
       vector < string > HEADER;
       HEADER.push_back( "#include<stdio.h>" );
       HEADER.push_back( "#include<conio.h>" );
@@ -146,40 +155,45 @@ void headerFile_check( int LN, int totalLine, vector < string > Tokens[], vector
       }
 
       for ( int i = 0; i < (int) HEADER.size(); ++i ) {
-            if ( H == HEADER[ i ] )
+            if ( H == HEADER[ i ] ) {
+                  isHeaderFile = true;
                   return;
+            }
       }
 
-      errorsTips[ LN + 1 ].insert( "Unknown Library or Header" );
+      if ( Tokens[ LN ][ 1 ] == "include" ) {
+            errorsTips[ LN + 1 ].insert( "Unknown Library or Header" );
+      }
+      else {
+            errorsTips[ LN + 1 ].insert( "Have error in This Line" );
+      }
 }
 
-void check_THIS_Line( int LN, int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses )
+void check_THIS_Line( int LN, int totalLine, parameterStruct )
 {
       isFinish[ LN ] = true;
 
-      if ( isFunction( LN, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses ) ) {
+      if ( isFunction( LN, totalLine, parameterCalling ) ) {
             return;
       }
-      else if ( isFor( LN, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses ) ) {
+      else if ( isFor( LN, totalLine, parameterCalling ) ) {
             return;
       }
-      else if ( isWhile( LN, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses ) ) {
+      else if ( isWhile( LN, totalLine, parameterCalling ) ) {
             return;
       }
-      else if ( isDOWhile( LN, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses ) ) {
+      else if ( isDOWhile( LN, totalLine, parameterCalling ) ) {
             return;
       }
-      else if ( isIF( LN, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses ) ) {
+      else if ( isIF( LN, totalLine, parameterCalling ) ) {
             return;
       }
       else {
-            checking_statement( LN, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+            checking_statement( LN, totalLine, parameterCalling );
       }
 }
 
-bool isFunction( int LN, int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses )
+bool isFunction( int LN, int totalLine, parameterStruct )
 {
       for ( int i = 0; i < (int) functions.size(); ++i ) {
             if ( functions[ i ].startLine == LN + 1 ) {
@@ -191,11 +205,11 @@ bool isFunction( int LN, int totalLine, vector < string > Tokens[], vector < str
                         isFinish[ j - 1 ] = true;
                   }
 
-                  findGroup( functions[ i ].statement_text_start - 1, functions[ i ].statement_text_end - 1, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+                  findGroup( functions[ i ].statement_text_start - 1, functions[ i ].statement_text_end - 1, totalLine, parameterCalling );
 
                   for ( int j = functions[ i ].statement_text_start; j <= functions[ i ].statement_text_end; ++j ) {
                         if ( !isFinish[ j - 1 ] ) {
-                              check_THIS_Line( j - 1, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+                              check_THIS_Line( j - 1, totalLine, parameterCalling );
                         }
                   }
 
@@ -206,8 +220,7 @@ bool isFunction( int LN, int totalLine, vector < string > Tokens[], vector < str
       return false;
 }
 
-bool isFor( int LN, int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses )
+bool isFor( int LN, int totalLine, parameterStruct )
 {
       for ( int i = 0; i < (int) fors.size(); ++i ) {
             if ( fors[ i ].startLine == LN + 1 ) {
@@ -219,11 +232,11 @@ bool isFor( int LN, int totalLine, vector < string > Tokens[], vector < string >
                         isFinish[ j - 1 ] = true;
                   }
 
-                  findGroup( fors[ i ].statement_text_start - 1, fors[ i ].statement_text_end - 1, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+                  findGroup( fors[ i ].statement_text_start - 1, fors[ i ].statement_text_end - 1, totalLine, parameterCalling );
 
                   for ( int j = fors[ i ].statement_text_start; j <= fors[ i ].statement_text_end; ++j ) {
                         if ( !isFinish[ j - 1 ] ) {
-                              check_THIS_Line( j - 1, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+                              check_THIS_Line( j - 1, totalLine, parameterCalling );
                         }
                   }
 
@@ -234,8 +247,7 @@ bool isFor( int LN, int totalLine, vector < string > Tokens[], vector < string >
       return false;
 }
 
-bool isWhile( int LN, int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses )
+bool isWhile( int LN, int totalLine, parameterStruct )
 {
       for ( int i = 0; i < (int) whiles.size(); ++i ) {
             if ( whiles[ i ].startLine == LN + 1 ) {
@@ -247,11 +259,11 @@ bool isWhile( int LN, int totalLine, vector < string > Tokens[], vector < string
                         isFinish[ j - 1 ] = true;
                   }
 
-                  findGroup( whiles[ i ].statement_text_start - 1, whiles[ i ].statement_text_end - 1, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+                  findGroup( whiles[ i ].statement_text_start - 1, whiles[ i ].statement_text_end - 1, totalLine, parameterCalling );
 
                   for ( int j = whiles[ i ].statement_text_start; j <= whiles[ i ].statement_text_end; ++j ) {
                         if ( !isFinish[ j - 1 ] ) {
-                              check_THIS_Line( j - 1, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+                              check_THIS_Line( j - 1, totalLine, parameterCalling );
                         }
                   }
 
@@ -262,8 +274,7 @@ bool isWhile( int LN, int totalLine, vector < string > Tokens[], vector < string
       return false;
 }
 
-bool isDOWhile( int LN, int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses )
+bool isDOWhile( int LN, int totalLine, parameterStruct )
 {
       for ( int i = 0; i < (int) do_whiles.size(); ++i ) {
             if ( do_whiles[ i ].startLine == LN + 1 ) {
@@ -275,11 +286,11 @@ bool isDOWhile( int LN, int totalLine, vector < string > Tokens[], vector < stri
                         isFinish[ j - 1 ] = true;
                   }
 
-                  findGroup( do_whiles[ i ].statement_text_start - 1, do_whiles[ i ].statement_text_end - 1, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+                  findGroup( do_whiles[ i ].statement_text_start - 1, do_whiles[ i ].statement_text_end - 1, totalLine, parameterCalling );
 
                   for ( int j = do_whiles[ i ].statement_text_start; j <= do_whiles[ i ].statement_text_end; ++j ) {
                         if ( !isFinish[ j - 1 ] ) {
-                              check_THIS_Line( j - 1, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+                              check_THIS_Line( j - 1, totalLine, parameterCalling );
                         }
                   }
 
@@ -290,8 +301,7 @@ bool isDOWhile( int LN, int totalLine, vector < string > Tokens[], vector < stri
       return false;
 }
 
-void isIFELSE( else_if_struct &elseIf, int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses )
+void isIFELSE( else_if_struct &elseIf, int totalLine, parameterStruct )
 {
       isFinish[ elseIf.startLine ] = true;
 
@@ -303,17 +313,16 @@ void isIFELSE( else_if_struct &elseIf, int totalLine, vector < string > Tokens[]
             isFinish[ j - 1 ] = true;
       }
 
-      findGroup( elseIf.statement_text_start - 1, elseIf.statement_text_end - 1, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+      findGroup( elseIf.statement_text_start - 1, elseIf.statement_text_end - 1, totalLine, parameterCalling );
 
       for ( int j = elseIf.statement_text_start; j <= elseIf.statement_text_end; ++j ) {
             if ( !isFinish[ j - 1 ] ) {
-                  check_THIS_Line( j - 1, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+                  check_THIS_Line( j - 1, totalLine, parameterCalling );
             }
       }
 }
 
-void isELSE( else_struct &els, int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses )
+void isELSE( else_struct &els, int totalLine, parameterStruct )
 {
       isFinish[ els.startLine ] = true;
 
@@ -325,17 +334,16 @@ void isELSE( else_struct &els, int totalLine, vector < string > Tokens[], vector
             isFinish[ j - 1 ] = true;
       }
 
-      findGroup( els.statement_text_start - 1, els.statement_text_end - 1, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+      findGroup( els.statement_text_start - 1, els.statement_text_end - 1, totalLine, parameterCalling );
 
       for ( int j = els.statement_text_start; j <= els.statement_text_end; ++j ) {
             if ( !isFinish[ j - 1 ] ) {
-                  check_THIS_Line( j - 1, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+                  check_THIS_Line( j - 1, totalLine, parameterCalling );
             }
       }
 }
 
-bool isIF( int LN, int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses )
+bool isIF( int LN, int totalLine, parameterStruct )
 {
       for ( int i = 0; i < (int) ifs.size(); ++i ) {
             if ( ifs[ i ].startLine == LN + 1 ) {
@@ -347,20 +355,20 @@ bool isIF( int LN, int totalLine, vector < string > Tokens[], vector < string > 
                         isFinish[ j - 1 ] = true;
                   }
 
-                  findGroup( ifs[ i ].statement_text_start - 1, ifs[ i ].statement_text_end - 1, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+                  findGroup( ifs[ i ].statement_text_start - 1, ifs[ i ].statement_text_end - 1, totalLine, parameterCalling );
 
                   for ( int j = ifs[ i ].statement_text_start; j <= ifs[ i ].statement_text_end; ++j ) {
                         if ( !isFinish[ j - 1 ] ) {
-                              check_THIS_Line( j - 1, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+                              check_THIS_Line( j - 1, totalLine, parameterCalling );
                         }
                   }
 
                   for ( int j = 0; j < (int) ifs[ i ].if_elses.size(); ++j ) {
-                        isIFELSE( ifs[ i ].if_elses[ j ], totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+                        isIFELSE( ifs[ i ].if_elses[ j ], totalLine, parameterCalling );
                   }
 
                   for ( int j = 0; j < (int) ifs[ i ].elses.size(); ++j ) {
-                        isELSE( ifs[ i ].elses[ j ], totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+                        isELSE( ifs[ i ].elses[ j ], totalLine, parameterCalling );
                   }
 
                   return true;
@@ -370,11 +378,10 @@ bool isIF( int LN, int totalLine, vector < string > Tokens[], vector < string > 
       return false;
 }
 
-void checking_statement( int lineNumber, int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses )
+void checking_statement( int lineNumber, int totalLine, parameterStruct )
 {
       if ( Tokens[ lineNumber ].size() && Tokens[ lineNumber ].back() != ";" ) {
-            errorsTips[ lineNumber + 1 ].insert( addSemiColonTipsModify( lineNumber, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses ) );
+            errorsTips[ lineNumber + 1 ].insert( addSemiColonTipsModify( lineNumber, totalLine, parameterCalling ) );
             return;
       }
 
@@ -382,32 +389,32 @@ void checking_statement( int lineNumber, int totalLine, vector < string > Tokens
             return;
       }
 
-      if ( isDeclareVariableLine( lineNumber, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses ) == thisLine_Done ) {
+      if ( isDeclareVariableLine( lineNumber, totalLine, parameterCalling ) == thisLine_Done ) {
             return;
       }
 
-      if ( isReturnLine( lineNumber, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses ) == thisLine_Done ) {
+      if ( isReturnLine( lineNumber, totalLine, parameterCalling ) == thisLine_Done ) {
             if ( lineNumber == 23 ) {
                   Debug( "asas" );
             }
             return;
       }
 
-      if ( isBreakContinue( lineNumber, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses ) == thisLine_Done ) {
+      if ( isBreakContinue( lineNumber, totalLine, parameterCalling ) == thisLine_Done ) {
             return;
       }
 
       vector < int > checkList;
       for ( int i = 0; i + 1 < (int) Tokens[ lineNumber ].size(); ++i ) {
-            if ( isSpecialoperator( lineNumber, i, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses ) && TokenType[ lineNumber ][ i + 1 ] == "identifier" ) {
+            if ( isSpecialoperator( lineNumber, i, totalLine, parameterCalling ) && TokenType[ lineNumber ][ i + 1 ] == "identifier" ) {
                   ++i;
                   checkList.push_back( i );
             }
-            else if ( isSpecialoperator( lineNumber, i, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses ) ) {
+            else if ( isSpecialoperator( lineNumber, i, totalLine, parameterCalling ) ) {
                   errorsTips[ lineNumber + 1 ].insert( "Fix this Line" );
                   return;
             }
-            else if ( TokenType[ lineNumber ][ i ] == "identifier" && isSpecialoperator( lineNumber, i + 1, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses ) ) {
+            else if ( TokenType[ lineNumber ][ i ] == "identifier" && isSpecialoperator( lineNumber, i + 1, totalLine, parameterCalling ) ) {
                   checkList.push_back( i );
                   ++i;
             }
@@ -416,13 +423,12 @@ void checking_statement( int lineNumber, int totalLine, vector < string > Tokens
             }
       }
 
-      int useless = checking_Equation( lineNumber, checkList, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+      int useless = checking_Equation( lineNumber, checkList, totalLine, parameterCalling );
 
       return;
 }
 
-string addSemiColonTipsModify( int lineNumber, int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses )
+string addSemiColonTipsModify( int lineNumber, int totalLine, parameterStruct )
 {
       // keyword
       if ( Tokens[ lineNumber ].size() > 1 && Tokens[ lineNumber ][ 0 ] == "else" && Tokens[ lineNumber ][ 1 ] == "if" ) {
@@ -445,8 +451,7 @@ string addSemiColonTipsModify( int lineNumber, int totalLine, vector < string > 
       }
 }
 
-int isDeclareVariableLine( int lineNumber, int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses )
+int isDeclareVariableLine( int lineNumber, int totalLine, parameterStruct )
 {
       set < string > rightType;
       rightType.insert( "char" );
@@ -465,21 +470,21 @@ int isDeclareVariableLine( int lineNumber, int totalLine, vector < string > Toke
       vector < int > checkList;
       for ( int i = 1; i < (int) Tokens[ lineNumber ].size(); ++i ) {
             if ( Tokens[ lineNumber ][ i ] == "," || Tokens[ lineNumber ][ i ] == ";" ) {
-                  if( checking_Equation( lineNumber, checkList, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses ) == thisLine_Done ) {
+                  if( checking_Equation( lineNumber, checkList, totalLine, parameterCalling ) == thisLine_Done ) {
                         return thisLine_Done;
                   }
                   checkList.clear();
             }
             else {
-                  if ( isSpecialoperator( lineNumber, i, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses ) && TokenType[ lineNumber ][ i + 1 ] == "identifier" ) {
+                  if ( isSpecialoperator( lineNumber, i, totalLine, parameterCalling ) && TokenType[ lineNumber ][ i + 1 ] == "identifier" ) {
                         ++i;
                         checkList.push_back( i );
                   }
-                  else if ( isSpecialoperator( lineNumber, i, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses ) ) {
+                  else if ( isSpecialoperator( lineNumber, i, totalLine, parameterCalling ) ) {
                         errorsTips[ lineNumber + 1 ].insert( "Fix this Line" );
                         return thisLine_Done;
                   }
-                  else if ( TokenType[ lineNumber ][ i ] == "identifier" && isSpecialoperator( lineNumber, i + 1, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses ) ) {
+                  else if ( TokenType[ lineNumber ][ i ] == "identifier" && isSpecialoperator( lineNumber, i + 1, totalLine, parameterCalling ) ) {
                         checkList.push_back( i );
                         ++i;
                   }
@@ -492,8 +497,7 @@ int isDeclareVariableLine( int lineNumber, int totalLine, vector < string > Toke
       return thisLine_Done;
 }
 
-int isReturnLine( int lineNumber, int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses )
+int isReturnLine( int lineNumber, int totalLine, parameterStruct )
 {
       if ( Tokens[ lineNumber ][ 0 ] != "return" ) {
             return thisLine_NotFinish;
@@ -515,7 +519,7 @@ int isReturnLine( int lineNumber, int totalLine, vector < string > Tokens[], vec
                               checkList.push_back( i );
                         }
 
-                        checking_Equation( lineNumber, checkList, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+                        checking_Equation( lineNumber, checkList, totalLine, parameterCalling );
                         return thisLine_Done;
                   }
             }
@@ -525,8 +529,7 @@ int isReturnLine( int lineNumber, int totalLine, vector < string > Tokens[], vec
       return thisLine_Done;
 }
 
-int isBreakContinue( int lineNumber, int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses )
+int isBreakContinue( int lineNumber, int totalLine, parameterStruct )
 {
       if ( Tokens[ lineNumber ][ 0 ] != "break" && Tokens[ lineNumber ][ 0 ] != "continue" ) {
             return thisLine_NotFinish;
@@ -545,8 +548,7 @@ int isBreakContinue( int lineNumber, int totalLine, vector < string > Tokens[], 
       return thisLine_Done;
 }
 
-bool isSpecialoperator( int lineNumber, int columnNumber, int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses  )
+bool isSpecialoperator( int lineNumber, int columnNumber, int totalLine, parameterStruct  )
 {
       if ( (int) TokenType[ lineNumber ].size() <= columnNumber || TokenType[ lineNumber ][ columnNumber ] != "operator" || Tokens[ lineNumber ][ columnNumber ].size() > 2 ) {
             return false;
@@ -560,8 +562,7 @@ bool isSpecialoperator( int lineNumber, int columnNumber, int totalLine, vector 
       }
 }
 
-int checking_Equation( int lineNumber, vector < int > checkList, int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses  )
+int checking_Equation( int lineNumber, vector < int > checkList, int totalLine, parameterStruct  )
 {
       if ( checkList.size() % 2 == 0 && checkList.size() ) {
             errorsTips[ lineNumber + 1 ].insert( "Fix this Line" );
@@ -574,7 +575,7 @@ int checking_Equation( int lineNumber, vector < int > checkList, int totalLine, 
                   return thisLine_Done;
             }
 
-            if ( i % 2 == 1 && !validoperator( lineNumber, checkList[ i ], totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses ) ) {
+            if ( i % 2 == 1 && !validoperator( lineNumber, checkList[ i ], totalLine, parameterCalling ) ) {
                   errorsTips[ lineNumber + 1 ].insert( "Fix this Line" );
                   return thisLine_Done;
             }
@@ -583,8 +584,7 @@ int checking_Equation( int lineNumber, vector < int > checkList, int totalLine, 
       return thisLine_NotFinish;
 }
 
-bool validoperator( int lineNumber, int columnNumber, int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses )
+bool validoperator( int lineNumber, int columnNumber, int totalLine, parameterStruct )
 {
       if ( (int) TokenType[ lineNumber ].size() <= columnNumber || TokenType[ lineNumber ][ columnNumber ] != "operator" || Tokens[ lineNumber ][ columnNumber ].size() > 2 ) {
             return false;

@@ -6,8 +6,7 @@
 using namespace std;
 
 
-bool isCallingFunction( int lineNumber, int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses )
+bool isCallingFunction( int lineNumber, int totalLine, parameterStruct )
 {
       bool isHere = false;
 
@@ -34,8 +33,7 @@ bool isCallingFunction( int lineNumber, int totalLine, vector < string > Tokens[
       return isHere;  // return false;
 }
 
-int whichFunctionCalling( int lineNumber, int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses )
+int whichFunctionCalling( int lineNumber, int totalLine, parameterStruct )
 {
       for ( int i = 0; i + 1 < (int) Tokens[ lineNumber ].size(); ++i ) {
             if ( ( TokenType[ lineNumber ][ i ] != "identifier" && Tokens[ lineNumber ][ i ] != "prinft" && Tokens[ lineNumber ][ i ] != "scanf" ) || Tokens[ lineNumber ][ i + 1 ] != "(" ) {
@@ -58,11 +56,10 @@ int whichFunctionCalling( int lineNumber, int totalLine, vector < string > Token
       return -1;  // return false;
 }
 
-void checkingAsPrintfFunction( int lineNumber, int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses )
+void checkingAsPrintfFunction( int lineNumber, int totalLine, parameterStruct )
 {
       //printf( "%d", var );
-      if ( whichFunctionCalling( lineNumber, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses ) != 0 ) {
+      if ( whichFunctionCalling( lineNumber, totalLine, parameterCalling ) != 0 ) {
             errorsTips[ lineNumber + 1 ].insert( "Don\'t expect any token before \'printf\' function" );
             return;
       }
@@ -97,11 +94,10 @@ void checkingAsPrintfFunction( int lineNumber, int totalLine, vector < string > 
       }
 }
 
-void checkingAsScanfFunction( int lineNumber, int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses )
+void checkingAsScanfFunction( int lineNumber, int totalLine, parameterStruct )
 {
       //scanf( "%d", &var );
-      if ( whichFunctionCalling( lineNumber, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses ) != 0 ) {
+      if ( whichFunctionCalling( lineNumber, totalLine, parameterCalling ) != 0 ) {
             errorsTips[ lineNumber + 1 ].insert( "Don\'t expect any token before \'scanf\' function" );
             return;
       }
@@ -139,10 +135,9 @@ void checkingAsScanfFunction( int lineNumber, int totalLine, vector < string > T
       }
 }
 
-void checkingAsCustomFunction( int lineNumber, int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses )
+void checkingAsCustomFunction( int lineNumber, int totalLine, parameterStruct )
 {
-      int posOfFunction = whichFunctionCalling( lineNumber, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+      int posOfFunction = whichFunctionCalling( lineNumber, totalLine, parameterCalling );
       string functionName = Tokens[ lineNumber ][ posOfFunction ];
 
       // is known function
@@ -222,7 +217,7 @@ void checkingAsCustomFunction( int lineNumber, int totalLine, vector < string > 
             TokenType[ ln ].push_back( TokenType[ lineNumber ][ i ] );
       }
 
-      checking_statement( ln, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+      checking_statement( ln, totalLine, parameterCalling );
 
       for ( set < string > :: iterator it = errorsTips[ ln + 1 ].begin(); it != errorsTips[ ln + 1 ].end(); ++it ) {
             errorsTips[ lineNumber + 1 ].insert( *it );
@@ -251,10 +246,9 @@ void checkingAsCustomFunction( int lineNumber, int totalLine, vector < string > 
       }
 }
 
-void checkThisFunctionCallingLine( int lineNumber, int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses )
+void checkThisFunctionCallingLine( int lineNumber, int totalLine, parameterStruct )
 {
-      int posOfFunction = whichFunctionCalling( lineNumber, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+      int posOfFunction = whichFunctionCalling( lineNumber, totalLine, parameterCalling );
       if ( posOfFunction == -1 ) {
             assert( false );
             return;
@@ -266,23 +260,22 @@ void checkThisFunctionCallingLine( int lineNumber, int totalLine, vector < strin
 
       // printf
       if ( functionName == "printf" ) {
-            checkingAsPrintfFunction( lineNumber, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+            checkingAsPrintfFunction( lineNumber, totalLine, parameterCalling );
       }
       else if ( functionName == "scanf" ) {
-            checkingAsScanfFunction( lineNumber, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+            checkingAsScanfFunction( lineNumber, totalLine, parameterCalling );
       }
       else {
-            checkingAsCustomFunction( lineNumber, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+            checkingAsCustomFunction( lineNumber, totalLine, parameterCalling );
       }
 }
 
-void functionCallingLine( int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses )
+void functionCallingLine( int totalLine, parameterStruct )
 {
       for ( int i = 0; i < totalLine; ++i ) {
-            if ( isCallingFunction( i, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses ) ) {
+            if ( isCallingFunction( i, totalLine, parameterCalling ) ) {
                   errorsTips[ i + 1 ].erase( "Fix this Line");
-                  checkThisFunctionCallingLine( i, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+                  checkThisFunctionCallingLine( i, totalLine, parameterCalling );
             }
       }
 }

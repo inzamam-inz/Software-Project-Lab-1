@@ -22,15 +22,11 @@ int readTokenFile( vector < string > Tokens[], vector < string > TokenType[] )
 
       while ( ( ch = fgetc( ff ) ) != EOF ) {
             Text = Text + ch;
-            //cout << ch;
       }
-
-      //Debug( Text );
 
       stringstream X( Text );
       while ( getline( X, str, '\n' ) ) {
             stringstream Y( str );
-            //Debug( str );
             getline( Y, strg1, '\t' );
             getline( Y, strg2, '\t' );
             getline( Y, strg3, '\t' );
@@ -45,7 +41,6 @@ int readTokenFile( vector < string > Tokens[], vector < string > TokenType[] )
             totalLine = max( totalLine, h );
       }
 
-      //cout << totalLine << "--------------------------------------------";
       return totalLine;
 }
 

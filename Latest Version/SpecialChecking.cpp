@@ -6,20 +6,19 @@
 using namespace std;
 
 
-void specialChecking( int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses )
+void specialChecking( int totalLine, parameterStruct )
 {
       vector < int > checkList;
       // for
       for ( int i = 0; i < (int) fors.size(); ++i ) {
-            bool ok = initializeDeclaration( fors[ i ].startLine - 1, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+            bool ok = initializeDeclaration( fors[ i ].startLine - 1, totalLine, parameterCalling );
             if ( !ok ) {
                   checkList.clear();
                   for ( int j = 2; Tokens[ fors[ i ].startLine - 1 ][ j ] != ";"; ++j ) {
                         checkList.push_back( j );
                   }
 
-                  checking_condition( fors[ i ].startLine - 1, checkList, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+                  checking_condition( fors[ i ].startLine - 1, checkList, totalLine, parameterCalling );
             }
 
             int j = 2;
@@ -32,14 +31,14 @@ void specialChecking( int totalLine, vector < string > Tokens[], vector < string
             for ( ; Tokens[ fors[ i ].startLine - 1 ][ j ] != ";"; ++j ) {
                   checkList.push_back( j );
             }
-            checking_condition( fors[ i ].startLine - 1, checkList, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+            checking_condition( fors[ i ].startLine - 1, checkList, totalLine, parameterCalling );
 
             ++j;
             checkList.clear();
             for ( ; Tokens[ fors[ i ].startLine - 1 ][ j ] != ")"; ++j ) {
                   checkList.push_back( j );
             }
-            increaseDecrease( fors[ i ].startLine - 1, checkList, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+            increaseDecrease( fors[ i ].startLine - 1, checkList, totalLine, parameterCalling );
       }
       // if
       for ( int i = 0; i < (int) ifs.size(); ++i ) {
@@ -48,7 +47,7 @@ void specialChecking( int totalLine, vector < string > Tokens[], vector < string
                   checkList.push_back( j );
             }
 
-            checking_condition( ifs[ i ].startLine - 1, checkList, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+            checking_condition( ifs[ i ].startLine - 1, checkList, totalLine, parameterCalling );
       }
       // else if
       for ( int i = 0; i < (int) else_ifs.size(); ++i ) {
@@ -57,7 +56,7 @@ void specialChecking( int totalLine, vector < string > Tokens[], vector < string
                   checkList.push_back( j );
             }
 
-            checking_condition( else_ifs[ i ].startLine - 1, checkList, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+            checking_condition( else_ifs[ i ].startLine - 1, checkList, totalLine, parameterCalling );
       }
       // while
       for ( int i = 0; i < (int) whiles.size(); ++i ) {
@@ -65,7 +64,7 @@ void specialChecking( int totalLine, vector < string > Tokens[], vector < string
             for ( int j = 2; Tokens[ whiles[ i ].startLine - 1 ][ j ] != ")"; ++j ) {
                   checkList.push_back( j );
             }
-            checking_condition( whiles[ i ].startLine - 1, checkList, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+            checking_condition( whiles[ i ].startLine - 1, checkList, totalLine, parameterCalling );
       }
       // do while
       for ( int i = 0; i < (int) do_whiles.size(); ++i ) {
@@ -73,7 +72,7 @@ void specialChecking( int totalLine, vector < string > Tokens[], vector < string
             for ( int j = 2; Tokens[ do_whiles[ i ].endLine - 1 ][ j ] != ")"; ++j ) {
                   checkList.push_back( j );
             }
-            checking_condition( do_whiles[ i ].endLine - 1, checkList, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+            checking_condition( do_whiles[ i ].endLine - 1, checkList, totalLine, parameterCalling );
 
             if ( Tokens[ do_whiles[ i ].endLine - 1 ].back() != ";" ) {
                   errorsTips[ do_whiles[ i ].endLine ].insert( "Expected ';' in this line" );
@@ -81,20 +80,19 @@ void specialChecking( int totalLine, vector < string > Tokens[], vector < string
       }
 }
 
-void partIncreaseDecrease( int lineNumber, vector < int > segment, int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses ) {
+void partIncreaseDecrease( int lineNumber, vector < int > segment, int totalLine, parameterStruct ) {
       vector < int > checkList;
 
       for ( int i = 0; i < (int) segment.size(); ++i ) {
-            if ( i + 1 < (int) segment.size() && isSpecialoperator( lineNumber, segment[ i ], totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses ) && TokenType[ lineNumber ][ segment[ i ] + 1 ] == "identifier" ) {
+            if ( i + 1 < (int) segment.size() && isSpecialoperator( lineNumber, segment[ i ], totalLine, parameterCalling ) && TokenType[ lineNumber ][ segment[ i ] + 1 ] == "identifier" ) {
                   ++i;
                   checkList.push_back( segment[ i ] );
             }
-            else if ( isSpecialoperator( lineNumber, segment[ i ], totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses ) ) {
+            else if ( isSpecialoperator( lineNumber, segment[ i ], totalLine, parameterCalling ) ) {
                   errorsTips[ lineNumber + 1 ].insert( "Fix this Line" );
                   return;
             }
-            else if ( TokenType[ lineNumber ][ segment[ i ] ] == "identifier" && isSpecialoperator( lineNumber, segment[ i ] + 1, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses ) ) {
+            else if ( TokenType[ lineNumber ][ segment[ i ] ] == "identifier" && isSpecialoperator( lineNumber, segment[ i ] + 1, totalLine, parameterCalling ) ) {
                   checkList.push_back( segment[ i ] );
                   ++i;
             }
@@ -103,16 +101,15 @@ void partIncreaseDecrease( int lineNumber, vector < int > segment, int totalLine
             }
       }
 
-      int useless = checking_Equation( lineNumber, checkList, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+      int useless = checking_Equation( lineNumber, checkList, totalLine, parameterCalling );
 }
 
-void increaseDecrease( int lineNumber, vector < int > segment, int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses ) {
+void increaseDecrease( int lineNumber, vector < int > segment, int totalLine, parameterStruct ) {
       vector < int > part;
 
       for ( int i = 0; i < (int) segment.size(); ++i ) {
             if ( Tokens[ lineNumber ][ segment[ i ] ] == "," ) {
-                  partIncreaseDecrease( lineNumber, part, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+                  partIncreaseDecrease( lineNumber, part, totalLine, parameterCalling );
                   part.clear();
             }
             else {
@@ -121,8 +118,7 @@ void increaseDecrease( int lineNumber, vector < int > segment, int totalLine, ve
       }
 }
 
-void checking_condition( int lineNumber, vector < int > checkList, int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses )
+void checking_condition( int lineNumber, vector < int > checkList, int totalLine, parameterStruct )
 {
       vector < int > segment;
 
@@ -142,7 +138,7 @@ void checking_condition( int lineNumber, vector < int > checkList, int totalLine
                   return;
             }
 
-            if ( i % 2 == 1 && !validoperator( lineNumber, segment[ i ], totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses ) ) {
+            if ( i % 2 == 1 && !validoperator( lineNumber, segment[ i ], totalLine, parameterCalling ) ) {
                   errorsTips[ lineNumber + 1 ].insert( "Not valid expression" );
                   return;
             }
@@ -150,14 +146,13 @@ void checking_condition( int lineNumber, vector < int > checkList, int totalLine
 
       if ( !checkList.empty() ) {
             checkList.pop_back();
-            checking_condition( lineNumber, checkList, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+            checking_condition( lineNumber, checkList, totalLine, parameterCalling );
       }
 
       return;
 }
 
-bool initializeDeclaration( int lineNumber, int totalLine, vector < string > Tokens[], vector < string > TokenType[],  bool isFinish[], set < string > errorsTips[], vector < for_struct > &fors, vector < func > &functions,
-               vector < while_struct > &whiles, vector < do_while_struct > &do_whiles, vector < if_struct > &ifs, vector < else_if_struct > &else_ifs, vector < else_struct > &elses ) {
+bool initializeDeclaration( int lineNumber, int totalLine, parameterStruct ) {
       if ( Tokens[ lineNumber ][ 2 ] != "int" ) {
             return false;
       }
@@ -170,19 +165,19 @@ bool initializeDeclaration( int lineNumber, int totalLine, vector < string > Tok
       vector < int > checkList;
       for ( int i = 3; i < (int) Tokens[ lineNumber ].size(); ++i ) {
             if ( Tokens[ lineNumber ][ i ] == "," || Tokens[ lineNumber ][ i ] == ";" ) {
-                  checking_condition( lineNumber, checkList, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses );
+                  checking_condition( lineNumber, checkList, totalLine, parameterCalling );
                   checkList.clear();
             }
             else {
-                  if ( isSpecialoperator( lineNumber, i, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses ) && TokenType[ lineNumber ][ i + 1 ] == "identifier" ) {
+                  if ( isSpecialoperator( lineNumber, i, totalLine, parameterCalling ) && TokenType[ lineNumber ][ i + 1 ] == "identifier" ) {
                         ++i;
                         checkList.push_back( i );
                   }
-                  else if ( isSpecialoperator( lineNumber, i, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses ) ) {
+                  else if ( isSpecialoperator( lineNumber, i, totalLine, parameterCalling ) ) {
                         errorsTips[ lineNumber + 1 ].insert( "Fix this Line" );
                         return true;
                   }
-                  else if ( TokenType[ lineNumber ][ i ] == "identifier" && isSpecialoperator( lineNumber, i + 1, totalLine, Tokens, TokenType, isFinish, errorsTips, fors, functions, whiles, do_whiles, ifs, else_ifs, elses ) ) {
+                  else if ( TokenType[ lineNumber ][ i ] == "identifier" && isSpecialoperator( lineNumber, i + 1, totalLine, parameterCalling ) ) {
                         checkList.push_back( i );
                         ++i;
                   }
